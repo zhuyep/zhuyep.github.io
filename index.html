@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow"><meta property="og:title" content="诸事大吉"><meta property="og:description" content="资讯 · 写作 · 闲趣"><meta name="theme-color" content="#f8f6ef"><meta name="description" content="诸事大吉：资讯 · 写作 · 闲趣。情报、言库、写作与闲趣。">
+<title>诸事大吉 · 个人工作台</title>
+<script src="theme.js"></script>
+<link rel="icon" type="image/png" href="assets/zhu-shi-da-ji.png"><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="assets/desk-toys.css">
+<script type="module" src="app.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#page">跳到主要内容</a>
+<div class="site-shell">
+<header class="site-header">
+<a class="brand" href="#today" aria-label="诸事大吉，回到今日"><span class="brand-seal" aria-hidden="true"><img src="assets/zhu-shi-da-ji.png" width="1254" height="1254" alt=""></span><span>诸事大吉<small>资讯 · 写作 · 闲趣</small></span></a>
+<nav class="main-nav" aria-label="主要导航"><button data-page="today" aria-label="今日"><span data-icon="today"></span>今日</button><button data-page="intel" aria-label="情报"><span data-icon="intel"></span>情报</button><button data-page="library" aria-label="言库"><span data-icon="library"></span>言库</button><button data-page="games" aria-label="放松"><span data-icon="games"></span>放松</button></nav>
+<div class="header-actions"><button class="icon-button" id="global-search" aria-label="搜索情报与言库"><span data-icon="search"></span></button><button class="icon-button" id="open-collection" aria-label="我的收藏"><span data-icon="bookmark"></span></button><button class="icon-button" id="theme-toggle" aria-label="外观设置" aria-haspopup="dialog" aria-controls="appearance-dialog"><span class="theme-day-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></span><span class="theme-night-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14A9 9 0 0 1 10 3.5 9 9 0 1 0 20.5 14Z"/></svg></span></button><button class="avatar-button" id="about" aria-label="关于工作台与数据来源">朱</button></div>
+</header>
+<main id="page" tabindex="-1"><div class="loading-state"><span class="loading-seal">阅</span><h1>正在打开工作台</h1><p>读取情报与言库资料……</p></div></main>
+<footer class="site-footer"><span class="footer-with-wind">
+  <button class="desk-toy desk-toy-windmill" data-desk-toy="windmill" type="button" aria-label="纸风车，点一下或左右拨动">
+    <span class="desk-wind-scale" aria-hidden="true"><span class="desk-wind-stick"></span><span class="desk-toy-wheel">
+      <span class="desk-wind-blade desk-wind-red"><span class="desk-wind-face"></span><span class="desk-wind-fold"></span></span>
+      <span class="desk-wind-blade desk-wind-paper"><span class="desk-wind-face"></span><span class="desk-wind-fold"></span></span>
+      <span class="desk-wind-blade desk-wind-green"><span class="desk-wind-face"></span><span class="desk-wind-fold"></span></span>
+      <span class="desk-wind-blade desk-wind-gold"><span class="desk-wind-face"></span><span class="desk-wind-fold"></span></span>
+      <span class="desk-wind-hub"></span>
+    </span></span>
+  </button>
+  <span class="footer-copy">有所见 · 有所思 · 有所用</span>
+</span><button class="text-button" data-action="about">诸事大吉 <span aria-hidden="true">↗</span></button></footer>
+</div>
+<dialog id="appearance-dialog" class="appearance-dialog" aria-labelledby="appearance-title">
+<header class="dialog-top"><h2 id="appearance-title">外观</h2><button class="text-button" data-theme-close>完成</button></header>
+<div class="appearance-body"><p class="appearance-intro">日间纸白，夜间墨色。</p>
+<div class="appearance-options" role="group" aria-label="外观模式"><button data-theme-mode="auto" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>自动</span><small>按时间切换</small></button><button data-theme-mode="light" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg><span>浅色</span><small>暖纸白</small></button><button data-theme-mode="dark" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14A9 9 0 0 1 10 3.5 9 9 0 1 0 20.5 14Z"/></svg><span>深色</span><small>暖墨色</small></button></div>
+<section id="theme-schedule" class="theme-schedule" aria-label="自动切换时间"><div class="theme-time-fields"><label for="theme-dayStart">日间开始<input type="time" id="theme-dayStart" value="07:00" required aria-describedby="theme-error"></label><label for="theme-nightStart">夜间开始<input type="time" id="theme-nightStart" value="19:00" required aria-describedby="theme-error"></label></div><p class="subtle-note">按当前设备的本地时间自动切换。</p><p id="theme-error" class="theme-error" role="alert"></p></section>
+<p id="theme-status" class="appearance-status" role="status" aria-live="polite"></p></div>
+</dialog>
+<dialog id="reader" class="reader-dialog" aria-labelledby="reader-title"><header class="dialog-top"><button class="text-button" data-close="reader">← 返回</button><span id="reader-section"></span><span class="mini-signature" aria-hidden="true">朱</span></header><div id="reader-content"></div><footer id="reader-actions" class="reader-actions"></footer></dialog>
+<dialog id="search-dialog" class="search-dialog" aria-labelledby="search-title"><header class="dialog-top"><h2 id="search-title">搜一搜</h2><button class="text-button" data-close="search-dialog">关闭 ✕</button></header><div class="dialog-pad"><label class="search-field"><span data-icon="search"></span><input id="global-query" type="search" placeholder="搜情报、主题、写作段落……" aria-label="搜索全部内容" autocomplete="off"></label><div id="global-results"></div></div></dialog>
+<dialog id="game-dialog" aria-labelledby="game-title"><header class="dialog-top"><button class="text-button" data-close="game-dialog">← 返回放松</button><strong id="game-title"></strong><span class="game-label">片刻闲趣</span></header><div id="game-frame"></div></dialog>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body></html>
