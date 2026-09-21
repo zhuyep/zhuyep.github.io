@@ -1224,9 +1224,10 @@ function load() {
   if (contentPromise) return contentPromise;
   contentError = null;
   lastContentCheck = Date.now();
+  const urls = payload && !payload.meta.summary ? ["/content/current.json", "/api/content"] : ["/content/summary.json", "/content/current.json", "/api/content"];
   contentPromise = (async () => {
     try {
-      acceptContent(await fetchContent(["/content/summary.json", "/content/current.json", "/api/content"]));
+      acceptContent(await fetchContent(urls));
       applyRoute();
     } catch (e) {
       contentError = e.message;
