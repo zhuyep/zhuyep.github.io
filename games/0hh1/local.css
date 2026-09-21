@@ -1,0 +1,14 @@
+/* 2026-09-05 local adaptation; original game copyright Q42. */
+html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;touch-action:manipulation}
+h1,h2,h3,p,#menugrid .inner,h2#boardsize{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;font-weight:400}
+#menu h2{font-size:48px!important;letter-spacing:3px;margin:0 0 30px}
+#menu p{font-size:20px!important;line-height:1.5!important;padding:14px 0!important;cursor:pointer}
+#hintMsg,#chooseSize{font-size:16px!important;line-height:1.8;padding:0 15px}
+#about h3,#loading h2{font-size:26px!important}#about p{font-size:15px!important;line-height:1.9}
+[data-action]{touch-action:manipulation;cursor:pointer} [role=button]:focus-visible{outline:2px solid #fff;outline-offset:3px}
+#bar .iconcon{min-width:54px;min-height:48px}#bar .iconcon:after{display:block;color:#aaa;font-size:10px;margin-top:7px;text-align:center;letter-spacing:1px}
+#bar [data-action=undo]:after{content:'撤销'}#bar [data-action=back]:after{content:'返回'}#bar [data-action=help]:after{content:'提示'}#bar [data-action=next]:after{content:'下一局'}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+/* Keep the table from retaining the previous viewport's intrinsic tile widths. */
+.board table{table-layout:fixed;width:100%}
+#boardsize{font-size:38px!important}
