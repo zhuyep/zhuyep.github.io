@@ -1,0 +1,66 @@
+<!doctype html>
+<!-- Hextris local adaptation, 2026-09-05. GPL-3.0-or-later; see LOCAL-CHANGES.md. -->
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9kVBiTNnJ0Bub5QmrtaTWDfgPEYu6fFbtEPK9+Jfnag=' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; media-src 'none'; object-src 'none'; base-uri 'none'">
+<script>(function(){var game="hextris";function send(stage){if(parent!==window)parent.postMessage({type:'daji-game-load',game:game,stage:stage},location.origin);}send('resources');addEventListener('error',function(e){if(e.target===window||e.target.tagName==='SCRIPT'||e.target.tagName==='LINK')send('error');},true);document.addEventListener('DOMContentLoaded',function(){send('preparing');});addEventListener('daji-game-ready',function(){requestAnimationFrame(function(){requestAnimationFrame(function(){send('ready');});});});}());</script>
+  <title>Hextris · 六边形消除</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="style/style.css">
+  <link rel="stylesheet" href="local.css">
+  <script src="vendor/jsonfn.min.js"></script>
+  <script src="vendor/keypress.min.js"></script>
+  <script src="vendor/jquery.js"></script>
+  <script src="js/save-state.js"></script>
+  <script src="js/view.js"></script>
+  <script src="js/wavegen.js"></script>
+  <script src="js/math.js"></script>
+  <script src="js/Block.js"></script>
+  <script src="js/Hex.js"></script>
+  <script src="js/Text.js"></script>
+  <script src="js/comboTimer.js"></script>
+  <script src="js/checking.js"></script>
+  <script src="js/update.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/input.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/initialization.js"></script>
+  <script defer src="local.js"></script>
+</head>
+<body>
+  <canvas id="canvas" aria-label="Hextris 游戏画面：旋转六边形，消除相邻同色方块"></canvas>
+  <div id="overlay" class="faded overlay"></div>
+  <button id="startBtn" type="button" aria-label="点击中央六边形开始游戏"></button>
+  <div id="helpScreen" class="unselectable"><div id="inst_main_body"></div></div>
+  <img id="openSideBar" class="helpText" src="images/btn_help.svg" alt="玩法">
+  <img id="pauseBtn" src="images/btn_pause.svg" alt="暂停">
+  <img id="restartBtn" src="images/btn_restart.svg" alt="重新开始">
+  <div id="HIGHSCORE" hidden></div>
+  <div id="highScoreInGameText"><div id="highScoreInGameTextHeader">本机最佳</div><div id="currentHighScore">0</div></div>
+  <p class="local-guide">转动六边形 · 同色相邻 3 块即可消除</p>
+  <div id="gameoverscreen">
+    <div id="container">
+      <div id="gameOverBox" class="GOTitle">这一局结束</div>
+      <div id="cScore">0</div>
+      <div id="highScoresTitle" class="GOTitle">本机最佳</div>
+      <div class="score"><span class="scoreNum">1.</span> <span id="1place">0</span></div>
+      <div class="score"><span class="scoreNum">2.</span> <span id="2place">0</span></div>
+      <div class="score"><span class="scoreNum">3.</span> <span id="3place">0</span></div>
+    </div>
+    <div id="bottomContainer"><img id="restart" src="images/btn_restart.svg" alt="再来一局"><div id="buttonCont"></div></div>
+  </div>
+  <nav class="local-controls" aria-label="游戏控制">
+    <button id="rotate-left" type="button" disabled><span aria-hidden="true">↶</span> 左转</button>
+    <button id="local-action" type="button">开始</button>
+    <button id="rotate-right" type="button" disabled>右转 <span aria-hidden="true">↷</span></button>
+  </nav>
+  <footer class="local-footer"><button id="local-help" type="button">玩法</button><span>HEXTRIS</span><button id="local-about" type="button">来源与许可</button></footer>
+  <dialog id="local-dialog" aria-labelledby="dialog-title">
+    <h1 id="dialog-title">Hextris</h1>
+    <div id="dialog-body"></div>
+    <button id="dialog-close" type="button">知道了</button>
+  </dialog>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "Hextris",
+  "upstream": "https://github.com/Hextris/hextris",
+  "commit": "3f4847dc8fd7dab3d1c87e6324b9159d92fbd396",
+  "upstream_ref": "gh-pages",
+  "verified_at": "2026-09-05",
+  "license": "GPL-3.0-or-later",
+  "license_file": "LICENSE.md",
+  "changes": "LOCAL-CHANGES.md",
+  "entry": "index.html",
+  "recommended_iframe_height_px": 620,
+  "minimum_verified_width_px": 320
+}

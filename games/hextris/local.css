@@ -1,0 +1,40 @@
+/* Local adaptation, 2026-09-05. GPL-3.0-or-later; see LOCAL-CHANGES.md. */
+html,body { width:100%; height:100%; min-height:520px; overflow:hidden; }
+body { color:#2c3e50; overscroll-behavior:none; }
+button { font:inherit; cursor:pointer; touch-action:manipulation; }
+button:focus-visible { outline:3px solid #3498db; outline-offset:3px; }
+button:disabled { opacity:.35; cursor:default; }
+#canvas { touch-action:none; }
+#startBtn { left:calc(50% - 58px); top:calc(50% - 58px); width:116px; height:116px; border-radius:50%; z-index:10; }
+#startBtn:focus-visible { outline:3px solid #3498db; }
+#highScoreInGameText { top:17px; pointer-events:none; }
+#highScoreInGameTextHeader { color:#677581; font-family:Exo,-apple-system,sans-serif; font-size:11px; letter-spacing:1px; }
+#currentHighScore { margin-top:1px; font-size:25px; }
+.local-guide { position:absolute; top:76px; left:12px; right:12px; text-align:center; font-size:12px; color:#667581; pointer-events:none; }
+#openSideBar,#pauseBtn,#restartBtn,#restart,#helpScreen { display:none!important; }
+.local-controls { position:fixed; left:16px; right:16px; bottom:49px; display:grid; grid-template-columns:1fr .82fr 1fr; gap:9px; z-index:3100; }
+.local-controls button { min-height:55px; padding:10px 4px; color:#2c3e50; border:1px solid #b9c5cb; background:#e4e9eb; border-radius:13px; font-size:14px; font-family:Exo,-apple-system,sans-serif; font-weight:600; }
+.local-controls button span { font-size:24px; vertical-align:-2px; margin:0 3px; }
+.local-controls #local-action { background:#2c3e50; border-color:#2c3e50; color:#ecf0f1; }
+.local-controls button:active { background:#cbd6db; }
+.local-controls #local-action:active { background:#425b70; }
+.local-footer { position:fixed; left:16px; right:16px; bottom:0; min-height:44px; z-index:3100; display:flex; align-items:center; justify-content:space-between; gap:4px; }
+.local-footer span { color:#788791; font-size:10px; letter-spacing:2px; }
+.local-footer button { color:#586b7a; padding:8px 3px; min-height:44px; font-size:10px; }
+.overlay { pointer-events:none; top:40%; margin-top:0; }
+.centeredHeader { font-size:27px; line-height:1.5; }
+.local-pause-hint { font-size:13px; margin-top:10px; color:#73828d; }
+#container { top:44%!important; margin-top:0!important; width:240px; }
+#cScore { margin:8px 0 16px; font-size:54px; }
+#gameOverBox { font-size:23px; }
+#highScoresTitle { font-size:13px; margin-bottom:7px; color:#667581; }
+.score { font-size:15px; line-height:1.5; }
+#buttonCont { bottom:116px; width:280px; max-width:90vw; }
+dialog { position:fixed; margin:auto; max-width:calc(100% - 40px); width:350px; padding:25px; border:1px solid #c2cdd1; border-radius:18px; background:#f4f6f6; color:#2c3e50; box-sizing:border-box; z-index:999999999; font-family:Exo,-apple-system,sans-serif; }
+dialog::backdrop { background:#263e5166; }
+dialog h1 { font-size:22px; margin-bottom:16px; }
+dialog p { margin:12px 0; font-size:13px; line-height:1.85; }
+dialog a { color:#28668f; text-decoration:underline; }
+dialog small { display:block; color:#697b88; font-size:10px; line-height:1.8; word-break:break-word; }
+#dialog-close { width:100%; margin-top:20px; min-height:48px; background:#2c3e50; border-radius:12px; font-size:14px; color:white; }
+@media (max-height:570px) { .local-guide{top:66px;font-size:11px} .local-controls{bottom:47px} .local-controls button{min-height:50px} }
