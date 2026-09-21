@@ -677,6 +677,7 @@ try {
 } catch {
 }
 var contentPromise;
+var fullContentPromise;
 var contentError;
 var lastContentCheck = 0;
 var payload;
@@ -723,6 +724,8 @@ var bookmark = (r) => `<button class="bookmark" aria-label="${state.saved.includ
 var options = (list, value, all = "\u5168\u90E8") => `<option value="">${all}</option>` + list.map((v) => `<option value="${esc2(v)}" ${v === value ? "selected" : ""}>${esc2(v)}</option>`).join("");
 var field = (name, text, list, all) => `<div class="field"><label for="filter-${name}">${text}</label><select id="filter-${name}" data-filter="${name}">${options(list, filters[name], all)}</select></div>`;
 var unique = (arr) => [...new Set(arr.filter(Boolean))];
+var needsFullContent = () => payload?.meta?.summary && (page === "intel" || page === "library" || parseRoute(location.hash).key);
+var counts = () => payload?.meta?.counts || { intel: data?.intel.length || 0, materials: payload?.yanku.materials.length || 0, blocks: data?.blocks.length || 0 };
 function navigate(next, sub) {
   if (sub) tab = sub;
   if (page !== next) {
@@ -735,6 +738,7 @@ function navigate(next, sub) {
   if (location.hash !== "#" + next) history.pushState(null, "", "#" + next);
   render();
   if (page !== "games" && !data) load();
+  else if (needsFullContent()) loadFull();
   window.scrollTo(0, 0);
 }
 function render() {
@@ -743,7 +747,8 @@ function render() {
     if (b.dataset.page === page) b.setAttribute("aria-current", "page");
     else b.removeAttribute("aria-current");
   });
-  $("#page").innerHTML = page === "games" ? games() : !data ? empty(contentError ? "\u8D44\u6599\u6682\u65F6\u672A\u80FD\u6253\u5F00" : "\u6B63\u5728\u8BFB\u53D6\u8D44\u6599", contentError || "\u60C5\u62A5\u4E0E\u8A00\u5E93\u6B63\u5728\u52A0\u8F7D\uFF0C\u53EF\u4EE5\u5148\u53BB\u201C\u653E\u677E\u201D\u901B\u901B\u3002", contentError ? button("reload-page", "\u91CD\u65B0\u8BFB\u53D6") : "") : page === "today" ? today() : page === "intel" ? intel() : library();
+  const waiting = needsFullContent();
+  $("#page").innerHTML = page === "games" ? games() : !data || waiting ? empty(contentError ? "\u8D44\u6599\u6682\u65F6\u672A\u80FD\u6253\u5F00" : "\u6B63\u5728\u8BFB\u53D6\u8D44\u6599", contentError || "\u6B63\u5728\u6253\u5F00\u5B8C\u6574\u7684\u60C5\u62A5\u4E0E\u8A00\u5E93\uFF0C\u53EF\u4EE5\u5148\u53BB\u201C\u653E\u677E\u201D\u901B\u901B\u3002", contentError ? button("reload-page", "\u91CD\u65B0\u8BFB\u53D6") : "") : page === "today" ? today() : page === "intel" ? intel() : library();
   document.title = `${{ today: "\u4ECA\u65E5", intel: "\u60C5\u62A5", library: "\u8A00\u5E93", games: "\u653E\u677E" }[page]} \xB7 \u8BF8\u4E8B\u5927\u5409`;
   mountIntelExtras();
 }
@@ -802,8 +807,8 @@ async function showVisits() {
 }
 function today() {
   let rows = updates.filter((u) => todayFilter === "all" || u.kind === todayFilter).slice(0, 12);
-  const now = new Intl.DateTimeFormat("zh-CN", { year: "numeric", month: "long", day: "numeric", weekday: "long" }).format(/* @__PURE__ */ new Date());
-  return title("\u4ECA\u65E5\u4E00\u89C8", "\u628A\u89C1\u95FB\u6536\u597D\uFF0C\u628A\u65E5\u5B50\u8FC7\u597D\u3002", now) + `<section class="overview" aria-label="\u5DE5\u4F5C\u53F0\u603B\u89C8"><button data-page="intel"><span>\u60C5\u62A5<small>\u5DF2\u6536\u5F55</small></span><strong>${data.intel.length}</strong></button><button data-page="library"><span>\u8A00\u5E93<small>\u539F\u521B\u6BB5\u843D</small></span><strong>${data.blocks.length}</strong></button><button data-action="visits" class="visit-overview" aria-label="\u4ECA\u65E5\u8BBF\u95EE\uFF0C\u67E5\u770B\u8FD17\u5929\u8D8B\u52BF">${visitCard()}</button></section><div class="page-columns"><section class="content-pane"><div class="section-heading"><h2>\u8FD1\u65E5\u66F4\u65B0</h2><small>\u5404\u680F\u52A8\u6001\uFF0C\u6C47\u4E8E\u6B64\u5904</small></div><div class="tabs" aria-label="\u66F4\u65B0\u5206\u7C7B">${[["all", "\u5168\u90E8"], ["intel", "\u60C5\u62A5"], ["library", "\u8A00\u5E93"], ["games", "\u653E\u677E"]].map(([k, t]) => `<button data-today="${k}" class="${todayFilter === k ? "active" : ""}" aria-pressed="${todayFilter === k}">${t}</button>`).join("")}</div>${rows.map((u) => `<article class="update-row"><span class="update-stamp ${u.kind}">${u.kind === "intel" ? "\u60C5" : u.kind === "games" ? "\u95F2" : "\u8A00"}</span><button class="update-open" ${u.item ? `data-read="${esc2(u.item.key)}"` : u.kind === "games" ? 'data-page="games"' : `data-update="${esc2(u.update.id)}"`}><span class="meta"><span class="brand-tag ${u.kind}">${label(u.kind)}</span><span>${date2(u.date)} ${u.dateLabel}</span></span><h3>${esc2(u.title)}</h3><p>${esc2(u.summary)}</p></button><span class="update-arrow" aria-hidden="true">\u2197</span></article>`).join("")}${button(todayFilter === "library" ? "library" : todayFilter === "games" ? "games" : "intel", "\u8FDB\u5165\u680F\u76EE\uFF0C\u7EE7\u7EED\u6D4F\u89C8 \u2192", "load-more")}</section>${side()}</div>`;
+  const now = new Intl.DateTimeFormat("zh-CN", { year: "numeric", month: "long", day: "numeric", weekday: "long" }).format(/* @__PURE__ */ new Date()), total = counts();
+  return title("\u4ECA\u65E5\u4E00\u89C8", "\u628A\u89C1\u95FB\u6536\u597D\uFF0C\u628A\u65E5\u5B50\u8FC7\u597D\u3002", now) + `<section class="overview" aria-label="\u5DE5\u4F5C\u53F0\u603B\u89C8"><button data-page="intel"><span>\u60C5\u62A5<small>\u5DF2\u6536\u5F55</small></span><strong>${total.intel}</strong></button><button data-page="library"><span>\u8A00\u5E93<small>\u539F\u521B\u6BB5\u843D</small></span><strong>${total.blocks}</strong></button><button data-action="visits" class="visit-overview" aria-label="\u4ECA\u65E5\u8BBF\u95EE\uFF0C\u67E5\u770B\u8FD17\u5929\u8D8B\u52BF">${visitCard()}</button></section><div class="page-columns"><section class="content-pane"><div class="section-heading"><h2>\u8FD1\u65E5\u66F4\u65B0</h2><small>\u5404\u680F\u52A8\u6001\uFF0C\u6C47\u4E8E\u6B64\u5904</small></div><div class="tabs" aria-label="\u66F4\u65B0\u5206\u7C7B">${[["all", "\u5168\u90E8"], ["intel", "\u60C5\u62A5"], ["library", "\u8A00\u5E93"], ["games", "\u653E\u677E"]].map(([k, t]) => `<button data-today="${k}" class="${todayFilter === k ? "active" : ""}" aria-pressed="${todayFilter === k}">${t}</button>`).join("")}</div>${rows.map((u) => `<article class="update-row"><span class="update-stamp ${u.kind}">${u.kind === "intel" ? "\u60C5" : u.kind === "games" ? "\u95F2" : "\u8A00"}</span><button class="update-open" ${u.item ? `data-read="${esc2(u.item.key)}"` : u.kind === "games" ? 'data-page="games"' : `data-update="${esc2(u.update.id)}"`}><span class="meta"><span class="brand-tag ${u.kind}">${label(u.kind)}</span><span>${date2(u.date)} ${u.dateLabel}</span></span><h3>${esc2(u.title)}</h3><p>${esc2(u.summary)}</p></button><span class="update-arrow" aria-hidden="true">\u2197</span></article>`).join("")}${button(todayFilter === "library" ? "library" : todayFilter === "games" ? "games" : "intel", "\u8FDB\u5165\u680F\u76EE\uFF0C\u7EE7\u7EED\u6D4F\u89C8 \u2192", "load-more")}</section>${side()}</div>`;
 }
 function searchBar(placeholder) {
   return `<div class="toolbar"><label class="search-field">${icon("search")}<input data-query type="search" value="${esc2(filters.q)}" placeholder="${placeholder}" aria-label="${placeholder}" autocomplete="off"></label><button class="secondary-button" data-action="saved-filter" aria-pressed="${filters.saved}">${filters.saved ? "\u67E5\u770B\u5168\u90E8" : "\u53EA\u770B\u6536\u85CF"}</button></div>`;
@@ -834,7 +839,7 @@ function blockResults() {
   return `<div class="result-heading"><span>${tab === "intent" && filters.q ? "\u5339\u914D\u5230" : "\u5171"} <b>${ranked.length}</b> \u6BB5\u7D20\u6750</span><span>\u53EF\u8BFB \xB7 \u53EF\u590D\u5236 \xB7 \u53EF\u8FFD\u6EAF</span></div>${ranked.length ? ranked.slice(0, limit).map(({ block: r, match }) => `<article class="block-card"><div class="block-title"><div><span class="meta"><span class="brand-tag">${esc2(r.category)}</span><span>${esc2(r.scene)}</span></span><button class="card-open" data-read="${r.key}"><h2>${esc2(r.title)}</h2></button></div>${bookmark(r)}</div>${match ? `<div class="match-reason">${esc2(match.reason)}${match.suggestedSlot ? " \xB7 \u5EFA\u8BAE\u7528\u4E8E" + esc2(match.suggestedSlot) : ""}</div>` : ""}<p class="block-text">${esc2(r.text)}</p><p class="source-line">\u539F\u521B\u6574\u7406 \xB7 \u4F9D\u636E ${esc2(r.source.sourceName)}<br>${esc2(valid[r.source.validity] || "\u4F7F\u7528\u524D\u590D\u6838")} \xB7 \u6838\u6E90 ${date2(r.source.lastCheckedAt)}</p><div class="card-actions">${button("read", "\u5C55\u5F00", "text-button", `data-key="${r.key}"`)}${button("copy", "\u590D\u5236\u7D20\u6750", "secondary-button", `data-key="${r.key}"`)}</div></article>`).join("") : empty("\u6682\u65E0\u5408\u9002\u6BB5\u843D", "\u53EF\u4EE5\u7B80\u5316\u8868\u8FBE\u3001\u6362\u4E00\u4E2A\u573A\u666F\uFF0C\u6216\u51CF\u5C11\u7B5B\u9009\u6761\u4EF6\u3002", button("reset", "\u91CD\u7F6E\u7B5B\u9009"))}${ranked.length > limit ? button("more", "\u518D\u770B 12 \u6BB5", "load-more") : ""}`;
 }
 function games() {
-  return title("\u653E\u677E\u4E00\u4E0B", "\u6682\u653E\u624B\u8FB9\u4E8B\uFF0C\u7559\u4E00\u70B9\u65F6\u95F4\u7ED9\u81EA\u5DF1\u3002", "\u5929\u673A\u7C3F \xB7 \u5C0F\u6E38\u620F \xB7 \u7247\u523B\u95F2\u8DA3") + `<div class="game-grid"><article class="game-card wenchen-card"><div class="wenchen-art" aria-hidden="true"><div class="wenchen-symbol"><strong>\u5929\u673A\u7C3F</strong><small>T I A N J I  B U</small></div></div><div class="game-info"><div class="game-title-row"><h2>\u5929\u673A\u7C3F</h2><span>\u4E1C\u65B9\u547D\u7406</span></div><h3>\u4F60\u7684\u6545\u4E8B\uFF0C<br/>\u4E0D\u6B62\u516B\u4E2A\u5B57\u3002</h3><p>\u5148\u770B\u505A\u4E8B\u3001\u5BF9\u5F85\u94B1\u548C\u76F8\u5904\u7684\u98CE\u683C\uFF0C\u518D\u770B\u72EC\u7ACB\u5217\u51FA\u7684\u8C03\u6574\u5EFA\u8BAE\u3002\u5B9E\u9645\u9047\u5230\u4EC0\u4E48\uFF0C\u7531\u4F60\u8865\u5145\u3002</p>${button("game", "\u770B\u770B\u6211\u7684\u89E3\u8BFB <span>\u2197</span>", "primary-button", `data-game="wenchen"`)}<p class="wenchen-note">\u65E0\u9700\u6CE8\u518C \xB7 \u751F\u8FB0\u5728\u6D4F\u89C8\u5668\u672C\u5730\u8BA1\u7B97</p><details class="game-rules"><summary>\u5173\u4E8E\u5929\u673A\u7C3F</summary><p>\u4F20\u7EDF\u6587\u5316\u4F53\u9A8C\uFF0C\u4EC5\u4F9B\u5A31\u4E50\u4E0E\u81EA\u6211\u601D\u8003\u3002\u8BA1\u7B97\u6309\u4E1C\u516B\u533A\u6807\u51C6\u65F6\uFF1B\u547D\u76D8\u4E0D\u7528\u4E8E\u5224\u65AD\u75BE\u75C5\u3001\u6295\u8D44\u6216\u5A5A\u59FB\u7ED3\u679C\u3002</p><a href="https://github.com/zhuyep/mingli-lab" target="_blank" rel="noopener noreferrer">\u5929\u673A\u7C3F Tianji Bu \xB7 MIT \u5F00\u6E90 \u2197</a></details></div></article><article class="game-card"><div class="game-art"><small>\u8282\u594F\u4E0E\u53CD\u5E94</small><svg class="hex-art" viewBox="0 0 160 170" aria-hidden="true"><path d="M80 13 145 50v73l-65 37-65-37V50z" stroke="#b7624c"/><path d="m80 37 45 26v50l-45 26-45-26V63z" stroke="#e5c889"/><path d="m80 61 24 14v27l-24 14-24-14V75z" stroke="#8ca6a0"/></svg></div><div class="game-info"><div class="game-title-row"><h2>Hextris</h2><span>\u53CD\u5E94\u6D88\u9664</span></div><h3>\u8BA9\u989C\u8272\uFF0C\u6070\u597D\u76F8\u9022\u3002</h3><p>\u8F6C\u52A8\u516D\u8FB9\u5F62\uFF0C\u8BA9\u540C\u8272\u65B9\u5757\u8FDE\u6210\u4E00\u7EBF\u3002\u89C4\u5219\u7B80\u5355\uFF0C\u8282\u594F\u6E10\u7D27\u3002</p>${button("game", "\u5F00\u59CB\u4E00\u5C40 <span>\u2197</span>", "primary-button", `data-game="hextris"`)}<details class="game-rules"><summary>\u73A9\u6CD5\u4E0E\u5F00\u6E90\u51FA\u5904</summary><p>\u70B9\u5DE6\u53F3\u6309\u94AE\u65CB\u8F6C\uFF0C\u8FDE\u63A5\u81F3\u5C11\u4E09\u4E2A\u540C\u8272\u5757\u6D88\u9664\u3002\u7559\u610F\u8FB9\u754C\uFF0C\u53CA\u65F6\u6E05\u7A7A\u5806\u79EF\u3002</p><a href="https://github.com/Hextris/hextris" target="_blank" rel="noopener noreferrer">Hextris \xB7 GPL-3.0 \u2197</a></details></div></article><article class="game-card"><div class="game-art puzzle"><small>\u5B89\u9759\u5730\u63A8\u7406</small><div class="mini-board" aria-hidden="true">${"<i></i>".repeat(16)}</div></div><div class="game-info"><div class="game-title-row"><h2>0h h1</h2><span>\u4E8C\u8272\u903B\u8F91</span></div><h3>\u4E24\u79CD\u989C\u8272\uFF0C\u4E00\u70B9\u63A8\u7406\u3002</h3><p>\u6CA1\u6709\u8BA1\u65F6\u50AC\u4FC3\uFF0C\u7528\u4E09\u6761\u89C4\u5219\u586B\u6EE1\u65B9\u683C\u3002\u4ECE\u5C0F\u68CB\u76D8\u5F00\u59CB\uFF0C\u6162\u6162\u627E\u5230\u79E9\u5E8F\u3002</p>${button("game", "\u9759\u4E0B\u6765\uFF0C\u89E3\u4E00\u5C40 <span>\u2197</span>", "primary-button", `data-game="0hh1"`)}<details class="game-rules"><summary>\u73A9\u6CD5\u4E0E\u5F00\u6E90\u51FA\u5904</summary><p>\u6BCF\u884C\u6BCF\u5217\u4E24\u8272\u6570\u91CF\u76F8\u540C\uFF1B\u4E0D\u8FDE\u7EED\u51FA\u73B0\u4E09\u4E2A\u540C\u8272\uFF1B\u4EFB\u610F\u4E24\u884C\u3001\u4E24\u5217\u90FD\u4E0D\u80FD\u5B8C\u5168\u4E00\u6837\u3002\u6E38\u620F\u5185\u6709\u4E2D\u6587\u6559\u7A0B\u4E0E\u63D0\u793A\u3002</p><a href="https://github.com/florisluiten/0hh1" target="_blank" rel="noopener noreferrer">Q42 / Martin Kool \xB7 MIT \u2197</a></details></div></article></div><p class="subtle-note">\u8FD9\u91CC\u7684\u5E94\u7528\u90FD\u5728\u7AD9\u5185\u6253\u5F00\u3002\u5929\u673A\u7C3F\u4E0D\u4FDD\u5B58\u751F\u8FB0\uFF1B\u6E38\u620F\u6210\u7EE9\u4FDD\u5B58\u5728\u5F53\u524D\u6D4F\u89C8\u5668\u3002</p>`;
+  return title("\u653E\u677E\u4E00\u4E0B", "\u6682\u653E\u624B\u8FB9\u4E8B\uFF0C\u7559\u4E00\u70B9\u65F6\u95F4\u7ED9\u81EA\u5DF1\u3002", "\u5929\u673A\u7C3F \xB7 \u5C0F\u6E38\u620F \xB7 \u7247\u523B\u95F2\u8DA3") + `<div class="game-grid"><article class="game-card wenchen-card"><div class="wenchen-art" aria-hidden="true"><div class="wenchen-symbol"><strong>\u5929\u673A\u7C3F</strong><small>T I A N J I  B U</small></div></div><div class="game-info"><div class="game-title-row"><h2>\u5929\u673A\u7C3F</h2><span>\u4E1C\u65B9\u547D\u7406</span></div><h3>\u4F60\u7684\u6545\u4E8B\uFF0C<br/>\u4E0D\u6B62\u516B\u4E2A\u5B57\u3002</h3><p>\u4ECE\u53E4\u7C4D\u91CC\u7684\u672F\u8BED\uFF0C\u8BFB\u5230\u4F60\u8FD9\u5F20\u76D8\u7684\u4F9D\u636E\u3002\u5DE5\u4F5C\u3001\u6536\u5165\u3001\u611F\u60C5\u9010\u7AE0\u5C55\u5F00\uFF0C\u5206\u6790\u4E0E\u8C03\u6574\u5EFA\u8BAE\u5206\u5F00\u770B\u3002</p>${button("game", "\u770B\u770B\u6211\u7684\u89E3\u8BFB <span>\u2197</span>", "primary-button", `data-game="wenchen"`)}<p class="wenchen-note">\u65E0\u9700\u6CE8\u518C \xB7 \u751F\u8FB0\u5728\u6D4F\u89C8\u5668\u672C\u5730\u8BA1\u7B97</p><details class="game-rules"><summary>\u5173\u4E8E\u5929\u673A\u7C3F</summary><p>\u4F20\u7EDF\u6587\u5316\u4F53\u9A8C\uFF0C\u4EC5\u4F9B\u5A31\u4E50\u4E0E\u81EA\u6211\u601D\u8003\u3002\u8BA1\u7B97\u6309\u4E1C\u516B\u533A\u6807\u51C6\u65F6\uFF1B\u547D\u76D8\u4E0D\u7528\u4E8E\u5224\u65AD\u75BE\u75C5\u3001\u6295\u8D44\u6216\u5A5A\u59FB\u7ED3\u679C\u3002</p><a href="https://github.com/zhuyep/mingli-lab" target="_blank" rel="noopener noreferrer">\u5929\u673A\u7C3F Tianji Bu \xB7 MIT \u5F00\u6E90 \u2197</a></details></div></article><article class="game-card"><div class="game-art"><small>\u8282\u594F\u4E0E\u53CD\u5E94</small><svg class="hex-art" viewBox="0 0 160 170" aria-hidden="true"><path d="M80 13 145 50v73l-65 37-65-37V50z" stroke="#b7624c"/><path d="m80 37 45 26v50l-45 26-45-26V63z" stroke="#e5c889"/><path d="m80 61 24 14v27l-24 14-24-14V75z" stroke="#8ca6a0"/></svg></div><div class="game-info"><div class="game-title-row"><h2>Hextris</h2><span>\u53CD\u5E94\u6D88\u9664</span></div><h3>\u8BA9\u989C\u8272\uFF0C\u6070\u597D\u76F8\u9022\u3002</h3><p>\u8F6C\u52A8\u516D\u8FB9\u5F62\uFF0C\u8BA9\u540C\u8272\u65B9\u5757\u8FDE\u6210\u4E00\u7EBF\u3002\u89C4\u5219\u7B80\u5355\uFF0C\u8282\u594F\u6E10\u7D27\u3002</p>${button("game", "\u5F00\u59CB\u4E00\u5C40 <span>\u2197</span>", "primary-button", `data-game="hextris"`)}<details class="game-rules"><summary>\u73A9\u6CD5\u4E0E\u5F00\u6E90\u51FA\u5904</summary><p>\u70B9\u5DE6\u53F3\u6309\u94AE\u65CB\u8F6C\uFF0C\u8FDE\u63A5\u81F3\u5C11\u4E09\u4E2A\u540C\u8272\u5757\u6D88\u9664\u3002\u7559\u610F\u8FB9\u754C\uFF0C\u53CA\u65F6\u6E05\u7A7A\u5806\u79EF\u3002</p><a href="https://github.com/Hextris/hextris" target="_blank" rel="noopener noreferrer">Hextris \xB7 GPL-3.0 \u2197</a></details></div></article><article class="game-card"><div class="game-art puzzle"><small>\u5B89\u9759\u5730\u63A8\u7406</small><div class="mini-board" aria-hidden="true">${"<i></i>".repeat(16)}</div></div><div class="game-info"><div class="game-title-row"><h2>0h h1</h2><span>\u4E8C\u8272\u903B\u8F91</span></div><h3>\u4E24\u79CD\u989C\u8272\uFF0C\u4E00\u70B9\u63A8\u7406\u3002</h3><p>\u6CA1\u6709\u8BA1\u65F6\u50AC\u4FC3\uFF0C\u7528\u4E09\u6761\u89C4\u5219\u586B\u6EE1\u65B9\u683C\u3002\u4ECE\u5C0F\u68CB\u76D8\u5F00\u59CB\uFF0C\u6162\u6162\u627E\u5230\u79E9\u5E8F\u3002</p>${button("game", "\u9759\u4E0B\u6765\uFF0C\u89E3\u4E00\u5C40 <span>\u2197</span>", "primary-button", `data-game="0hh1"`)}<details class="game-rules"><summary>\u73A9\u6CD5\u4E0E\u5F00\u6E90\u51FA\u5904</summary><p>\u6BCF\u884C\u6BCF\u5217\u4E24\u8272\u6570\u91CF\u76F8\u540C\uFF1B\u4E0D\u8FDE\u7EED\u51FA\u73B0\u4E09\u4E2A\u540C\u8272\uFF1B\u4EFB\u610F\u4E24\u884C\u3001\u4E24\u5217\u90FD\u4E0D\u80FD\u5B8C\u5168\u4E00\u6837\u3002\u6E38\u620F\u5185\u6709\u4E2D\u6587\u6559\u7A0B\u4E0E\u63D0\u793A\u3002</p><a href="https://github.com/florisluiten/0hh1" target="_blank" rel="noopener noreferrer">Q42 / Martin Kool \xB7 MIT \u2197</a></details></div></article></div><p class="subtle-note">\u8FD9\u91CC\u7684\u5E94\u7528\u90FD\u5728\u7AD9\u5185\u6253\u5F00\u3002\u5929\u673A\u7C3F\u4E0D\u4FDD\u5B58\u751F\u8FB0\uFF1B\u6E38\u620F\u6210\u7EE9\u4FDD\u5B58\u5728\u5F53\u524D\u6D4F\u89C8\u5668\u3002</p>`;
 }
 function showReader(head, html, actions2 = "", section = "\u5DE5\u4F5C\u53F0", keepRoute = false) {
   if (!keepRoute && parseRoute(location.hash).key) history.replaceState(null, "", "#" + page);
@@ -870,8 +875,9 @@ function read(key) {
 }
 function about() {
   const snapshot = payload.meta.mode === "published-snapshot";
+  const total = counts();
   const status = Object.entries(payload.meta.sources || {}).map(([key, value]) => `<p>${key === "horizon" ? "Horizon \u60C5\u62A5" : "\u8A00\u5E93\u7D20\u6750"} \xB7 ${value.state === "ok" ? "\u6821\u9A8C\u901A\u8FC7" : "\u4FDD\u7559\u4E0A\u6B21\u6709\u6548\u5185\u5BB9"}<br>\u8D44\u6599\u66F4\u65B0 ${esc2(dateTime(value.contentUpdatedAt))}<br>\u672C\u7248\u8BFB\u53D6 ${esc2(dateTime(value.lastSuccessfulReadAt))}</p>`).join("");
-  showReader("\u8BF8\u4E8B\u5927\u5409", `<div class="about-logo brand-seal"><img src="assets/zhu-shi-da-ji.png" alt="\u6731\u7EA2\u5370\u7AE0"></div><p class="brand-story">\u8D44\u8BAF \xB7 \u5199\u4F5C \xB7 \u95F2\u8DA3</p><p>\u4ECA\u65E5\u6536\u62E2\u66F4\u65B0\uFF0C\u60C5\u62A5\u8FFD\u8E2A\u53D8\u5316\uFF0C\u8A00\u5E93\u8F85\u52A9\u8868\u8FBE\uFF0C\u653E\u677E\u7559\u4E00\u70B9\u95F2\u8DA3\u3002</p><h2>\u8D44\u6599\u4E0E\u66F4\u65B0</h2><p>${snapshot ? "\u60C5\u62A5\u4E0E\u8A00\u5E93\u5DF2\u5728\u8FD9\u91CC\u7EDF\u4E00\u5448\u73B0\u3002\u539F\u6709\u91C7\u96C6\u3001\u6269\u6E90\u548C\u77E5\u8BC6\u5F52\u6863\u7EE7\u7EED\u8FD0\u884C\uFF0C\u65E7\u7AD9\u754C\u9762\u5DF2\u5C01\u5B58\u5E76\u4FDD\u7559\u6062\u590D\u80FD\u529B\u3002" : "\u5F53\u524D\u4E3A\u672C\u5730\u53EA\u8BFB\u9884\u89C8\uFF0C\u5C55\u793A\u5DF2\u6709\u9879\u76EE\u7684\u516C\u5F00\u8D44\u6599\u3002"}</p><section class="source-box"><p>${data.intel.length} \u6761\u60C5\u62A5 \xB7 ${payload.yanku.materials.length} \u4EFD\u6838\u6E90\u6750\u6599 \xB7 ${data.blocks.length} \u6BB5\u7D20\u6750</p>${status || `<p>\u60C5\u62A5 ${esc2(payload.horizon.generatedAt)}<br>\u8A00\u5E93 ${esc2(payload.yanku.generatedAt)}</p>`}${snapshot ? `<p class="subtle-note">\u5185\u5BB9\u7248\u672C ${esc2(payload.meta.version)}<br>\u672C\u7248\u6821\u9A8C ${esc2(dateTime(payload.meta.validatedAt))}</p>` : ""}${button("refresh", "\u91CD\u65B0\u8BFB\u53D6\u8D44\u6599", "inline-link")}</section><h2>\u4E2A\u4EBA\u8BB0\u5F55</h2><p>\u6536\u85CF\u3001\u968F\u8BB0\u548C\u6E38\u620F\u8BB0\u5F55\u4FDD\u5B58\u5728\u5F53\u524D\u6D4F\u89C8\u5668\u3002\u6362\u8BBE\u5907\u6216\u6362\u7F51\u5740\u524D\uFF0C\u53EF\u4EE5\u5BFC\u51FA\u5907\u4EFD\uFF0C\u518D\u5728\u65B0\u7F51\u5740\u5BFC\u5165\u3002\u539F\u7AD9\u4E91\u7AEF\u8D26\u53F7\u548C\u5386\u53F2\u8BB0\u5F55\u5DF2\u4FDD\u7559\uFF0C\u4E92\u901A\u540E\u7EED\u5904\u7406\u3002</p>${button("backup", "\u5907\u4EFD\u4E0E\u6062\u590D")}<h2>\u65E7\u7AD9\u5B58\u6863</h2><p>\u539F\u6765\u624B\u673A\u4E2D\u7684\u8A00\u5E93\u8349\u7A3F\u6216\u9009\u6750\u8BB0\u5F55\uFF0C\u53EF\u4ECE\u65E7\u7AD9\u5B58\u6863\u9875\u5BFC\u51FA\u4FDD\u5B58\u3002</p>${external("https://party-speech-materials-cn.pages.dev/__archive", "\u4FDD\u5B58\u65E7\u8A00\u5E93\u8BB0\u5F55")}${external("https://ai4e-intel-radar-cn.pages.dev/__archive", "Horizon \u5B58\u6863\u8BF4\u660E")}<h2>\u8BBE\u8BA1\u4E0E\u539F\u4F5C</h2><p>\u6731\u7EA2\u3001\u7EB8\u767D\u3001\u58A8\u8272\u4E0E\u5B8B\u4F53\u6807\u9898\uFF0C\u8D2F\u7A7F\u56DB\u4E2A\u680F\u76EE\u548C\u9605\u8BFB\u754C\u9762\u3002</p>${external("https://github.com/Hextris/hextris", "Hextris \u5F00\u6E90\u539F\u4F5C")}${external("https://github.com/florisluiten/0hh1", "0h h1 \u5F00\u6E90\u539F\u4F5C")}`);
+  showReader("\u8BF8\u4E8B\u5927\u5409", `<div class="about-logo brand-seal"><img src="assets/zhu-shi-da-ji.png" alt="\u6731\u7EA2\u5370\u7AE0"></div><p class="brand-story">\u8D44\u8BAF \xB7 \u5199\u4F5C \xB7 \u95F2\u8DA3</p><p>\u4ECA\u65E5\u6536\u62E2\u66F4\u65B0\uFF0C\u60C5\u62A5\u8FFD\u8E2A\u53D8\u5316\uFF0C\u8A00\u5E93\u8F85\u52A9\u8868\u8FBE\uFF0C\u653E\u677E\u7559\u4E00\u70B9\u95F2\u8DA3\u3002</p><h2>\u8D44\u6599\u4E0E\u66F4\u65B0</h2><p>${snapshot ? "\u60C5\u62A5\u4E0E\u8A00\u5E93\u5DF2\u5728\u8FD9\u91CC\u7EDF\u4E00\u5448\u73B0\u3002\u539F\u6709\u91C7\u96C6\u3001\u6269\u6E90\u548C\u77E5\u8BC6\u5F52\u6863\u7EE7\u7EED\u8FD0\u884C\uFF0C\u65E7\u7AD9\u754C\u9762\u5DF2\u5C01\u5B58\u5E76\u4FDD\u7559\u6062\u590D\u80FD\u529B\u3002" : "\u5F53\u524D\u4E3A\u672C\u5730\u53EA\u8BFB\u9884\u89C8\uFF0C\u5C55\u793A\u5DF2\u6709\u9879\u76EE\u7684\u516C\u5F00\u8D44\u6599\u3002"}</p><section class="source-box"><p>${total.intel} \u6761\u60C5\u62A5 \xB7 ${total.materials} \u4EFD\u6838\u6E90\u6750\u6599 \xB7 ${total.blocks} \u6BB5\u7D20\u6750</p>${status || `<p>\u60C5\u62A5 ${esc2(payload.horizon.generatedAt)}<br>\u8A00\u5E93 ${esc2(payload.yanku.generatedAt)}</p>`}${snapshot ? `<p class="subtle-note">\u5185\u5BB9\u7248\u672C ${esc2(payload.meta.version)}<br>\u672C\u7248\u6821\u9A8C ${esc2(dateTime(payload.meta.validatedAt))}</p>` : ""}${button("refresh", "\u91CD\u65B0\u8BFB\u53D6\u8D44\u6599", "inline-link")}</section><h2>\u4E2A\u4EBA\u8BB0\u5F55</h2><p>\u6536\u85CF\u3001\u968F\u8BB0\u548C\u6E38\u620F\u8BB0\u5F55\u4FDD\u5B58\u5728\u5F53\u524D\u6D4F\u89C8\u5668\u3002\u6362\u8BBE\u5907\u6216\u6362\u7F51\u5740\u524D\uFF0C\u53EF\u4EE5\u5BFC\u51FA\u5907\u4EFD\uFF0C\u518D\u5728\u65B0\u7F51\u5740\u5BFC\u5165\u3002\u539F\u7AD9\u4E91\u7AEF\u8D26\u53F7\u548C\u5386\u53F2\u8BB0\u5F55\u5DF2\u4FDD\u7559\uFF0C\u4E92\u901A\u540E\u7EED\u5904\u7406\u3002</p>${button("backup", "\u5907\u4EFD\u4E0E\u6062\u590D")}<h2>\u65E7\u7AD9\u5B58\u6863</h2><p>\u539F\u6765\u624B\u673A\u4E2D\u7684\u8A00\u5E93\u8349\u7A3F\u6216\u9009\u6750\u8BB0\u5F55\uFF0C\u53EF\u4ECE\u65E7\u7AD9\u5B58\u6863\u9875\u5BFC\u51FA\u4FDD\u5B58\u3002</p>${external("https://party-speech-materials-cn.pages.dev/__archive", "\u4FDD\u5B58\u65E7\u8A00\u5E93\u8BB0\u5F55")}${external("https://ai4e-intel-radar-cn.pages.dev/__archive", "Horizon \u5B58\u6863\u8BF4\u660E")}<h2>\u8BBE\u8BA1\u4E0E\u539F\u4F5C</h2><p>\u6731\u7EA2\u3001\u7EB8\u767D\u3001\u58A8\u8272\u4E0E\u5B8B\u4F53\u6807\u9898\uFF0C\u8D2F\u7A7F\u56DB\u4E2A\u680F\u76EE\u548C\u9605\u8BFB\u754C\u9762\u3002</p>${external("https://github.com/Hextris/hextris", "Hextris \u5F00\u6E90\u539F\u4F5C")}${external("https://github.com/florisluiten/0hh1", "0h h1 \u5F00\u6E90\u539F\u4F5C")}`);
 }
 var pendingImport = null;
 function downloadPersonal() {
@@ -1134,8 +1140,16 @@ function withContent(action) {
     else toast(contentError || "\u8D44\u6599\u6682\u65F6\u672A\u80FD\u6253\u5F00\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5");
   });
 }
-$("#global-search").onclick = () => withContent(() => search());
-$("#open-collection").onclick = () => withContent(() => search(true));
+function withFullContent(action) {
+  if (data && !payload?.meta?.summary) return action();
+  toast("\u6B63\u5728\u6253\u5F00\u5B8C\u6574\u8D44\u6599\u2026\u2026");
+  (data ? loadFull() : load().then(() => loadFull())).then(() => {
+    if (data && !payload?.meta?.summary) action();
+    else toast(contentError || "\u5B8C\u6574\u8D44\u6599\u6682\u65F6\u672A\u80FD\u6253\u5F00\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5");
+  });
+}
+$("#global-search").onclick = () => withFullContent(() => search());
+$("#open-collection").onclick = () => withFullContent(() => search(true));
 $("#about").onclick = () => withContent(about);
 document.querySelectorAll("dialog").forEach((d) => d.addEventListener("close", () => {
   document.body.append($("#toast"));
@@ -1154,15 +1168,20 @@ function applyRoute() {
     if (page !== "games") load();
     return;
   }
+  if (needsFullContent()) {
+    render();
+    loadFull();
+    return;
+  }
   if (!route.key && $("#reader").open) $("#reader").close();
   render();
   if (route.key) read(route.key);
   else if (route.invalid) showReader("\u5730\u5740\u6682\u4E0D\u53EF\u7528", "<p>\u8FD9\u4E2A\u9605\u8BFB\u5730\u5740\u683C\u5F0F\u4E0D\u6B63\u786E\uFF0C\u8BF7\u8FD4\u56DE\u60C5\u62A5\u6216\u8A00\u5E93\u68C0\u7D22\u3002</p>");
 }
 window.addEventListener("popstate", applyRoute);
-async function readContent() {
+async function fetchContent(urls) {
   let lastError;
-  for (const url of ["/content/current.json", "/api/content"]) {
+  for (const url of urls) {
     try {
       const res = await fetch(url, { cache: "no-cache" }), p = await res.json();
       if (!res.ok) throw Error(p.error || "\u8BFB\u53D6\u5931\u8D25");
@@ -1173,20 +1192,41 @@ async function readContent() {
   }
   throw lastError || Error("\u8BFB\u53D6\u5931\u8D25");
 }
+function acceptContent(p) {
+  payload = p;
+  data = normalizeContent(p);
+  updates = buildUpdates(data, p);
+  updates.push({ kind: "games", date: "2026-09-21", dateLabel: "\u5185\u5BB9\u66F4\u65B0", title: "\u5929\u673A\u7C3F\uFF1A\u628A\u547D\u7406\u5C55\u5F00\u8BB2\u6E05\u695A", summary: "\u516D\u7AE0\u65B0\u589E\u672F\u8BED\u8BE6\u89E3\u3001\u53E4\u7C4D\u77ED\u5F15\u4E0E\u672C\u76D8\u4F9D\u636E\u3002\u4E3A\u4EC0\u4E48\u8FD9\u6837\u89E3\u8BFB\u3001\u54EA\u4E9B\u6761\u4EF6\u4F1A\u6539\u53D8\u5224\u65AD\uFF0C\u9010\u6BB5\u8BF4\u6E05\u3002" });
+  updates.push({ kind: "games", date: "2026-09-05", dateLabel: "\u52A0\u5165\u5DE5\u4F5C\u53F0", title: "Hextris \u4E0E 0h h1\uFF0C\u968F\u624B\u5F00\u4E00\u5C40", summary: "\u516D\u8FB9\u5F62\u6D88\u9664\u4E0E\u4E8C\u8272\u903B\u8F91\u3002\u652F\u6301\u624B\u673A\u89E6\u63A7\uFF0C\u7AD9\u5185\u76F4\u63A5\u73A9\u3002" });
+  updates.sort((a, b) => b.date.localeCompare(a.date) || { library: 0, games: 1, intel: 2 }[a.kind] - { library: 0, games: 1, intel: 2 }[b.kind]);
+  setIntentProfiles(p.yanku.intents);
+}
+function loadFull() {
+  if (!payload?.meta?.summary) return Promise.resolve(payload);
+  if (fullContentPromise) return fullContentPromise;
+  contentError = null;
+  fullContentPromise = (async () => {
+    try {
+      acceptContent(await fetchContent(["/content/current.json", "/api/content"]));
+      applyRoute();
+      return payload;
+    } catch (e) {
+      contentError = e.message;
+      render();
+      return null;
+    } finally {
+      fullContentPromise = null;
+    }
+  })();
+  return fullContentPromise;
+}
 function load() {
   if (contentPromise) return contentPromise;
   contentError = null;
   lastContentCheck = Date.now();
   contentPromise = (async () => {
     try {
-      const p = await readContent();
-      payload = p;
-      data = normalizeContent(p);
-      updates = buildUpdates(data, p);
-      updates.push({ kind: "games", date: "2026-09-21", dateLabel: "\u5185\u5BB9\u66F4\u65B0", title: "\u5929\u673A\u7C3F\uFF1A\u5148\u770B\u98CE\u683C\uFF0C\u518D\u8C08\u8C03\u6574", summary: "\u503E\u5411\u5206\u6790\u3001\u8C03\u6574\u5EFA\u8BAE\u3001\u4F60\u586B\u5199\u7684\u73B0\u72B6\uFF0C\u5206\u5F00\u9605\u8BFB\u3002\u4E13\u4E1A\u8BF4\u6CD5\u914D\u767D\u8BDD\uFF0C\u5EFA\u8BAE\u914D\u5177\u4F53\u4F8B\u5B50\u3002" });
-      updates.push({ kind: "games", date: "2026-09-05", dateLabel: "\u52A0\u5165\u5DE5\u4F5C\u53F0", title: "Hextris \u4E0E 0h h1\uFF0C\u968F\u624B\u5F00\u4E00\u5C40", summary: "\u516D\u8FB9\u5F62\u6D88\u9664\u4E0E\u4E8C\u8272\u903B\u8F91\u3002\u652F\u6301\u624B\u673A\u89E6\u63A7\uFF0C\u7AD9\u5185\u76F4\u63A5\u73A9\u3002" });
-      updates.sort((a, b) => b.date.localeCompare(a.date) || { library: 0, games: 1, intel: 2 }[a.kind] - { library: 0, games: 1, intel: 2 }[b.kind]);
-      setIntentProfiles(p.yanku.intents);
+      acceptContent(await fetchContent(["/content/summary.json", "/content/current.json", "/api/content"]));
       applyRoute();
     } catch (e) {
       contentError = e.message;

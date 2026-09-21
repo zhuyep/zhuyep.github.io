@@ -1,17 +1,17 @@
 {
   "name": "天机簿 · Tianji Bu",
   "repository": "https://github.com/zhuyep/mingli-lab",
-  "revision": "a124fd3ee5bfdfd539a4ebb2be0bc72a5c3cda4b",
-  "version": "0.7.0",
+  "revision": "7bd4e7a8fe3c3206f928c0bfab13ee805ec5ce1b",
+  "version": "0.8.0",
   "build": "npm ci && npm test && npm run build",
   "assets": {
     "LongCang-OFL.txt": "603546b7219a94bb59bf8294458194a5010119486354092b66a09a3fd61aeacc",
-    "THIRD_PARTY_NOTICES.txt": "f492fe3d209926e92ed79df4406aa6458d4d833768f5da5c1d71e683f6f993e8",
-    "index.html": "6e0699c4235167b54438e466d2bf2871efe0e68ef72f4b400054cae54c365def",
+    "THIRD_PARTY_NOTICES.txt": "1c325edf03f158ed0c23b40116663cf7b588a6308fed033e7c990e67165e869b",
+    "index.html": "0fb2aa66034e20c63e39a9bea8b99d3d3774462a693686b337a89e85249dcd30",
     "ink-hand.jpg": "1e6179a0642fdb4c34db9fefd81e83f31aab85c03d33dd7cabbe4e5cd6e50078",
     "mark.svg": "240e63a2d1947b1bf5b5d24e10cdd643ca23fa06836663a2b9407aca5628c6f8",
-    "tianji-hand.woff": "01fcd7cf21ec146033d55d21e186136c3e9891aa4e1008edcf0191c7252994e8",
-    "assets/index-CTz9EqkA.css": "b260bca9f8fcd95d43663cc9c36f9f15f25f45b770f52e0d261b38f5418a902e",
-    "assets/index-CdUylUg_.js": "02d921dc331e33b3118ce1dd6094426aa9499656a6d51d4daf4949e289e6730a"
+    "tianji-hand.woff": "3e3434a9532b4dfc49decf1b95ac2e1d56fca0074a6ce27ede60c6a6fe8bc6e5",
+    "assets/index-CLwp84Ui.js": "705133ac3be9b2884c0f135e1d06abc7346a79bd933021a384a3869dad624e3f",
+    "assets/index-Cq0MW1J5.css": "fb6b2cccac0c4c00f60e3cf45800558c00eedcee2eaeb92be8ae97e35cd5a9d0"
   }
 }
