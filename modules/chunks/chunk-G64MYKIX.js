@@ -1,15 +1,17 @@
 // demo/modules/video-cinema.js
 var esc = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 var HISTORY = "zhushi-daji-cinema-v1";
-var remembered = { query: "", list: [], failures: [], selected: ["baofeng", "feifan", "liangzi"] };
-var names = { baofeng: "\u66B4\u98CE\u8D44\u6E90", feifan: "\u975E\u51E1\u8D44\u6E90", liangzi: "\u91CF\u5B50\u8D44\u6E90" };
+var remembered = { query: "", list: [], failures: [], selected: null };
+var names = {};
+var collections = { recent: "\u65B0\u8FD1\u7535\u5F71", hot: "\u70ED\u95E8\u7535\u5F71", tv: "\u70ED\u95E8\u5267\u96C6", rated: "\u9AD8\u5206\u4F73\u7247" };
+var discoveryMemo = /* @__PURE__ */ new Map();
 var plain = (value) => value.replace(/[\s\p{P}\p{S}]/gu, "").toLowerCase();
 function cinemaShell() {
-  return `<section class="cinema" id="jiguang-cinema" aria-label="\u5409\u5149\u5F71\u9662"><header class="cinema-heading"><div><span class="eyebrow">\u5149\u5F71\u5C0F\u61A9 \xB7 \u7535\u5F71\u4E0E\u5267\u96C6</span><h1>\u5409\u5149\u5F71\u9662<span class="cinema-stub" aria-hidden="true">\u5149</span></h1><p>\u641C\u4E00\u90E8\u7247\uFF0C\u7559\u4E00\u70B9\u597D\u65F6\u5149\u3002</p></div><span class="cinema-heading-note">\u8BF8\u4E8B\u5927\u5409 \xB7 \u79C1\u4EBA\u653E\u6620\u5BA4</span></header><p class="cinema-message" role="status">\u6B63\u5728\u6253\u5F00\u5F71\u9662\u2026\u2026</p></section>`;
+  return `<section class="cinema" id="daji-cinema" aria-label="\u5927\u5409\u653E\u6620\u5BA4"><header class="cinema-heading"><div><span class="eyebrow">\u5149\u5F71\u5C0F\u61A9 \xB7 \u7535\u5F71\u4E0E\u5267\u96C6</span><h1>\u5927\u5409\u653E\u6620\u5BA4<span class="cinema-stub" aria-hidden="true">\u6620</span></h1><p>\u641C\u4E00\u90E8\u7247\uFF0C\u7559\u4E00\u70B9\u597D\u65F6\u5149\u3002</p></div><span class="cinema-heading-note">\u8BF8\u4E8B\u5927\u5409 \xB7 \u79C1\u4EBA\u653E\u6620\u5BA4</span></header><p class="cinema-message" role="status">\u6B63\u5728\u6253\u5F00\u5F71\u9662\u2026\u2026</p></section>`;
 }
 function mountCinema(host) {
   if (location.hostname === "zhuyep.github.io") {
-    host.innerHTML += '<div class="cinema-door"><h2>\u53BB\u5F71\u9662\u5750\u5750</h2><p>\u5728\u7EBF\u641C\u7D22\u548C\u89C2\u770B\u5728\u8BF8\u4E8B\u5927\u5409\u4E3B\u7AD9\u63D0\u4F9B\u3002</p><a class="primary-button" href="https://zhushi-daji-preview.pages.dev/#video">\u6253\u5F00\u5409\u5149\u5F71\u9662 \u2197</a></div>';
+    host.innerHTML += '<div class="cinema-door"><h2>\u53BB\u5F71\u9662\u5750\u5750</h2><p>\u5728\u7EBF\u641C\u7D22\u548C\u89C2\u770B\u5728\u8BF8\u4E8B\u5927\u5409\u4E3B\u7AD9\u63D0\u4F9B\u3002</p><a class="primary-button" href="https://zhushi-daji-preview.pages.dev/#video">\u6253\u5F00\u5927\u5409\u653E\u6620\u5BA4 \u2197</a></div>';
     return () => {
     };
   }
@@ -17,11 +19,12 @@ function mountCinema(host) {
   let disposed = false, verified = false, configured = true, busy = false, message = "", requestId = 0;
   let detail = null, episodeIndex = 0, stopPlayer = () => {
   }, playVersion = 0, pending;
-  const state = { ...remembered, selected: [...remembered.selected] };
+  const state = { ...remembered, selected: remembered.selected ? [...remembered.selected] : null };
+  let collection = "recent", discoveryData, discoveryBusy = true, discoveryError = "", homeRequestId = 0;
   let history = [];
   try {
     const value = JSON.parse(localStorage.getItem(HISTORY) || "[]");
-    if (Array.isArray(value)) history = value.filter((v) => v && names[v.sourceKey] && /^[\w-]+$/.test(v.id)).slice(0, 30);
+    if (Array.isArray(value)) history = value.filter((v) => v && /^[\w-]+$/.test(v.sourceKey) && /^[\w-]+$/.test(v.id)).slice(0, 30);
   } catch {
   }
   async function api(path, options = {}) {
@@ -52,11 +55,50 @@ function mountCinema(host) {
     }
     return [...grouped.values()];
   }
+  function homeMarkup() {
+    const items = discoveryData?.items || [];
+    const featureIndex = Math.max(0, items.findIndex((item) => Number(item.rating) >= 7));
+    const featured = items[featureIndex];
+    const updated = discoveryData?.updatedAt ? new Intl.DateTimeFormat("zh-CN", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Shanghai" }).format(new Date(discoveryData.updatedAt)) : "";
+    return `<section class="cinema-discovery" aria-label="\u5F71\u7247\u63A8\u8350"><div class="cinema-discovery-top"><div><span class="eyebrow">\u7ED9\u81EA\u5DF1\u7559\u4E00\u70B9\u597D\u65F6\u5149</span><h2>\u4ECA\u665A\uFF0C\u653E\u6620\u4EC0\u4E48\uFF1F</h2></div><p>\u4ECE\u8FD1\u671F\u7247\u5355\u5F00\u59CB\uFF0C\u6216\u641C\u4E00\u90E8\u4E00\u76F4\u60F3\u770B\u7684\u7247\u3002</p></div><nav class="cinema-collections" aria-label="\u63A8\u8350\u7247\u5355">${Object.entries(collections).map(([key, title]) => `<button data-cinema-collection="${key}" aria-pressed="${key === collection}">${title}</button>`).join("")}</nav><div class="cinema-discovery-meta"><span>${discoveryData ? `\u8C46\u74E3 \xB7 ${esc(collections[collection])} \xB7 ${esc(updated)}\u66F4\u65B0${discoveryData.stale ? "\uFF08\u6700\u8FD1\u53EF\u7528\u7247\u5355\uFF09" : ""}` : "\u6B63\u5728\u8BFB\u53D6\u8FD1\u671F\u7247\u5355"}</span><span>\u70B9\u5F71\u7247\uFF0C\u641C\u7D22\u89C2\u770B\u6765\u6E90</span></div>${discoveryBusy ? '<div class="cinema-recommend-loading" role="status">\u6B63\u5728\u6311\u9009\u7247\u5355\u2026\u2026</div>' : discoveryError ? `<p class="cinema-warning" role="status">${esc(discoveryError)} <button data-cinema-retry>\u91CD\u65B0\u8BFB\u53D6</button></p>` : `${featured ? `<div class="cinema-feature"><div class="cinema-feature-copy"><span class="eyebrow">${esc(collections[collection])} \xB7 \u672C\u671F\u4E00\u77A5</span><h3>${esc(featured.name)}</h3><p>${featured.rating ? `\u8C46\u74E3 ${esc(featured.rating)} \u5206 \xB7 ` : ""}\u770B\u770B\u6545\u4E8B\u7B80\u4ECB\uFF0C\u518D\u9009\u4E00\u4E2A\u6765\u6E90\u5F00\u59CB\u653E\u6620\u3002</p><button class="primary-button" data-cinema-recommend="${featureIndex}">\u641C\u7247\u89C2\u770B <span aria-hidden="true">\u2197</span></button><a href="${esc(featured.subjectUrl)}" target="_blank" rel="noopener noreferrer">\u5728\u8C46\u74E3\u4E86\u89E3\u8FD9\u90E8${collection === "tv" ? "\u5267" : "\u7535\u5F71"} \u2197</a></div><button class="cinema-feature-poster" data-cinema-recommend="${featureIndex}" aria-label="\u641C\u7247\u89C2\u770B\uFF1A${esc(featured.name)}"><span aria-hidden="true">\u6620</span>${featured.cover ? `<img src="${esc(featured.cover)}" alt="${esc(featured.name)}" fetchpriority="high">` : ""}</button></div>` : ""}<div class="cinema-grid cinema-recommendations">${items.map((item, i) => `<button class="cinema-card" data-cinema-recommend="${i}" aria-label="\u641C\u7247\u89C2\u770B\uFF1A${esc(item.name)}"><span class="cinema-poster"><span aria-hidden="true">\u5927\u5409\u653E\u6620</span>${item.cover ? `<img src="${esc(item.cover)}" alt="${esc(item.name)}" loading="lazy">` : ""}${item.rating ? `<small class="cinema-rating">\u8C46\u74E3 ${esc(item.rating)}</small>` : "<small>\u6682\u65E0\u8BC4\u5206</small>"}</span><strong>${esc(item.name)}</strong><span class="cinema-card-note">\u641C\u7247\u89C2\u770B <i aria-hidden="true">\u2197</i></span></button>`).join("")}</div><p class="cinema-list-note">\u7247\u5355\u6765\u81EA\u8C46\u74E3\uFF0C\u987A\u5E8F\u4E0E\u8BC4\u5206\u968F\u6765\u6E90\u66F4\u65B0\u3002\u63A8\u8350\u4E0D\u4EE3\u8868\u5DF2\u627E\u5230\u53EF\u64AD\u6765\u6E90\u3002</p>`}</section>`;
+  }
+  function refreshDiscovery() {
+    const target = host.querySelector("[data-cinema-discovery]");
+    if (!disposed && target) target.innerHTML = homeMarkup();
+  }
+  async function loadDiscovery(key) {
+    const id = ++homeRequestId;
+    collection = key;
+    discoveryError = "";
+    const memo = discoveryMemo.get(key);
+    if (memo && Date.now() - memo.at < 6e5) {
+      discoveryData = memo.data;
+      discoveryBusy = false;
+      refreshDiscovery();
+      return;
+    }
+    discoveryBusy = true;
+    discoveryData = null;
+    refreshDiscovery();
+    try {
+      const result = await api("discover?" + new URLSearchParams({ collection: key }), { signal: lifecycle.signal });
+      if (disposed || id !== homeRequestId) return;
+      discoveryData = result;
+      discoveryMemo.set(key, { at: Date.now(), data: result });
+    } catch (error) {
+      if (disposed || id !== homeRequestId) return;
+      discoveryError = "\u7247\u5355\u6682\u65F6\u6CA1\u6709\u54CD\u5E94\uFF0C\u4ECD\u53EF\u8F93\u5165\u7247\u540D\u641C\u7D22\u3002";
+    }
+    if (!disposed && id === homeRequestId) {
+      discoveryBusy = false;
+      refreshDiscovery();
+    }
+  }
   function resultMarkup() {
     if (busy) return '<div class="cinema-empty" role="status"><span class="cinema-reel" aria-hidden="true">\u25C9</span><h2>\u6B63\u5728\u641C\u7247</h2><p>\u9010\u4E2A\u67E5\u8BE2\u5DF2\u9009\u6765\u6E90\uFF0C\u8BF7\u7A0D\u7B49\u7247\u523B\u3002</p></div>';
-    if (!state.query) return historyMarkup() + `<div class="cinema-empty"><span class="cinema-reel" aria-hidden="true">\u25B6</span><h2>\u4ECA\u665A\uFF0C\u60F3\u770B\u4EC0\u4E48\uFF1F</h2><p>\u8F93\u5165\u7247\u540D\uFF0C\u7535\u5F71\u548C\u7535\u89C6\u5267\u90FD\u53EF\u4EE5\u641C\u3002</p><div class="cinema-examples">${["\u6D41\u6D6A\u5730\u7403", "\u7405\u740A\u699C", "\u54EA\u5412\u4E4B\u9B54\u7AE5\u964D\u4E16"].map((q) => `<button data-cinema-example="${q}">${q}</button>`).join("")}</div></div>`;
+    if (!verified || !state.query) return (verified ? historyMarkup() : "") + `<div data-cinema-discovery>${homeMarkup()}</div>`;
     const grouped = groups();
-    return `${state.failures.length ? `<p class="cinema-warning" role="status">${esc(state.failures.join("\u3001"))}\u6682\u65F6\u672A\u80FD\u54CD\u5E94\uFF0C\u5DF2\u5C55\u793A\u5176\u4F59\u6765\u6E90\u7684\u7ED3\u679C\u3002</p>` : ""}<div class="cinema-result-heading"><h2>\u201C${esc(state.query)}\u201D</h2><span>${grouped.length}\u90E8 \xB7 ${state.list.length}\u6761\u7ED3\u679C</span></div>${!grouped.length ? '<div class="cinema-empty"><h2>\u6682\u65F6\u6CA1\u6709\u627E\u5230</h2><p>\u8BD5\u8BD5\u7247\u540D\u7B80\u79F0\uFF0C\u6216\u52FE\u9009\u5176\u4ED6\u6765\u6E90\u540E\u91CD\u65B0\u641C\u7D22\u3002</p></div>' : `<div class="cinema-grid">${grouped.map((items, i) => {
+    return `${state.failures.length ? `<p class="cinema-warning" role="status">${esc(state.failures.join("\u3001"))}\u6682\u65F6\u672A\u80FD\u54CD\u5E94\uFF0C\u5DF2\u5C55\u793A\u5176\u4F59\u6765\u6E90\u7684\u7ED3\u679C\u3002</p>` : ""}<div class="cinema-result-heading"><h2>\u201C${esc(state.query)}\u201D</h2><button class="text-button" data-cinema-home>\u2190 \u56DE\u5230\u7247\u5355</button><span>${grouped.length}\u90E8 \xB7 ${state.list.length}\u6761\u7ED3\u679C</span></div>${!grouped.length ? '<div class="cinema-empty"><h2>\u6682\u65F6\u6CA1\u6709\u627E\u5230</h2><p>\u8BD5\u8BD5\u7247\u540D\u7B80\u79F0\uFF0C\u6216\u52FE\u9009\u5176\u4ED6\u6765\u6E90\u540E\u91CD\u65B0\u641C\u7D22\u3002</p></div>' : `<div class="cinema-grid">${grouped.map((items, i) => {
       const item = items[0];
       return `<button class="cinema-card" data-cinema-open="${i}" aria-label="\u9009\u96C6\u89C2\u770B\uFF1A${esc(item.name)}\uFF0C${esc(item.year)}\uFF0C${items.length}\u4E2A\u6765\u6E90"><span class="cinema-poster"><span aria-hidden="true">\u5149\u5F71</span>${item.cover ? `<img src="${esc(item.cover)}" alt="${esc(item.name)}" loading="lazy" referrerpolicy="no-referrer">` : ""}<small>${items.length}\u4E2A\u6765\u6E90</small></span><strong>${esc(item.name)}</strong><span class="cinema-card-meta">${esc(item.year || "\u5E74\u4EFD\u672A\u6807\u6CE8")} \xB7 ${esc(item.type || "\u5F71\u89C6")}</span><span class="cinema-card-note">${esc(item.remarks)} <i aria-hidden="true">\u2197</i></span></button>`;
     }).join("")}</div>`}`;
@@ -69,13 +111,21 @@ function mountCinema(host) {
   }
   function draw() {
     if (disposed) return;
-    host.innerHTML = `<header class="cinema-heading"><div><span class="eyebrow">\u5149\u5F71\u5C0F\u61A9 \xB7 \u7535\u5F71\u4E0E\u5267\u96C6</span><h1>\u5409\u5149\u5F71\u9662<span class="cinema-stub" aria-hidden="true">\u5149</span></h1><p>\u641C\u4E00\u90E8\u7247\uFF0C\u7559\u4E00\u70B9\u597D\u65F6\u5149\u3002</p></div>${verified ? '<button class="text-button" data-cinema-logout>\u9000\u51FA\u89C2\u5F71</button>' : '<span class="cinema-heading-note">\u8BF8\u4E8B\u5927\u5409 \xB7 \u79C1\u4EBA\u653E\u6620\u5BA4</span>'}</header>${!verified ? `<section class="cinema-door"><span class="cinema-door-mark" aria-hidden="true">\u6620</span><div><h2>${configured ? "\u8F93\u5165\u89C2\u5F71\u5BC6\u7801" : "\u5F71\u9662\u6682\u65F6\u672A\u80FD\u6253\u5F00"}</h2><p>${configured ? "\u7528\u6B64\u524D\u8BBE\u7F6E\u7684\u89C2\u5F71\u5BC6\u7801\uFF0C\u8FDB\u5165\u7535\u5F71\u4E0E\u5267\u96C6\u641C\u7D22\u3002" : "\u8BF7\u7A0D\u540E\u5237\u65B0\u91CD\u8BD5\u3002"}</p>${configured ? '<form data-cinema-login><label for="cinema-password">\u89C2\u5F71\u5BC6\u7801</label><div><input id="cinema-password" type="password" autocomplete="current-password" required maxlength="200"><button class="primary-button" type="submit">\u8FDB\u5165\u5F71\u9662</button></div></form>' : ""}<p class="cinema-message" role="alert">${esc(message)}</p></div></section>` : `<form class="cinema-search" data-cinema-search><label for="cinema-query">\u7247\u540D</label><div class="cinema-search-line"><input id="cinema-query" type="search" value="${esc(state.query)}" maxlength="80" placeholder="\u7535\u5F71\u3001\u7535\u89C6\u5267\uFF0C\u8F93\u5165\u7247\u540D\u641C\u4E00\u641C" required autocomplete="off"><button class="primary-button" type="submit" ${busy ? "disabled" : ""}>${busy ? "\u641C\u7D22\u4E2D\u2026" : "\u641C\u7247"}</button></div><fieldset><legend>\u641C\u7D22\u6765\u6E90</legend>${Object.entries(names).map(([key, name]) => `<label><input type="checkbox" data-cinema-filter="${key}" ${state.selected.includes(key) ? "checked" : ""}>${name}</label>`).join("")}</fieldset></form><p class="cinema-message" role="alert">${esc(message)}</p><div class="cinema-content">${detail ? playerMarkup() : resultMarkup()}</div><p class="cinema-footnote">\u5F71\u7247\u6765\u81EA\u6240\u9009\u7B2C\u4E09\u65B9\u6765\u6E90\uFF0C\u6E05\u6670\u5EA6\u548C\u53EF\u64AD\u60C5\u51B5\u4F1A\u6709\u53D8\u5316\u3002\u8FDB\u5EA6\u4FDD\u5B58\u5728\u5F53\u524D\u6D4F\u89C8\u5668\u3002<a href="https://github.com/LibreSpark/LibreTV" target="_blank" rel="noopener noreferrer">\u7075\u611F\u6765\u81EALibreTV \u2197</a></p>`}`;
+    const sourceCount = Object.keys(names).length;
+    host.innerHTML = `<header class="cinema-heading"><div><span class="eyebrow">\u8BF8\u4E8B\u5927\u5409 \xB7 \u7535\u5F71\u4E0E\u5267\u96C6</span><h1>\u5927\u5409\u653E\u6620\u5BA4<span class="cinema-stub" aria-hidden="true">\u6620</span></h1><p>\u5FD9\u5B8C\u8BF8\u4E8B\uFF0C\u653E\u6620\u4E00\u6BB5\u597D\u65F6\u5149\u3002</p></div>${verified ? '<button class="text-button" data-cinema-logout>\u9000\u51FA\u89C2\u5F71</button>' : '<span class="cinema-heading-note">\u4F60\u7684\u79C1\u4EBA\u653E\u6620\u5BA4</span>'}</header><form class="cinema-search" data-cinema-search><label for="cinema-query">\u627E\u4E00\u90E8\u60F3\u770B\u7684\u7247</label><div class="cinema-search-line"><input id="cinema-query" type="search" value="${esc(state.query)}" maxlength="80" placeholder="\u8F93\u5165\u7535\u5F71\u3001\u7535\u89C6\u5267\u540D\u79F0" required autocomplete="off"><button class="primary-button" type="submit" ${busy || !sourceCount ? "disabled" : ""}>${busy ? "\u641C\u7D22\u4E2D\u2026" : "\u641C\u7247"}</button></div><details class="cinema-source-picker"><summary>${sourceCount}\u4E2A\u7247\u6E90 \xB7 \u8C03\u6574\u641C\u7D22\u6765\u6E90</summary><fieldset><legend>\u641C\u7D22\u6765\u6E90</legend>${Object.entries(names).map(([key, name]) => `<label><input type="checkbox" data-cinema-filter="${key}" ${state.selected?.includes(key) ? "checked" : ""}>${esc(name)}</label>`).join("")}</fieldset></details></form>${!verified ? `<section class="cinema-door cinema-door-compact"><span class="cinema-door-mark" aria-hidden="true">\u6620</span><div><h2>${configured ? "\u8F93\u5165\u5BC6\u7801\uFF0C\u5F00\u59CB\u653E\u6620" : "\u89C2\u5F71\u670D\u52A1\u6682\u65F6\u4E0D\u53EF\u7528"}</h2><p>${configured ? "\u7247\u5355\u53EF\u4EE5\u76F4\u63A5\u6D4F\u89C8\uFF0C\u641C\u7D22\u548C\u64AD\u653E\u6CBF\u7528\u6B64\u524D\u7684\u89C2\u5F71\u5BC6\u7801\u3002" : "\u53EF\u4EE5\u5148\u6D4F\u89C8\u7247\u5355\uFF0C\u7A0D\u540E\u5237\u65B0\u518D\u8BD5\u3002"}</p>${configured ? '<form data-cinema-login><label for="cinema-password">\u89C2\u5F71\u5BC6\u7801</label><div><input id="cinema-password" type="password" autocomplete="current-password" required maxlength="200"><button class="primary-button" type="submit">\u8FDB\u5165\u653E\u6620\u5BA4</button></div></form>' : ""}</div></section>` : ""}<p class="cinema-message" role="alert">${esc(message)}</p><div class="cinema-content">${detail ? playerMarkup() : resultMarkup()}</div><p class="cinema-footnote">\u5F71\u7247\u6765\u81EA\u6240\u9009\u7B2C\u4E09\u65B9\u6765\u6E90\uFF0C\u6E05\u6670\u5EA6\u548C\u53EF\u64AD\u60C5\u51B5\u4F1A\u6709\u53D8\u5316\u3002\u8FDB\u5EA6\u4FDD\u5B58\u5728\u5F53\u524D\u6D4F\u89C8\u5668\u3002<a href="https://github.com/LibreSpark/LibreTV" target="_blank" rel="noopener noreferrer">\u7075\u611F\u6765\u81EALibreTV \u2197</a></p>`;
   }
   async function search(query) {
     query = query.trim();
-    if (!query || !state.selected.length) {
+    if (!query || !state.selected?.length) {
       message = "\u8BF7\u8F93\u5165\u7247\u540D\uFF0C\u5E76\u81F3\u5C11\u52FE\u9009\u4E00\u4E2A\u6765\u6E90";
       draw();
+      return;
+    }
+    if (!verified) {
+      state.query = query;
+      message = `\u8F93\u5165\u89C2\u5F71\u5BC6\u7801\u540E\uFF0C\u4E3A\u4F60\u641C\u7D22\u201C${query}\u201D`;
+      draw();
+      host.querySelector("#cinema-password")?.focus();
       return;
     }
     pending?.abort();
@@ -211,7 +261,8 @@ function mountCinema(host) {
         if (disposed) return;
         verified = true;
         message = "";
-        draw();
+        if (state.query) search(state.query);
+        else draw();
       } catch (error) {
         if (!disposed) {
           message = error.message;
@@ -226,6 +277,22 @@ function mountCinema(host) {
     if (b.hasAttribute("data-cinema-open")) {
       const item = groups()[Number(b.dataset.cinemaOpen)]?.[0];
       if (item) open(item);
+    }
+    if (b.hasAttribute("data-cinema-collection")) loadDiscovery(b.dataset.cinemaCollection);
+    if (b.hasAttribute("data-cinema-retry")) loadDiscovery(collection);
+    if (b.hasAttribute("data-cinema-recommend")) {
+      const item = discoveryData?.items[Number(b.dataset.cinemaRecommend)];
+      if (item) search(item.name);
+    }
+    if (b.hasAttribute("data-cinema-home")) {
+      pending?.abort();
+      ++requestId;
+      busy = false;
+      stopPlayer();
+      detail = null;
+      state.query = "";
+      message = "";
+      draw();
     }
     if (b.hasAttribute("data-cinema-example")) search(b.dataset.cinemaExample);
     if (b.hasAttribute("data-cinema-history")) {
@@ -251,9 +318,13 @@ function mountCinema(host) {
         await api("auth", { method: "DELETE" });
       } finally {
         if (!disposed) {
+          pending?.abort();
+          ++requestId;
+          busy = false;
           stopPlayer();
           verified = false;
           detail = null;
+          state.query = "";
           message = "";
           draw();
         }
@@ -273,6 +344,9 @@ function mountCinema(host) {
     if (!disposed) {
       configured = status.configured;
       verified = status.verified;
+      names = Object.fromEntries((status.sources || []).map((v) => [v.key, v.name]));
+      state.selected = state.selected === null ? Object.keys(names) : state.selected.filter((key) => names[key]);
+      history = history.filter((v) => names[v.sourceKey]);
       draw();
     }
   }).catch(() => {
@@ -282,6 +356,7 @@ function mountCinema(host) {
       draw();
     }
   });
+  loadDiscovery("recent");
   return () => {
     disposed = true;
     ++requestId;

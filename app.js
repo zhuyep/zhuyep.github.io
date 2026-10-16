@@ -1,6 +1,6 @@
 import {
   cinemaShell
-} from "./modules/chunks/chunk-GVM46QA2.js";
+} from "./modules/chunks/chunk-G64MYKIX.js";
 import {
   NODE_LABELS,
   buildIntelTrends,
@@ -760,16 +760,16 @@ function render() {
   });
   const waiting = needsFullContent();
   $("#page").innerHTML = page === "video" ? cinemaShell() : page === "games" ? games() : !data || waiting ? empty(contentError ? "\u8D44\u6599\u6682\u65F6\u672A\u80FD\u6253\u5F00" : "\u6B63\u5728\u8BFB\u53D6\u8D44\u6599", contentError || "\u6B63\u5728\u6253\u5F00\u5B8C\u6574\u7684\u60C5\u62A5\u4E0E\u8A00\u5E93\uFF0C\u53EF\u4EE5\u5148\u53BB\u201C\u653E\u677E\u201D\u901B\u901B\u3002", contentError ? button("reload-page", "\u91CD\u65B0\u8BFB\u53D6") : "") : page === "today" ? today() : page === "intel" ? intel() : library();
-  document.title = `${{ today: "\u4ECA\u65E5", intel: "\u60C5\u62A5", library: "\u8A00\u5E93", games: "\u653E\u677E", video: "\u5409\u5149\u5F71\u9662" }[page]} \xB7 \u8BF8\u4E8B\u5927\u5409`;
+  document.title = `${{ today: "\u4ECA\u65E5", intel: "\u60C5\u62A5", library: "\u8A00\u5E93", games: "\u653E\u677E", video: "\u5927\u5409\u653E\u6620\u5BA4" }[page]} \xB7 \u8BF8\u4E8B\u5927\u5409`;
   mountIntelExtras();
   if (page === "video") {
-    import("./modules/chunks/video-cinema-7U7MRFN2.js").then(({ mountCinema }) => {
-      if (page === "video" && cinemaVersion === cinemaMountVersion) cinemaCleanup = mountCinema($("#jiguang-cinema"));
+    import("./modules/chunks/video-cinema-TTM3TSUW.js").then(({ mountCinema }) => {
+      if (page === "video" && cinemaVersion === cinemaMountVersion) cinemaCleanup = mountCinema($("#daji-cinema"));
     });
   }
 }
 function side() {
-  return `<aside class="side-column"><section class="side-panel cinema-entry"><span class="side-label">\u5409\u5149\u5F71\u9662 \xB7 \u7535\u5F71\u4E0E\u5267\u96C6</span><h2>\u770B\u4E00\u90E8\u7535\u5F71\uFF0C<br>\u6362\u4E00\u79CD\u5FC3\u60C5\u3002</h2><p>\u641C\u5230\u7247\u540D\uFF0C\u9009\u597D\u4E00\u96C6\uFF0C\u5728\u8FD9\u91CC\u770B\u3002</p>${button("video", "\u53BB\u5F71\u9662\u5750\u5750 \u2197", "inline-link")}</section><section class="side-panel library-info"><span class="side-label">\u8A00\u5E93 \xB7 \u6BCF\u6B21\u8BFB\u4E00\u6BB5</span><blockquote>\u884C\u4E4B\u6709\u65B9\uFF0C<br>\u8A00\u4E4B\u6709\u636E\u3002</blockquote><p>\u4ECE\u6743\u5A01\u516C\u5F00\u6750\u6599\u4E2D\u6574\u7406\u8868\u8FBE\u3002\u6BCF\u4E00\u6BB5\uFF0C\u90FD\u80FD\u56DE\u5230\u5B83\u7684\u51FA\u5904\u3002</p>${button("library", "\u7FFB\u4E00\u7FFB\u8A00\u5E93 \u2192", "inline-link")}</section><section class="side-panel ink-panel"><span class="side-label">\u7247\u523B\u95F2\u8DA3</span><h2>\u4E8B\u60C5\u6162\u6162\u505A\uFF0C<br>\u5076\u5C14\u6362\u6362\u8111\u3002</h2><p>\u770B\u4E00\u770B\u547D\u76D8\uFF0C\u6216\u968F\u624B\u73A9\u4E00\u5C40\u3002</p>${button("games", "\u53BB\u653E\u677E\u4E00\u4E0B \u2197", "inline-link")}</section></aside>`;
+  return `<aside class="side-column"><section class="side-panel cinema-entry"><span class="side-label">\u5927\u5409\u653E\u6620\u5BA4 \xB7 \u7535\u5F71\u4E0E\u5267\u96C6</span><h2>\u770B\u4E00\u90E8\u7535\u5F71\uFF0C<br>\u6362\u4E00\u79CD\u5FC3\u60C5\u3002</h2><p>\u641C\u5230\u7247\u540D\uFF0C\u9009\u597D\u4E00\u96C6\uFF0C\u5728\u8FD9\u91CC\u770B\u3002</p>${button("video", "\u53BB\u653E\u6620\u5BA4\u5750\u5750 \u2197", "inline-link")}</section><section class="side-panel library-info"><span class="side-label">\u8A00\u5E93 \xB7 \u6BCF\u6B21\u8BFB\u4E00\u6BB5</span><blockquote>\u884C\u4E4B\u6709\u65B9\uFF0C<br>\u8A00\u4E4B\u6709\u636E\u3002</blockquote><p>\u4ECE\u6743\u5A01\u516C\u5F00\u6750\u6599\u4E2D\u6574\u7406\u8868\u8FBE\u3002\u6BCF\u4E00\u6BB5\uFF0C\u90FD\u80FD\u56DE\u5230\u5B83\u7684\u51FA\u5904\u3002</p>${button("library", "\u7FFB\u4E00\u7FFB\u8A00\u5E93 \u2192", "inline-link")}</section><section class="side-panel ink-panel"><span class="side-label">\u7247\u523B\u95F2\u8DA3</span><h2>\u4E8B\u60C5\u6162\u6162\u505A\uFF0C<br>\u5076\u5C14\u6362\u6362\u8111\u3002</h2><p>\u770B\u4E00\u770B\u547D\u76D8\uFF0C\u6216\u968F\u624B\u73A9\u4E00\u5C40\u3002</p>${button("games", "\u53BB\u653E\u677E\u4E00\u4E0B \u2197", "inline-link")}</section></aside>`;
 }
 var visitStats = null;
 var visitError = false;
@@ -1174,7 +1174,7 @@ document.querySelectorAll("dialog").forEach((d) => d.addEventListener("close", (
   if (d.id === "reader") {
     if (parseRoute(location.hash).key) history.replaceState(null, "", "#" + page);
     readerKey = "";
-    if (data) document.title = { today: "\u4ECA\u65E5", intel: "\u60C5\u62A5", library: "\u8A00\u5E93", games: "\u653E\u677E", video: "\u5409\u5149\u5F71\u9662" }[page] + " \xB7 \u8BF8\u4E8B\u5927\u5409";
+    if (data) document.title = { today: "\u4ECA\u65E5", intel: "\u60C5\u62A5", library: "\u8A00\u5E93", games: "\u653E\u677E", video: "\u5927\u5409\u653E\u6620\u5BA4" }[page] + " \xB7 \u8BF8\u4E8B\u5927\u5409";
   }
 }));
 function applyRoute() {
