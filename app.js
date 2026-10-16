@@ -1,6 +1,6 @@
 import {
   cinemaShell
-} from "./modules/chunks/chunk-RTZRYINY.js";
+} from "./modules/chunks/chunk-YFNWLK35.js";
 import {
   NODE_LABELS,
   buildIntelTrends,
@@ -763,7 +763,7 @@ function render() {
   document.title = `${{ today: "\u4ECA\u65E5", intel: "\u60C5\u62A5", library: "\u8A00\u5E93", games: "\u653E\u677E", video: "\u5927\u5409\u653E\u6620\u5BA4" }[page]} \xB7 \u8BF8\u4E8B\u5927\u5409`;
   mountIntelExtras();
   if (page === "video") {
-    import("./modules/chunks/video-cinema-ZI4VHQYF.js").then(({ mountCinema }) => {
+    import("./modules/chunks/video-cinema-4PINCBFN.js").then(({ mountCinema }) => {
       if (page === "video" && cinemaVersion === cinemaMountVersion) cinemaCleanup = mountCinema($("#daji-cinema"));
     });
   }
