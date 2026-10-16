@@ -1,4 +1,7 @@
 import {
+  cinemaShell
+} from "./modules/chunks/chunk-GVM46QA2.js";
+import {
   NODE_LABELS,
   buildIntelTrends,
   buildKnowledgeGraph,
@@ -306,7 +309,7 @@ function readingHash(key) {
 }
 function parseRoute(hash) {
   const value = hash.replace(/^#/, ""), [section, ...tail] = value.split("/");
-  const page2 = ["today", "intel", "library", "games"].includes(section) ? section : "today";
+  const page2 = ["today", "intel", "library", "games", "video"].includes(section) ? section : "today";
   if (tail.length && ["intel", "library"].includes(section)) {
     try {
       return { page: page2, key: (page2 === "intel" ? "intel:" : "block:") + decodeURIComponent(tail.join("/")) };
@@ -656,17 +659,20 @@ function sceneGroupFor(scene) {
 // demo/app.js
 var $ = (s) => document.querySelector(s);
 var esc2 = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-var paths = { today: "M5 4v4m14-4v4M4 10h16M5 6h14v15H5zM8 14h3m-3 3h6", intel: "M12 3a9 9 0 1 0 9 9M12 3v9l6-6M8 16l4-4", library: "M12 6c-3-2-6-2-9-1v15c3-1 6-1 9 1 3-2 6-2 9-1V5c-3-1-6-1-9 1zm0 0v15M6 9h3m-3 4h3m6-4h3m-3 4h3", games: "M20 15.5A8.5 8.5 0 0 1 8.5 4a8.5 8.5 0 1 0 11.5 11.5ZM17 3v4m-2-2h4", search: "M21 21l-5-5M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0", bookmark: "M6 3h12v18l-6-4-6 4z" };
+var paths = { video: "M3 5h18v14H3zM3 9h18M7 5v4m5-4v4m5-4v4m-7 4 5 3-5 3z", today: "M5 4v4m14-4v4M4 10h16M5 6h14v15H5zM8 14h3m-3 3h6", intel: "M12 3a9 9 0 1 0 9 9M12 3v9l6-6M8 16l4-4", library: "M12 6c-3-2-6-2-9-1v15c3-1 6-1 9 1 3-2 6-2 9-1V5c-3-1-6-1-9 1zm0 0v15M6 9h3m-3 4h3m6-4h3m-3 4h3", games: "M20 15.5A8.5 8.5 0 0 1 8.5 4a8.5 8.5 0 1 0 11.5 11.5ZM17 3v4m-2-2h4", search: "M21 21l-5-5M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0", bookmark: "M6 3h12v18l-6-4-6 4z" };
 var icon = (n) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${paths[n] || paths.library}"/></svg>`;
 document.querySelectorAll("[data-icon]").forEach((e) => e.innerHTML = icon(e.dataset.icon));
 var stopDeskToys = mountDeskToys(document);
 window.addEventListener("pagehide", () => {
   stopDeskToys();
+  cinemaCleanup?.();
+  cinemaCleanup = null;
 });
 window.addEventListener("pageshow", (event) => {
   if (event.persisted) {
     stopDeskToys = mountDeskToys(document);
-    refreshVisibleContent();
+    if (page === "video") render();
+    else refreshVisibleContent();
   }
 });
 var KEY = "zhushi-daji-desk-v3";
@@ -690,6 +696,8 @@ var todayFilter = "all";
 var limit = 12;
 var collection = false;
 var toastTimer;
+var cinemaCleanup = null;
+var cinemaMountVersion = 0;
 var intelView = "list";
 var intelFacet = null;
 var graphCleanup = null;
@@ -737,23 +745,31 @@ function navigate(next, sub) {
   page = next;
   if (location.hash !== "#" + next) history.pushState(null, "", "#" + next);
   render();
-  if (page !== "games" && !data) load();
+  if (!["games", "video"].includes(page) && !data) load();
   else if (needsFullContent()) loadFull();
   window.scrollTo(0, 0);
 }
 function render() {
   stopGraph();
+  cinemaCleanup?.();
+  cinemaCleanup = null;
+  const cinemaVersion = ++cinemaMountVersion;
   document.querySelectorAll("[data-page]").forEach((b) => {
     if (b.dataset.page === page) b.setAttribute("aria-current", "page");
     else b.removeAttribute("aria-current");
   });
   const waiting = needsFullContent();
-  $("#page").innerHTML = page === "games" ? games() : !data || waiting ? empty(contentError ? "\u8D44\u6599\u6682\u65F6\u672A\u80FD\u6253\u5F00" : "\u6B63\u5728\u8BFB\u53D6\u8D44\u6599", contentError || "\u6B63\u5728\u6253\u5F00\u5B8C\u6574\u7684\u60C5\u62A5\u4E0E\u8A00\u5E93\uFF0C\u53EF\u4EE5\u5148\u53BB\u201C\u653E\u677E\u201D\u901B\u901B\u3002", contentError ? button("reload-page", "\u91CD\u65B0\u8BFB\u53D6") : "") : page === "today" ? today() : page === "intel" ? intel() : library();
-  document.title = `${{ today: "\u4ECA\u65E5", intel: "\u60C5\u62A5", library: "\u8A00\u5E93", games: "\u653E\u677E" }[page]} \xB7 \u8BF8\u4E8B\u5927\u5409`;
+  $("#page").innerHTML = page === "video" ? cinemaShell() : page === "games" ? games() : !data || waiting ? empty(contentError ? "\u8D44\u6599\u6682\u65F6\u672A\u80FD\u6253\u5F00" : "\u6B63\u5728\u8BFB\u53D6\u8D44\u6599", contentError || "\u6B63\u5728\u6253\u5F00\u5B8C\u6574\u7684\u60C5\u62A5\u4E0E\u8A00\u5E93\uFF0C\u53EF\u4EE5\u5148\u53BB\u201C\u653E\u677E\u201D\u901B\u901B\u3002", contentError ? button("reload-page", "\u91CD\u65B0\u8BFB\u53D6") : "") : page === "today" ? today() : page === "intel" ? intel() : library();
+  document.title = `${{ today: "\u4ECA\u65E5", intel: "\u60C5\u62A5", library: "\u8A00\u5E93", games: "\u653E\u677E", video: "\u5409\u5149\u5F71\u9662" }[page]} \xB7 \u8BF8\u4E8B\u5927\u5409`;
   mountIntelExtras();
+  if (page === "video") {
+    import("./modules/chunks/video-cinema-7U7MRFN2.js").then(({ mountCinema }) => {
+      if (page === "video" && cinemaVersion === cinemaMountVersion) cinemaCleanup = mountCinema($("#jiguang-cinema"));
+    });
+  }
 }
 function side() {
-  return `<aside class="side-column"><section class="side-panel library-info"><span class="side-label">\u8A00\u5E93 \xB7 \u6BCF\u6B21\u8BFB\u4E00\u6BB5</span><blockquote>\u884C\u4E4B\u6709\u65B9\uFF0C<br>\u8A00\u4E4B\u6709\u636E\u3002</blockquote><p>\u4ECE\u6743\u5A01\u516C\u5F00\u6750\u6599\u4E2D\u6574\u7406\u8868\u8FBE\u3002\u6BCF\u4E00\u6BB5\uFF0C\u90FD\u80FD\u56DE\u5230\u5B83\u7684\u51FA\u5904\u3002</p>${button("library", "\u7FFB\u4E00\u7FFB\u8A00\u5E93 \u2192", "inline-link")}</section><section class="side-panel ink-panel"><span class="side-label">\u7247\u523B\u95F2\u8DA3</span><h2>\u4E8B\u60C5\u6162\u6162\u505A\uFF0C<br>\u5076\u5C14\u6362\u6362\u8111\u3002</h2><p>\u770B\u4E00\u770B\u547D\u76D8\uFF0C\u6216\u968F\u624B\u73A9\u4E00\u5C40\u3002</p>${button("games", "\u53BB\u653E\u677E\u4E00\u4E0B \u2197", "inline-link")}</section></aside>`;
+  return `<aside class="side-column"><section class="side-panel cinema-entry"><span class="side-label">\u5409\u5149\u5F71\u9662 \xB7 \u7535\u5F71\u4E0E\u5267\u96C6</span><h2>\u770B\u4E00\u90E8\u7535\u5F71\uFF0C<br>\u6362\u4E00\u79CD\u5FC3\u60C5\u3002</h2><p>\u641C\u5230\u7247\u540D\uFF0C\u9009\u597D\u4E00\u96C6\uFF0C\u5728\u8FD9\u91CC\u770B\u3002</p>${button("video", "\u53BB\u5F71\u9662\u5750\u5750 \u2197", "inline-link")}</section><section class="side-panel library-info"><span class="side-label">\u8A00\u5E93 \xB7 \u6BCF\u6B21\u8BFB\u4E00\u6BB5</span><blockquote>\u884C\u4E4B\u6709\u65B9\uFF0C<br>\u8A00\u4E4B\u6709\u636E\u3002</blockquote><p>\u4ECE\u6743\u5A01\u516C\u5F00\u6750\u6599\u4E2D\u6574\u7406\u8868\u8FBE\u3002\u6BCF\u4E00\u6BB5\uFF0C\u90FD\u80FD\u56DE\u5230\u5B83\u7684\u51FA\u5904\u3002</p>${button("library", "\u7FFB\u4E00\u7FFB\u8A00\u5E93 \u2192", "inline-link")}</section><section class="side-panel ink-panel"><span class="side-label">\u7247\u523B\u95F2\u8DA3</span><h2>\u4E8B\u60C5\u6162\u6162\u505A\uFF0C<br>\u5076\u5C14\u6362\u6362\u8111\u3002</h2><p>\u770B\u4E00\u770B\u547D\u76D8\uFF0C\u6216\u968F\u624B\u73A9\u4E00\u5C40\u3002</p>${button("games", "\u53BB\u653E\u677E\u4E00\u4E0B \u2197", "inline-link")}</section></aside>`;
 }
 var visitStats = null;
 var visitError = false;
@@ -1013,6 +1029,7 @@ var actions = {
     await load();
     if ($("#reader").open) about();
   },
+  video: () => navigate("video"),
   library: () => navigate("library", "blocks"),
   intel: () => navigate("intel"),
   games: () => navigate("games"),
@@ -1157,7 +1174,7 @@ document.querySelectorAll("dialog").forEach((d) => d.addEventListener("close", (
   if (d.id === "reader") {
     if (parseRoute(location.hash).key) history.replaceState(null, "", "#" + page);
     readerKey = "";
-    if (data) document.title = { today: "\u4ECA\u65E5", intel: "\u60C5\u62A5", library: "\u8A00\u5E93", games: "\u653E\u677E" }[page] + " \xB7 \u8BF8\u4E8B\u5927\u5409";
+    if (data) document.title = { today: "\u4ECA\u65E5", intel: "\u60C5\u62A5", library: "\u8A00\u5E93", games: "\u653E\u677E", video: "\u5409\u5149\u5F71\u9662" }[page] + " \xB7 \u8BF8\u4E8B\u5927\u5409";
   }
 }));
 function applyRoute() {
@@ -1165,7 +1182,7 @@ function applyRoute() {
   page = route.page;
   if (!data) {
     render();
-    if (page !== "games") load();
+    if (!["games", "video"].includes(page)) load();
     return;
   }
   if (needsFullContent()) {
@@ -1208,11 +1225,11 @@ function loadFull() {
   fullContentPromise = (async () => {
     try {
       acceptContent(await fetchContent(["/content/current.json", "/api/content"]));
-      applyRoute();
+      if (page !== "video") applyRoute();
       return payload;
     } catch (e) {
       contentError = e.message;
-      render();
+      if (page !== "video") render();
       return null;
     } finally {
       fullContentPromise = null;
@@ -1228,10 +1245,10 @@ function load() {
   contentPromise = (async () => {
     try {
       acceptContent(await fetchContent(urls));
-      applyRoute();
+      if (page !== "video") applyRoute();
     } catch (e) {
       contentError = e.message;
-      if (page !== "games") render();
+      if (!["games", "video"].includes(page)) render();
     } finally {
       contentPromise = null;
     }
@@ -1239,13 +1256,13 @@ function load() {
   return contentPromise;
 }
 function refreshVisibleContent() {
-  if (document.visibilityState === "visible" && Date.now() - lastContentCheck >= 6e4) load();
+  if (page !== "video" && document.visibilityState === "visible" && Date.now() - lastContentCheck >= 6e4) load();
 }
 document.addEventListener("visibilitychange", refreshVisibleContent);
 actions["reload-page"] = load;
 page = parseRoute(location.hash).page;
 render();
-if (page !== "games") load();
+if (!["games", "video"].includes(page)) load();
 loadVisits();
 document.addEventListener("change", async (e) => {
   if (e.target.id !== "personal-backup-file") return;

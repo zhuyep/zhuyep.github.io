@@ -35,3 +35,7 @@
 MIT © 2026 zhuyep. Source: https://github.com/zhuyep/mingli-lab
 
 A local static build is included at `games/wenchen/`. That directory includes the project's LICENSE, upstream lunar-typescript MIT notices, and a SOURCE.json recording the source revision and build checksums. No lecture PDFs or transcripts are included.
+
+## hls.js
+
+吉光影院按需加载 hls.js 播放 HLS 视频。来源：https://github.com/video-dev/hls.js ，许可证 Apache-2.0（见 vendor/HLS-LICENSE.txt），使用当前本机已锁定的公开发行文件。影院目录接口和界面为本项目实现，功能思路参考LibreTV；未复制其应用源码。
