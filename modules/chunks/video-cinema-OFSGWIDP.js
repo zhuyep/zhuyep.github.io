@@ -1,7 +1,7 @@
 import {
   cinemaShell,
   mountCinema
-} from "./chunk-YFNWLK35.js";
+} from "./chunk-XNYFDB6E.js";
 export {
   cinemaShell,
   mountCinema

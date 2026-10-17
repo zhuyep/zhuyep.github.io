@@ -1,10 +1,7 @@
 // demo/modules/video-cinema.js
 var esc = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-var HISTORY = "zhushi-daji-cinema-v1";
-var remembered = { query: "", list: [], failures: [], selected: null };
 var names = {};
 var collections = { recent: "\u65B0\u8FD1\u7535\u5F71", hot: "\u70ED\u95E8\u7535\u5F71", tv: "\u70ED\u95E8\u5267\u96C6", rated: "\u9AD8\u5206\u4F73\u7247" };
-var discoveryMemo = /* @__PURE__ */ new Map();
 var plain = (value) => value.replace(/[\s\p{P}\p{S}]/gu, "").toLowerCase();
 function cinemaShell() {
   return `<section class="cinema" id="daji-cinema" aria-label="\u5927\u5409\u653E\u6620\u5BA4"><header class="cinema-heading"><div><span class="eyebrow">\u5149\u5F71\u5C0F\u61A9 \xB7 \u7535\u5F71\u4E0E\u5267\u96C6</span><h1>\u5927\u5409\u653E\u6620\u5BA4<span class="cinema-stub" aria-hidden="true">\u6620</span></h1><p>\u641C\u4E00\u90E8\u7247\uFF0C\u7559\u4E00\u70B9\u597D\u65F6\u5149\u3002</p></div><span class="cinema-heading-note">\u8BF8\u4E8B\u5927\u5409 \xB7 \u79C1\u4EBA\u653E\u6620\u5BA4</span></header><p class="cinema-message" role="status">\u6B63\u5728\u6253\u5F00\u5F71\u9662\u2026\u2026</p></section>`;
@@ -19,12 +16,10 @@ function mountCinema(host) {
   let disposed = false, verified = false, configured = true, busy = false, message = "", requestId = 0;
   let detail = null, episodeIndex = 0, stopPlayer = () => {
   }, playVersion = 0, pending;
-  const state = { ...remembered, selected: remembered.selected ? [...remembered.selected] : null };
+  const state = { query: "", list: [], failures: [], selected: null };
   let collection = "recent", discoveryData, discoveryBusy = true, discoveryError = "", homeRequestId = 0;
-  let history = [];
   try {
-    const value = JSON.parse(localStorage.getItem(HISTORY) || "[]");
-    if (Array.isArray(value)) history = value.filter((v) => v && /^[\w-]+$/.test(v.sourceKey) && /^[\w-]+$/.test(v.id)).slice(0, 30);
+    localStorage.removeItem("zhushi-daji-cinema-v1");
   } catch {
   }
   async function api(path, options = {}) {
@@ -45,7 +40,6 @@ function mountCinema(host) {
     }
     return data;
   }
-  const historyMarkup = () => history.length ? `<section class="cinema-history"><h2>\u7EE7\u7EED\u89C2\u770B</h2><div>${history.slice(0, 3).map((v, i) => `<button data-cinema-history="${i}"><strong>${esc(v.name)}</strong><span>${esc(names[v.sourceKey])} \xB7 \u7B2C${Number(v.index || 0) + 1}\u96C6 \xB7 ${Math.floor(Number(v.position || 0) / 60)}\u5206\u5904</span></button>`).join("")}</div></section>` : "";
   function groups() {
     const grouped = /* @__PURE__ */ new Map();
     for (const item of state.list) {
@@ -70,13 +64,6 @@ function mountCinema(host) {
     const id = ++homeRequestId;
     collection = key;
     discoveryError = "";
-    const memo = discoveryMemo.get(key);
-    if (memo && Date.now() - memo.at < 6e5) {
-      discoveryData = memo.data;
-      discoveryBusy = false;
-      refreshDiscovery();
-      return;
-    }
     discoveryBusy = true;
     discoveryData = null;
     refreshDiscovery();
@@ -84,7 +71,6 @@ function mountCinema(host) {
       const result = await api("discover?" + new URLSearchParams({ collection: key }), { signal: lifecycle.signal });
       if (disposed || id !== homeRequestId) return;
       discoveryData = result;
-      discoveryMemo.set(key, { at: Date.now(), data: result });
     } catch (error) {
       if (disposed || id !== homeRequestId) return;
       discoveryError = "\u7247\u5355\u6682\u65F6\u6CA1\u6709\u54CD\u5E94\uFF0C\u4ECD\u53EF\u8F93\u5165\u7247\u540D\u641C\u7D22\u3002";
@@ -96,7 +82,7 @@ function mountCinema(host) {
   }
   function resultMarkup() {
     if (busy) return '<div class="cinema-empty" role="status"><span class="cinema-reel" aria-hidden="true">\u25C9</span><h2>\u6B63\u5728\u641C\u7247</h2><p>\u9010\u4E2A\u67E5\u8BE2\u5DF2\u9009\u6765\u6E90\uFF0C\u8BF7\u7A0D\u7B49\u7247\u523B\u3002</p></div>';
-    if (!verified || !state.query) return (verified ? historyMarkup() : "") + `<div data-cinema-discovery>${homeMarkup()}</div>`;
+    if (!verified || !state.query) return `<div data-cinema-discovery>${homeMarkup()}</div>`;
     const grouped = groups();
     return `${state.failures.length ? `<p class="cinema-warning" role="status">${esc(state.failures.join("\u3001"))}\u6682\u65F6\u672A\u80FD\u54CD\u5E94\uFF0C\u5DF2\u5C55\u793A\u5176\u4F59\u6765\u6E90\u7684\u7ED3\u679C\u3002</p>` : ""}<div class="cinema-result-heading"><h2>\u201C${esc(state.query)}\u201D</h2><button class="text-button" data-cinema-home>\u2190 \u56DE\u5230\u7247\u5355</button><span>${grouped.length}\u90E8 \xB7 ${state.list.length}\u6761\u7ED3\u679C</span></div>${!grouped.length ? '<div class="cinema-empty"><h2>\u6682\u65F6\u6CA1\u6709\u627E\u5230</h2><p>\u8BD5\u8BD5\u7247\u540D\u7B80\u79F0\uFF0C\u6216\u52FE\u9009\u5176\u4ED6\u6765\u6E90\u540E\u91CD\u65B0\u641C\u7D22\u3002</p></div>' : `<div class="cinema-grid">${grouped.map((items, i) => {
       const item = items[0];
@@ -112,7 +98,7 @@ function mountCinema(host) {
   function draw() {
     if (disposed) return;
     const sourceCount = Object.keys(names).length;
-    host.innerHTML = `<header class="cinema-heading"><div><span class="eyebrow">\u8BF8\u4E8B\u5927\u5409 \xB7 \u7535\u5F71\u4E0E\u5267\u96C6</span><h1>\u5927\u5409\u653E\u6620\u5BA4<span class="cinema-stub" aria-hidden="true">\u6620</span></h1><p>\u5FD9\u5B8C\u8BF8\u4E8B\uFF0C\u653E\u6620\u4E00\u6BB5\u597D\u65F6\u5149\u3002</p></div>${verified ? '<button class="text-button" data-cinema-logout>\u9000\u51FA\u89C2\u5F71</button>' : '<span class="cinema-heading-note">\u4F60\u7684\u79C1\u4EBA\u653E\u6620\u5BA4</span>'}</header><form class="cinema-search" data-cinema-search><label for="cinema-query">\u627E\u4E00\u90E8\u60F3\u770B\u7684\u7247</label><div class="cinema-search-line"><input id="cinema-query" type="search" value="${esc(state.query)}" maxlength="80" placeholder="\u8F93\u5165\u7535\u5F71\u3001\u7535\u89C6\u5267\u540D\u79F0" required autocomplete="off"><button class="primary-button" type="submit" ${busy || !sourceCount ? "disabled" : ""}>${busy ? "\u641C\u7D22\u4E2D\u2026" : "\u641C\u7247"}</button></div><details class="cinema-source-picker"><summary>${sourceCount}\u4E2A\u7247\u6E90 \xB7 \u8C03\u6574\u641C\u7D22\u6765\u6E90</summary><fieldset><legend>\u641C\u7D22\u6765\u6E90</legend>${Object.entries(names).map(([key, name]) => `<label><input type="checkbox" data-cinema-filter="${key}" ${state.selected?.includes(key) ? "checked" : ""}>${esc(name)}</label>`).join("")}</fieldset></details></form>${!verified ? `<section class="cinema-door cinema-door-compact"><span class="cinema-door-mark" aria-hidden="true">\u6620</span><div><h2>${configured ? "\u8F93\u5165\u5BC6\u7801\uFF0C\u5F00\u59CB\u653E\u6620" : "\u89C2\u5F71\u670D\u52A1\u6682\u65F6\u4E0D\u53EF\u7528"}</h2><p>${configured ? "\u7247\u5355\u53EF\u4EE5\u76F4\u63A5\u6D4F\u89C8\uFF0C\u641C\u7D22\u548C\u64AD\u653E\u6CBF\u7528\u6B64\u524D\u7684\u89C2\u5F71\u5BC6\u7801\u3002" : "\u53EF\u4EE5\u5148\u6D4F\u89C8\u7247\u5355\uFF0C\u7A0D\u540E\u5237\u65B0\u518D\u8BD5\u3002"}</p>${configured ? '<form data-cinema-login><label for="cinema-password">\u89C2\u5F71\u5BC6\u7801</label><div><input id="cinema-password" type="password" placeholder="\u8F93\u5165\u89C2\u5F71\u5BC6\u7801" aria-describedby="cinema-password-hint" autocomplete="current-password" required maxlength="200"><button class="primary-button" type="submit">\u8FDB\u5165\u653E\u6620\u5BA4</button></div><p id="cinema-password-hint" class="cinema-password-hint">\u770B\u7247\u4E0D\u8FF7\u8DEF\uFF0C<strong>\u5BC6\u7801\u627E\u8001\u732A\u3002</strong></p></form>' : ""}</div></section>` : ""}<p class="cinema-message" role="alert">${esc(message)}</p><div class="cinema-content">${detail ? playerMarkup() : resultMarkup()}</div><p class="cinema-footnote">\u5F71\u7247\u6765\u81EA\u6240\u9009\u7B2C\u4E09\u65B9\u6765\u6E90\uFF0C\u6E05\u6670\u5EA6\u548C\u53EF\u64AD\u60C5\u51B5\u4F1A\u6709\u53D8\u5316\u3002\u8FDB\u5EA6\u4FDD\u5B58\u5728\u5F53\u524D\u6D4F\u89C8\u5668\u3002<a href="https://github.com/LibreSpark/LibreTV" target="_blank" rel="noopener noreferrer">\u7075\u611F\u6765\u81EALibreTV \u2197</a></p>`;
+    host.innerHTML = `<header class="cinema-heading"><div><span class="eyebrow">\u8BF8\u4E8B\u5927\u5409 \xB7 \u7535\u5F71\u4E0E\u5267\u96C6</span><h1>\u5927\u5409\u653E\u6620\u5BA4<span class="cinema-stub" aria-hidden="true">\u6620</span></h1><p>\u5FD9\u5B8C\u8BF8\u4E8B\uFF0C\u653E\u6620\u4E00\u6BB5\u597D\u65F6\u5149\u3002</p></div>${verified ? '<button class="text-button" data-cinema-logout>\u9000\u51FA\u89C2\u5F71</button>' : '<span class="cinema-heading-note">\u4F60\u7684\u79C1\u4EBA\u653E\u6620\u5BA4</span>'}</header><form class="cinema-search" data-cinema-search><label for="cinema-query">\u627E\u4E00\u90E8\u60F3\u770B\u7684\u7247</label><div class="cinema-search-line"><input id="cinema-query" type="search" value="${esc(state.query)}" maxlength="80" placeholder="\u8F93\u5165\u7535\u5F71\u3001\u7535\u89C6\u5267\u540D\u79F0" required autocomplete="off"><button class="primary-button" type="submit" ${busy || !sourceCount ? "disabled" : ""}>${busy ? "\u641C\u7D22\u4E2D\u2026" : "\u641C\u7247"}</button></div><details class="cinema-source-picker"><summary>${sourceCount}\u4E2A\u7247\u6E90 \xB7 \u8C03\u6574\u641C\u7D22\u6765\u6E90</summary><fieldset><legend>\u641C\u7D22\u6765\u6E90</legend>${Object.entries(names).map(([key, name]) => `<label><input type="checkbox" data-cinema-filter="${key}" ${state.selected?.includes(key) ? "checked" : ""}>${esc(name)}</label>`).join("")}</fieldset></details></form>${!verified ? `<section class="cinema-door cinema-door-compact"><span class="cinema-door-mark" aria-hidden="true">\u6620</span><div><h2>${configured ? "\u8F93\u5165\u5BC6\u7801\uFF0C\u5F00\u59CB\u653E\u6620" : "\u89C2\u5F71\u670D\u52A1\u6682\u65F6\u4E0D\u53EF\u7528"}</h2><p>${configured ? "\u7247\u5355\u53EF\u4EE5\u76F4\u63A5\u6D4F\u89C8\uFF0C\u641C\u7D22\u548C\u64AD\u653E\u6CBF\u7528\u6B64\u524D\u7684\u89C2\u5F71\u5BC6\u7801\u3002" : "\u53EF\u4EE5\u5148\u6D4F\u89C8\u7247\u5355\uFF0C\u7A0D\u540E\u5237\u65B0\u518D\u8BD5\u3002"}</p>${configured ? '<form data-cinema-login><label for="cinema-password">\u89C2\u5F71\u5BC6\u7801</label><div><input id="cinema-password" type="password" placeholder="\u8F93\u5165\u89C2\u5F71\u5BC6\u7801" aria-describedby="cinema-password-hint" autocomplete="current-password" required maxlength="200"><button class="primary-button" type="submit">\u8FDB\u5165\u653E\u6620\u5BA4</button></div><p id="cinema-password-hint" class="cinema-password-hint">\u770B\u7247\u4E0D\u8FF7\u8DEF\uFF0C<strong>\u5BC6\u7801\u627E\u8001\u732A\u3002</strong></p></form>' : ""}</div></section>` : ""}<p class="cinema-message" role="alert">${esc(message)}</p><div class="cinema-content">${detail ? playerMarkup() : resultMarkup()}</div><p class="cinema-footnote">\u5F71\u7247\u6765\u81EA\u6240\u9009\u7B2C\u4E09\u65B9\u6765\u6E90\uFF0C\u6E05\u6670\u5EA6\u548C\u53EF\u64AD\u60C5\u51B5\u4F1A\u6709\u53D8\u5316\u3002\u4E0D\u4FDD\u7559\u64AD\u653E\u5386\u53F2\u548C\u8FDB\u5EA6\u3002\u542F\u7528\u7BA1\u7406\u7EDF\u8BA1\u540E\uFF0C\u5F71\u9662\u8BBF\u95EE\u4E0E\u641C\u7D22\u8BCD\u4EC5\u7BA1\u7406\u5458\u53EF\u89C1\uFF0C\u5C55\u793A\u8FD130\u5929\uFF0C\u8FC7\u671F\u660E\u7EC6\u5728\u540E\u7EED\u8BBF\u95EE\u6216\u7BA1\u7406\u67E5\u8BE2\u65F6\u6E05\u7406\u3002<a href="https://github.com/LibreSpark/LibreTV" target="_blank" rel="noopener noreferrer">\u7075\u611F\u6765\u81EALibreTV \u2197</a></p>`;
   }
   async function search(query) {
     query = query.trim();
@@ -150,7 +136,6 @@ function mountCinema(host) {
     }
     if (id === requestId && !disposed) {
       busy = false;
-      remembered = { ...state };
       draw();
     }
   }
@@ -178,16 +163,7 @@ function mountCinema(host) {
   function startPlayer() {
     const video = host.querySelector("video"), current = detail, index = episodeIndex, version = ++playVersion;
     const episode = current.episodes[index];
-    let hls, lastSaved = 0;
-    const updateHistory = () => {
-      if (!Number.isFinite(video.currentTime) || video.currentTime < 1) return;
-      const entry = { sourceKey: current.sourceKey, id: current.id, name: current.name, year: current.year, index, position: video.currentTime, updatedAt: Date.now() };
-      history = [entry, ...history.filter((v) => v.sourceKey !== current.sourceKey || v.id !== current.id)].slice(0, 30);
-      try {
-        localStorage.setItem(HISTORY, JSON.stringify(history));
-      } catch {
-      }
-    };
+    let hls;
     const error = () => {
       const el = host.querySelector(".cinema-play-error");
       if (el && version === playVersion) {
@@ -195,26 +171,16 @@ function mountCinema(host) {
         el.textContent = "\u8FD9\u4E2A\u6765\u6E90\u6682\u65F6\u65E0\u6CD5\u64AD\u653E\uFF0C\u8BD5\u8BD5\u4E0B\u65B9\u7684\u5176\u4ED6\u6765\u6E90\u3002";
       }
     };
-    const previous = history.find((v) => v.sourceKey === current.sourceKey && v.id === current.id && v.index === index);
     video.addEventListener("loadedmetadata", () => {
-      if (previous && previous.position < video.duration - 15) video.currentTime = previous.position;
       video.play().catch(() => {
       });
     }, { once: true });
-    video.addEventListener("timeupdate", () => {
-      if (Date.now() - lastSaved > 5e3) {
-        lastSaved = Date.now();
-        updateHistory();
-      }
-    });
-    video.addEventListener("pause", updateHistory);
     video.addEventListener("error", error);
     video.addEventListener("ended", () => {
       if (index < current.episodes.length - 1 && version === playVersion) changeEpisode(index + 1);
     });
     stopPlayer = () => {
       ++playVersion;
-      updateHistory();
       video.pause();
       hls?.destroy();
       video.removeAttribute("src");
@@ -295,10 +261,6 @@ function mountCinema(host) {
       draw();
     }
     if (b.hasAttribute("data-cinema-example")) search(b.dataset.cinemaExample);
-    if (b.hasAttribute("data-cinema-history")) {
-      const entry = history[Number(b.dataset.cinemaHistory)];
-      if (entry) open(entry, entry.index);
-    }
     if (b.hasAttribute("data-cinema-back")) {
       stopPlayer();
       ++requestId;
@@ -346,7 +308,6 @@ function mountCinema(host) {
       verified = status.verified;
       names = Object.fromEntries((status.sources || []).map((v) => [v.key, v.name]));
       state.selected = state.selected === null ? Object.keys(names) : state.selected.filter((key) => names[key]);
-      history = history.filter((v) => names[v.sourceKey]);
       draw();
     }
   }).catch(() => {
@@ -356,6 +317,8 @@ function mountCinema(host) {
       draw();
     }
   });
+  api("visit", { method: "POST" }).catch(() => {
+  });
   loadDiscovery("recent");
   return () => {
     disposed = true;
@@ -363,7 +326,6 @@ function mountCinema(host) {
     pending?.abort();
     stopPlayer();
     lifecycle.abort();
-    remembered = { ...state };
   };
 }
 
