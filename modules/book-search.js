@@ -1,4 +1,7 @@
 import {mergeBookFiles} from './book-records.js';
+import {mountWiki} from './aero-library.js';
+import {createBookPreview} from './book-preview.js';
+import {searchWorkspace} from './book-search-layout.js';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 const kinds = {book: '书籍', chapter: '章节', paper: '论文', report: '报告', thesis: '学位论文', other: '资料'};
 const languages = {zh: '中文', en: '英文', fr: '法文'};
@@ -9,19 +12,21 @@ const external = (url, label, cls = 'secondary-button') => {
   catch { return ''; }
   return `<a class="${cls}" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${label}<span aria-hidden="true">↗</span></a>`;
 };
-function fileLink(file) {
+function fileLink(file, item) {
   const label = file.format === 'file' ? '下载全文' : `下载 ${esc(file.format.toUpperCase())}`;
   if (file.source === 'hal' && /^\d{1,12}$/.test(file.sourceId))
-    return `<a class="primary-button" href="/api/books/download?source=hal&amp;id=${file.sourceId}" data-book-download="${file.sourceId}">${label}<span aria-hidden="true">↓</span></a>`;
-  return external(file.url, label, 'primary-button');
+    return `<a class="book-preview-link" href="/api/books/preview?source=hal&amp;id=${file.sourceId}" data-book-preview="${file.sourceId}" data-book-title="${esc(item.title)}" data-book-origin="${esc(item.sourceUrl)}">在线预览</a><a class="primary-button" href="/api/books/download?source=hal&amp;id=${file.sourceId}" data-book-download="${file.sourceId}">${label}<span aria-hidden="true">↓</span></a>`;
+  return (file.format === 'pdf' ? external(file.url, '在线预览', 'book-preview-link') : '') + external(file.url, label, 'primary-button');
 }
 
+export function bookView(hash = '') {return hash.split('?')[0] === '#books/wiki' ? 'wiki' : 'search';}
 export function bookShell() {
-  return `<section class="book-room" id="daji-books" aria-label="大吉书房"><header class="book-heading"><div><span class="eyebrow">诸事大吉 · 找书与资料</span><h1>大吉书房<span aria-hidden="true" class="book-seal">读</span></h1><p>搜书名、作者、ISBN，也可以从一个主题开始。</p></div><span class="book-heading-note">书籍 · 论文 · 公开报告</span></header><div class="book-workspace" role="status">正在打开书房……</div></section>`;
+  const view=bookView(typeof location==='undefined'?'':location.hash);
+  return `<section class="book-room" id="daji-books" data-book-view="${view}" aria-label="凯卷有益"><header class="book-heading"><span class="book-room-name">凯卷有益</span><nav class="book-modules" aria-label="书房模块"><a href="#books/search" ${view==='search'?'aria-current="page"':''}>资料搜索</a><a href="#books/wiki" ${view==='wiki'?'aria-current="page"':''}>Wiki 资料库</a></nav></header><div class="book-workspace" role="status">正在打开书房……</div></section>`;
 }
 export function bookCard(item) {
   const citation = [item.authors.join('、'), item.title, item.year].filter(Boolean).join(' · ');
-  return `<article class="book-result"><div class="book-result-mark" aria-hidden="true">${esc(kinds[item.kind] || '资料')}</div><div class="book-result-main"><div class="book-meta"><span>${esc(kinds[item.kind] || '资料')}</span><span>${esc(item.year || '年份未标注')}</span>${item.language ? `<span>${esc(languages[item.language] || item.language)}</span>` : ''}<span>${esc(item.sources.map(source => sourceNames[source] || source).join(' / '))}</span><span class="book-access ${item.access === 'download' ? 'has-file' : ''}">${item.downloads.length ? '来源提供下载' : item.access === 'open' ? '开放阅读' : '仅书目信息'}</span></div><h2>${esc(item.title)}</h2><p class="book-authors">${esc(item.authors.join('、') || '作者未标注')}</p>${item.publisher ? `<p class="book-publisher">${esc(item.publisher)}</p>` : ''}<div class="book-result-actions">${item.downloads.map(file => fileLink(file) + `<span class="book-version">${esc(fileVersions[file.version] || fileVersions.unknown)}</span>`).join('')}${item.readUrl ? external(item.readUrl, '在线阅读') : ''}${external(item.sourceUrl, '查看来源', 'book-source-link')}<button class="book-source-link" type="button" data-book-copy="${esc(citation)}">复制书目</button></div>${item.description || item.doi || item.isbn || item.license ? `<details class="book-details"><summary>摘要与出版信息</summary>${item.description ? `<p>${esc(item.description)}</p>` : ''}${item.isbn ? `<p>ISBN：${esc(item.isbn)}</p>` : ''}${item.doi ? `<p>DOI：${esc(item.doi)}</p>` : ''}${item.license ? `<p>来源标注许可：${esc(item.license)}</p>` : ''}</details>` : ''}</div></article>`;
+  return `<article class="book-result"><div class="book-result-mark" aria-hidden="true">${esc(kinds[item.kind] || '资料')}</div><div class="book-result-main"><div class="book-meta"><span>${esc(kinds[item.kind] || '资料')}</span><span>${esc(item.year || '年份未标注')}</span>${item.language ? `<span>${esc(languages[item.language] || item.language)}</span>` : ''}<span>${esc(item.sources.map(source => sourceNames[source] || source).join(' / '))}</span><span class="book-access ${item.access === 'download' ? 'has-file' : ''}">${item.downloads.length ? '公开全文' : item.access === 'open' ? '开放阅读' : '仅书目信息'}</span></div><h2>${external(item.readUrl || item.sourceUrl, esc(item.title), 'book-title-link')}</h2><p class="book-authors">${esc(item.authors.join('、') || '作者未标注')}</p>${item.publisher ? `<p class="book-publisher">${esc(item.publisher)}</p>` : ''}<div class="book-result-actions">${item.downloads.map(file => fileLink(file, item) + `<span class="book-version">${esc(fileVersions[file.version] || fileVersions.unknown)}</span>`).join('')}${item.readUrl ? external(item.readUrl, '在线阅读') : ''}${external(item.sourceUrl, '查看来源', 'book-source-link')}<button class="book-source-link" type="button" data-book-copy="${esc(citation)}">复制书目</button></div>${item.description || item.doi || item.isbn || item.license ? `<details class="book-details"><summary>摘要与出版信息</summary>${item.description ? `<p>${esc(item.description)}</p>` : ''}${item.isbn ? `<p>ISBN：${esc(item.isbn)}</p>` : ''}${item.doi ? `<p>DOI：${esc(item.doi)}</p>` : ''}${item.license ? `<p>来源标注许可：${esc(item.license)}</p>` : ''}</details>` : ''}</div></article>`;
 }
 
 export function mergeBookPages(previous, incoming) {
@@ -39,22 +44,25 @@ export function mergeBookPages(previous, incoming) {
 }
 
 export function mountBooks(host) {
+  if (host.dataset.bookView === 'wiki') return mountWiki(host.querySelector('.book-workspace'));
   if (location.hostname === 'zhuyep.github.io') {
-    host.querySelector('.book-workspace').outerHTML = `<div class="book-empty"><h2>去大吉书房找一找</h2><p>搜索与下载入口在诸事大吉主站提供。</p>${external('https://zhushi-daji-preview.pages.dev/#books', '打开大吉书房', 'primary-button')}</div>`;
+    host.querySelector('.book-workspace').outerHTML = `<div class="book-empty"><h2>去凯卷有益找一找</h2><p>搜索与下载入口在诸事大吉主站提供。</p>${external('https://zhushi-daji-preview.pages.dev/#books', '打开凯卷有益', 'primary-button')}</div>`;
     return () => {};
   }
   const lifecycle = new AbortController(); let active;
+  const preview = createBookPreview(lifecycle.signal);
   let disposed = false, version = 0, items = [], page = 1, hasMore = false, busy = false, searched = false, lastOptions;
   let sources = [], failures = [], notices = [], error = '', checkedAt = '', effectiveQuery = '';
-  host.querySelector('.book-workspace').outerHTML = `<div class="book-workspace"><form class="book-search-form" aria-label="搜索书籍与资料"><label class="book-search-input"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="m16 16 5 5"/></svg><span class="sr-only">书名、作者、ISBN或主题</span><input name="q" type="search" placeholder="例如：燃气涡轮、管理学、作者或 ISBN" autocomplete="off" required minlength="2" maxlength="160"></label><button class="primary-button red" type="submit">找一找 <span aria-hidden="true">→</span></button><div class="book-filters"><label>资料类型<select name="kind"><option value="all">全部资料</option><option value="book">书籍与章节</option><option value="paper">论文</option><option value="report">报告与学位论文</option></select></label><label>来源<select name="source"><option value="all">全部公开来源</option><option value="openalex">OpenAlex</option><option value="hal">HAL</option><option value="crossref">Crossref</option><option disabled>Z-Library · 待接入</option><option disabled>Anna’s Archive · 待接入</option></select></label><label>语言<select name="language"><option value="all">全部语言</option><option value="zh">中文</option><option value="en">英文</option><option value="fr">法文</option></select></label><label class="book-download-filter"><input type="checkbox" name="files">只看可下载</label></div></form><div class="book-topics" aria-label="试搜一个主题"><span>从这里开始</span>${['航空发动机', '燃气涡轮', '叶轮机械', '管理学', '组织行为学', '项目管理'].map(topic => `<button type="button" data-book-topic="${topic}">${topic}</button>`).join('')}</div><p class="book-live-status" role="status" aria-live="polite"></p><div class="book-results" aria-live="polite" aria-busy="false"></div><section class="book-sources"><div><span class="eyebrow">沿着出处，继续找</span><h2>更多公开入口</h2><p>也可以到这些来源网站直接检索。</p></div><div class="book-source-sites">${external('https://ntrs.nasa.gov/', 'NASA 技术报告')}${external('https://openstax.org/subjects', 'OpenStax 开放教材')}${external('https://arxiv.org/search/', 'arXiv 预印本')}${external('https://www.gutenberg.org/ebooks/', '古腾堡电子书')}</div></section><details class="book-source-settings"><summary>已接入来源与更多书源</summary><div data-book-sources>正在检查来源配置……</div></details><p class="book-file-note">文件由来源网站提供；PDF可能先在浏览器打开，可在阅读器中保存。书目记录不代表有完整电子版。</p></div>`;
+  host.querySelector('.book-workspace').outerHTML = searchWorkspace();
   const form = host.querySelector('form'), results = host.querySelector('.book-results'), status = host.querySelector('.book-live-status');
   function draw() {
     if (disposed) return;
     const visible = form.elements.files.checked ? items.filter(item => item.downloads.length) : items;
+    host.classList.toggle('has-search', searched);
     results.setAttribute('aria-busy', String(busy));
     form.querySelector('[type=submit]').disabled = busy;
     if (!searched) {
-      results.innerHTML = `<div class="book-intro"><span class="book-intro-symbol" aria-hidden="true">阅</span><div><h2>想找的那本书，从这里开始。</h2><p>按书名找版本，按主题找线索。搜索结果会标明来源与可获取方式。</p></div></div>`;
+      results.innerHTML = ''; 
       return;
     }
     const time = checkedAt ? new Intl.DateTimeFormat('zh-CN', {hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Shanghai'}).format(new Date(checkedAt)) : '';
@@ -88,6 +96,11 @@ export function mountBooks(host) {
   }
   form.addEventListener('submit', event => {event.preventDefault(); search();}, {signal: lifecycle.signal});
   form.elements.files.addEventListener('change', draw, {signal: lifecycle.signal});
+  host.addEventListener('click', event => {
+    const link=event.target.closest('[data-book-preview]');
+    if(!link||event.button||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+    event.preventDefault();preview({url:link.href,title:link.dataset.bookTitle,sourceUrl:link.dataset.bookOrigin});
+  }, {signal:lifecycle.signal});
   host.addEventListener('click', async event => {
     const link = event.target.closest('[data-book-download]');
     if (!link) return;

@@ -1,0 +1,262 @@
+{
+  "generatedBy": "daji-wiki-preview",
+  "edition": "2026-10-17-bilingual-v2",
+  "curatedFilesCount": 13,
+  "generatedAt": "2026-10-17T15:48:35.767Z",
+  "pages": 45,
+  "files": [
+    {
+      "id": "137",
+      "name": "01-资料库使用说明.pdf",
+      "originalSha256": "ee15dca5b2e381e1c0ce3bab8f3f1badf84294ee3b08e0030b9f7512923039a8",
+      "previewSha256": "ee15dca5b2e381e1c0ce3bab8f3f1badf84294ee3b08e0030b9f7512923039a8",
+      "previewBytes": 4733,
+      "demo": true
+    },
+    {
+      "id": "138",
+      "name": "02-资料条目模板.docx",
+      "originalSha256": "d2cdb44aaf4474fb4562cc620630cc78a9c000e14a54589374547a6514ad13a6",
+      "previewSha256": "b83218b60d23f32c265e12a1c1db14734ed994fcefbd2b9466b3132404348e46",
+      "previewBytes": 50893,
+      "demo": true
+    },
+    {
+      "id": "139",
+      "name": "03-资料库导览.pptx",
+      "originalSha256": "81554602aaf0ddb90ecc20a030f6bdafe8d97991ad81bcb98f8853cc85b00f23",
+      "previewSha256": "269cd58ec47f85395e2af011ed514b390909fa1126655879dd5d803db9e5ac7b",
+      "previewBytes": 48297,
+      "demo": true
+    },
+    {
+      "id": "140",
+      "name": "04-资料索引模板.xlsx",
+      "originalSha256": "2136a33395e96d2190829e9ca7e2c6f6c964da4720b1a1ad0a8cd326aa8dcb97",
+      "previewSha256": "8d59ca606402f73c66942824ab11b4d10cb0fc1485b72f19d47ea395eff807a1",
+      "previewBytes": 33539,
+      "demo": true
+    },
+    {
+      "id": "233",
+      "name": "MIT-L18-航空发动机建模与涡喷循环.pdf",
+      "originalSha256": "21f4e4b9fc8bb7d70e95c02e2be49f2cfa8b10dc38fbb49233624a2f50a2f171",
+      "previewSha256": "21f4e4b9fc8bb7d70e95c02e2be49f2cfa8b10dc38fbb49233624a2f50a2f171",
+      "previewBytes": 908303,
+      "source": {
+        "title": "航空发动机建模与涡喷循环",
+        "englishTitle": "Aircraft Engine Modelling & the Turbojet Cycle",
+        "sourceUrl": "https://ocw.mit.edu/courses/16-50-introduction-to-propulsion-systems-spring-2012/resources/mit16_50s12_lec18/",
+        "downloadUrl": "https://ocw.mit.edu/courses/16-50-introduction-to-propulsion-systems-spring-2012/8f4b188fdf162c1fceb8f3fc725bc768_MIT16_50S12_lec18.pdf",
+        "license": "CC BY-NC-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+        "attribution": "Jack L. Kerrebrock; Manuel Martinez-Sanchez. 16.50 Introduction to Propulsion Systems, Spring 2012. Massachusetts Institute of Technology: MIT OpenCourseWare.",
+        "modified": false
+      }
+    },
+    {
+      "id": "234",
+      "name": "MIT-L20-部件匹配与非设计点.pdf",
+      "originalSha256": "452c5413f10ab3c5eda7da5d89c77184a956130c5f41b98025e43029bac3d372",
+      "previewSha256": "452c5413f10ab3c5eda7da5d89c77184a956130c5f41b98025e43029bac3d372",
+      "previewBytes": 877507,
+      "source": {
+        "title": "部件匹配与非设计点",
+        "englishTitle": "Component Matching & Off-Design Operation",
+        "sourceUrl": "https://ocw.mit.edu/courses/16-50-introduction-to-propulsion-systems-spring-2012/resources/mit16_50s12_lec20/",
+        "downloadUrl": "https://ocw.mit.edu/courses/16-50-introduction-to-propulsion-systems-spring-2012/3dc5c79b9d63bab09bbe996785f40b53_MIT16_50S12_lec20.pdf",
+        "license": "CC BY-NC-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+        "attribution": "Jack L. Kerrebrock; Manuel Martinez-Sanchez. 16.50 Introduction to Propulsion Systems, Spring 2012. Massachusetts Institute of Technology: MIT OpenCourseWare.",
+        "modified": false
+      }
+    },
+    {
+      "id": "235",
+      "name": "MIT-L21-涡扇发动机.pdf",
+      "originalSha256": "cc34804412e3ae978216bfe196acc693b07f1f1378736e77b773e95c1d29da1d",
+      "previewSha256": "cc34804412e3ae978216bfe196acc693b07f1f1378736e77b773e95c1d29da1d",
+      "previewBytes": 564167,
+      "source": {
+        "title": "涡扇发动机",
+        "englishTitle": "Turbofan Engines",
+        "sourceUrl": "https://ocw.mit.edu/courses/16-50-introduction-to-propulsion-systems-spring-2012/resources/mit16_50s12_lec21/",
+        "downloadUrl": "https://ocw.mit.edu/courses/16-50-introduction-to-propulsion-systems-spring-2012/36f45adbfd250ea05f8ee6735b9f8b66_MIT16_50S12_lec21.pdf",
+        "license": "CC BY-NC-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+        "attribution": "Jack L. Kerrebrock; Manuel Martinez-Sanchez. 16.50 Introduction to Propulsion Systems, Spring 2012. Massachusetts Institute of Technology: MIT OpenCourseWare.",
+        "modified": false
+      }
+    },
+    {
+      "id": "236",
+      "name": "MIT-L22-进气道与扩压器.pdf",
+      "originalSha256": "2606fb3abd165e28525dfbc7d013daf978402b7a23d7943c7782ce92c68318ff",
+      "previewSha256": "2606fb3abd165e28525dfbc7d013daf978402b7a23d7943c7782ce92c68318ff",
+      "previewBytes": 491372,
+      "source": {
+        "title": "进气道与扩压器",
+        "englishTitle": "Inlets & Diffusers",
+        "sourceUrl": "https://ocw.mit.edu/courses/16-50-introduction-to-propulsion-systems-spring-2012/resources/mit16_50s12_lec22/",
+        "downloadUrl": "https://ocw.mit.edu/courses/16-50-introduction-to-propulsion-systems-spring-2012/d5fa3eec1f3fd63d84f4ee158e2e09cf_MIT16_50S12_lec22.pdf",
+        "license": "CC BY-NC-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+        "attribution": "Jack L. Kerrebrock; Manuel Martinez-Sanchez. 16.50 Introduction to Propulsion Systems, Spring 2012. Massachusetts Institute of Technology: MIT OpenCourseWare.",
+        "modified": false
+      }
+    },
+    {
+      "id": "237",
+      "name": "MIT-L24-压气机与风扇.pdf",
+      "originalSha256": "dee18d3deb2f8472dfe4c5fe82bb60c30a247c6d476657e4734bbdd38fa5124f",
+      "previewSha256": "dee18d3deb2f8472dfe4c5fe82bb60c30a247c6d476657e4734bbdd38fa5124f",
+      "previewBytes": 248424,
+      "source": {
+        "title": "压气机与风扇",
+        "englishTitle": "Compressors & Fans",
+        "sourceUrl": "https://ocw.mit.edu/courses/16-50-introduction-to-propulsion-systems-spring-2012/resources/mit16_50s12_lec24/",
+        "downloadUrl": "https://ocw.mit.edu/courses/16-50-introduction-to-propulsion-systems-spring-2012/9f4576d84dc2c9e6b2fe901f2d354ad6_MIT16_50S12_lec24.pdf",
+        "license": "CC BY-NC-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+        "attribution": "Jack L. Kerrebrock; Manuel Martinez-Sanchez. 16.50 Introduction to Propulsion Systems, Spring 2012. Massachusetts Institute of Technology: MIT OpenCourseWare.",
+        "modified": false
+      }
+    },
+    {
+      "id": "238",
+      "name": "MIT-L27-涡轮级与反动度.pdf",
+      "originalSha256": "b78718bfb6f0f8c5232bfa643a04c74b3b15ba755a68779d5e0fda90baa1d018",
+      "previewSha256": "b78718bfb6f0f8c5232bfa643a04c74b3b15ba755a68779d5e0fda90baa1d018",
+      "previewBytes": 433309,
+      "source": {
+        "title": "涡轮级与反动度",
+        "englishTitle": "Turbine Stages & Degree of Reaction",
+        "sourceUrl": "https://ocw.mit.edu/courses/16-50-introduction-to-propulsion-systems-spring-2012/resources/mit16_50s12_lec27/",
+        "downloadUrl": "https://ocw.mit.edu/courses/16-50-introduction-to-propulsion-systems-spring-2012/f1bef726bf721a968bf82511f7ec50f3_MIT16_50S12_lec27.pdf",
+        "license": "CC BY-NC-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+        "attribution": "Jack L. Kerrebrock; Manuel Martinez-Sanchez. 16.50 Introduction to Propulsion Systems, Spring 2012. Massachusetts Institute of Technology: MIT OpenCourseWare.",
+        "modified": false
+      }
+    },
+    {
+      "id": "239",
+      "name": "MIT-L29-涡轮冷却与内部冷却.pdf",
+      "originalSha256": "6d10946ecded665fe6579f83f06ba04a144e33a766fcf1e65282ed50b58fe147",
+      "previewSha256": "6d10946ecded665fe6579f83f06ba04a144e33a766fcf1e65282ed50b58fe147",
+      "previewBytes": 485427,
+      "source": {
+        "title": "涡轮冷却与内部冷却",
+        "englishTitle": "Turbine Cooling & Internal Cooling",
+        "sourceUrl": "https://ocw.mit.edu/courses/16-50-introduction-to-propulsion-systems-spring-2012/resources/mit16_50s12_lec29/",
+        "downloadUrl": "https://ocw.mit.edu/courses/16-50-introduction-to-propulsion-systems-spring-2012/42237291b6fe3a5ec7122058e72e8c97_MIT16_50S12_lec29.pdf",
+        "license": "CC BY-NC-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+        "attribution": "Jack L. Kerrebrock; Manuel Martinez-Sanchez. 16.50 Introduction to Propulsion Systems, Spring 2012. Massachusetts Institute of Technology: MIT OpenCourseWare.",
+        "modified": false
+      }
+    },
+    {
+      "id": "240",
+      "name": "MIT-L31-压气机—涡轮匹配与燃气发生器.pdf",
+      "originalSha256": "07c4087dc9ef9d285dc6955f469c3c97ef3ccc0d3e7191837ffbed194d525aa2",
+      "previewSha256": "07c4087dc9ef9d285dc6955f469c3c97ef3ccc0d3e7191837ffbed194d525aa2",
+      "previewBytes": 244608,
+      "source": {
+        "title": "压气机—涡轮匹配与燃气发生器",
+        "englishTitle": "Compressor–Turbine Matching & Gas Generators",
+        "sourceUrl": "https://ocw.mit.edu/courses/16-50-introduction-to-propulsion-systems-spring-2012/resources/mit16_50s12_lec31/",
+        "downloadUrl": "https://ocw.mit.edu/courses/16-50-introduction-to-propulsion-systems-spring-2012/d274f4ab2b1bd47c05a3cdb1c43e9e33_MIT16_50S12_lec31.pdf",
+        "license": "CC BY-NC-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+        "attribution": "Jack L. Kerrebrock; Manuel Martinez-Sanchez. 16.50 Introduction to Propulsion Systems, Spring 2012. Massachusetts Institute of Technology: MIT OpenCourseWare.",
+        "modified": false
+      }
+    },
+    {
+      "id": "241",
+      "name": "MIT-L32-发动机结构与离心应力.pdf",
+      "originalSha256": "e2bd814664757e55360aa131b85c8933d3317eaa0f0e7e9b065261538a8385fd",
+      "previewSha256": "e2bd814664757e55360aa131b85c8933d3317eaa0f0e7e9b065261538a8385fd",
+      "previewBytes": 382307,
+      "source": {
+        "title": "发动机结构与离心应力",
+        "englishTitle": "Engine Structures & Centrifugal Stress",
+        "sourceUrl": "https://ocw.mit.edu/courses/16-50-introduction-to-propulsion-systems-spring-2012/resources/mit16_50s12_lec32/",
+        "downloadUrl": "https://ocw.mit.edu/courses/16-50-introduction-to-propulsion-systems-spring-2012/62533659a70bbdd5154bc001885678c2_MIT16_50S12_lec32.pdf",
+        "license": "CC BY-NC-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+        "attribution": "Jack L. Kerrebrock; Manuel Martinez-Sanchez. 16.50 Introduction to Propulsion Systems, Spring 2012. Massachusetts Institute of Technology: MIT OpenCourseWare.",
+        "modified": false
+      }
+    },
+    {
+      "id": "242",
+      "name": "MIT-L34-燃烧室与加力燃烧室.pdf",
+      "originalSha256": "330fa2d7e539d897affd5def09cc9277c470758dab0b9167b89f878e285f4160",
+      "previewSha256": "330fa2d7e539d897affd5def09cc9277c470758dab0b9167b89f878e285f4160",
+      "previewBytes": 361835,
+      "source": {
+        "title": "燃烧室与加力燃烧室",
+        "englishTitle": "Combustors & Afterburners",
+        "sourceUrl": "https://ocw.mit.edu/courses/16-50-introduction-to-propulsion-systems-spring-2012/resources/mit16_50s12_lec34/",
+        "downloadUrl": "https://ocw.mit.edu/courses/16-50-introduction-to-propulsion-systems-spring-2012/5c689f5ff54de26a8d26d135ae18f05f_MIT16_50S12_lec34.pdf",
+        "license": "CC BY-NC-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+        "attribution": "Jack L. Kerrebrock; Manuel Martinez-Sanchez. 16.50 Introduction to Propulsion Systems, Spring 2012. Massachusetts Institute of Technology: MIT OpenCourseWare.",
+        "modified": false
+      }
+    },
+    {
+      "id": "243",
+      "name": "MIT-L35-污染物形成与减排.pdf",
+      "originalSha256": "e4c9536a1584f98ffeea09004f2848eb0f724e9c952829945243af9efbe18c0f",
+      "previewSha256": "e4c9536a1584f98ffeea09004f2848eb0f724e9c952829945243af9efbe18c0f",
+      "previewBytes": 350378,
+      "source": {
+        "title": "污染物形成与减排",
+        "englishTitle": "Pollutant Formation & Emission Reduction",
+        "sourceUrl": "https://ocw.mit.edu/courses/16-50-introduction-to-propulsion-systems-spring-2012/resources/mit16_50s12_lec35/",
+        "downloadUrl": "https://ocw.mit.edu/courses/16-50-introduction-to-propulsion-systems-spring-2012/d6955ed01e465183e78ecb9585e98381_MIT16_50S12_lec35.pdf",
+        "license": "CC BY-NC-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+        "attribution": "Jack L. Kerrebrock; Manuel Martinez-Sanchez. 16.50 Introduction to Propulsion Systems, Spring 2012. Massachusetts Institute of Technology: MIT OpenCourseWare.",
+        "modified": false
+      }
+    },
+    {
+      "id": "244",
+      "name": "MIT-L36-航空发动机噪声基础.pdf",
+      "originalSha256": "898cf4b06eb32242111dbca29bb6b2c14aa2398b004e92f92e7c07bca42af65b",
+      "previewSha256": "898cf4b06eb32242111dbca29bb6b2c14aa2398b004e92f92e7c07bca42af65b",
+      "previewBytes": 682489,
+      "source": {
+        "title": "航空发动机噪声基础",
+        "englishTitle": "Aircraft Engine Noise",
+        "sourceUrl": "https://ocw.mit.edu/courses/16-50-introduction-to-propulsion-systems-spring-2012/resources/mit16_50s12_lec36/",
+        "downloadUrl": "https://ocw.mit.edu/courses/16-50-introduction-to-propulsion-systems-spring-2012/3ef25ccfca81dc2240acd75d665c33e3_MIT16_50S12_lec36.pdf",
+        "license": "CC BY-NC-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+        "attribution": "Jack L. Kerrebrock; Manuel Martinez-Sanchez. 16.50 Introduction to Propulsion Systems, Spring 2012. Massachusetts Institute of Technology: MIT OpenCourseWare.",
+        "modified": false
+      }
+    },
+    {
+      "id": "245",
+      "name": "NASA-TM-2010-216810-发动机与控制器仿真.pdf",
+      "originalSha256": "e73f18707f96e41bc4488fd0e9f58ce6c5c00d2d02f2ae747e8f960de39de843",
+      "previewSha256": "e73f18707f96e41bc4488fd0e9f58ce6c5c00d2d02f2ae747e8f960de39de843",
+      "previewBytes": 587570,
+      "source": {
+        "title": "通用商用航空发动机与控制器高保真仿真",
+        "englishTitle": "Engine & Controller Simulation",
+        "sourceUrl": "https://ntrs.nasa.gov/citations/20100037767",
+        "downloadUrl": "https://ntrs.nasa.gov/api/citations/20100037767/downloads/20100037767.pdf",
+        "license": "Public Use Permitted",
+        "licenseUrl": "https://ntrs.nasa.gov/citations/20100037767",
+        "attribution": "Ryan D. May; Jeffrey Csank; Thomas M. Lavelle; Jonathan S. Litt; Ten-Huei Guo. A High-Fidelity Simulation of a Generic Commercial Aircraft Engine and Controller. NASA/TM-2010-216810, 2010.",
+        "modified": false
+      }
+    }
+  ]
+}
