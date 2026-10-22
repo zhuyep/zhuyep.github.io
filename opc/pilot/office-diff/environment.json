@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "source": "captured",
+  "platform": {
+    "system": "Darwin",
+    "release": "25.6.0",
+    "machine": "arm64"
+  },
+  "tools": {
+    "libreoffice": {
+      "status": "unknown",
+      "version": null
+    },
+    "pdftoppm": {
+      "status": "available",
+      "version": "pdftoppm version 26.05.0"
+    },
+    "pdfinfo": {
+      "status": "available",
+      "version": "pdfinfo version 26.05.0"
+    },
+    "fontconfig": {
+      "status": "unavailable",
+      "version": null
+    }
+  },
+  "fonts": {
+    "status": "unavailable",
+    "families": [],
+    "file_hashes": [],
+    "unhashed_files": 0
+  },
+  "fingerprint": "c0edcf407857c2d6808e2bc1c95a13c5051e9f6361f31c913c8d3bcdd8082674"
+}

@@ -1,0 +1,76 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'">
+<title>Office Diff · Preflight evidence</title><style>
+:root {color-scheme:light; --ink:#182e38; --muted:#526570; --line:#d7e0e4; --accent:#176358}
+* {box-sizing:border-box} body {margin:0; background:#f4f6f5;color:var(--ink);
+font:16px/1.65 system-ui,sans-serif} main {max-width:1150px;margin:auto;padding:38px 24px 72px}
+header {border-top:5px solid var(--accent);padding-top:24px;margin-bottom:30px}
+.eyebrow {letter-spacing:.14em;font-size:12px;font-weight:700;color:var(--accent)}
+h1 {font-size:clamp(30px,5vw,48px);line-height:1.15;margin:12px 0 18px;letter-spacing:-.03em}
+h2 {font-size:23px;margin:0 0 14px} p {margin:10px 0} .lead
+{max-width:750px;color:var(--muted)}
+section {background:white;border:1px solid var(--line);padding:24px;margin:20px 0}
+.signals {display:grid;grid-template-columns:1fr 1fr;gap:14px} .signal
+{padding:20px;background:#e3eee9}
+.signal strong {display:block;font-size:22px;line-height:1.3} .signal span
+{font-size:13px;color:var(--muted)}
+.banner {background:#fff1c9;border-left:4px solid #9a6920;padding:12px 18px;font-weight:650}
+.warn {border-left:4px solid #9a6920} .hash
+{font-size:12px;overflow-wrap:anywhere;color:var(--muted)}
+table {width:100%;border-collapse:collapse;font-size:14px;text-align:left} th,td
+{padding:10px 12px;
+border-bottom:1px solid var(--line);vertical-align:top} th {background:#eef3f1}
+.table-wrap {overflow-x:auto} code,pre {font-family:ui-monospace,monospace;font-size:13px}
+pre {overflow-x:auto;background:#edf2f1;padding:20px;white-space:pre-wrap;overflow-wrap:anywhere}
+details {margin-top:18px} summary {cursor:pointer;font-weight:600} li {margin:8px 0}
+a {color:var(--accent)} footer {color:var(--muted);font-size:13px}
+@media(max-width:650px) {main {padding:24px 14px} section {padding:18px} .signals
+{grid-template-columns:1fr}}
+</style></head><body><main><header><div class="eyebrow">OFFICE DIFF / PREFLIGHT</div>
+<h1>What changed in the source?<br>What changed in the environment?</h1>
+<p class="lead">Read the evidence before interpreting a visual diff. This report checks DOCX / PPTX
+font declarations, extracted text and observed environment fields. It renders no
+pages.</p></header>
+<div class="signals"><div class="signal"><span>SOURCE
+EVIDENCE</span><strong>Extracted text changed</strong></div>
+<div class="signal"><span>ENVIRONMENT EVIDENCE</span><strong>No baseline environment supplied</strong></div></div>
+<section class="warn"><h2>Review notes (4)</h2><ul><li>Base font availability is unknown: no complete font inventory.</li><li>Current font availability is unknown: no complete font inventory.</li><li>libreoffice is not verified in the current environment.</li><li>fontconfig is not verified in the current environment.</li></ul>
+<p>No warning is proof of visual correctness or a font-caused regression.</p></section>
+<section><h2>Source changes</h2><p>Declared families added: <strong>none</strong><br>
+Declared families removed: <strong>none</strong></p><pre>--- base/before.pptx
++++ current/after.pptx
+@@ -1,5 +1,5 @@
++--- ppt/slides/slide2.xml ---
++Decision
++
+ --- ppt/slides/slide1.xml ---
+ Overview
+-
+---- ppt/slides/slide2.xml ---
+-Decision</pre></section>
+<section><h2>Base · before.pptx</h2><p class="hash">SHA-256 75eb54b98672672b919dc9cac897e8618bef3c677fe3fd5b56c8d307918237df</p>
+<p>Font availability: <strong>unknown</strong>. Names describe declarations, not actual use.</p>
+<div class="table-wrap"><table><thead><tr><th>Family</th><th>Role</th><th>OOXML part</th>
+<th>Evidence</th></tr></thead><tbody><tr><td colspan="4">No explicit or theme-palette declarations found.</td></tr></tbody></table></div>
+<details><summary>Unresolved theme references (0)</summary><ul></ul></details>
+<p>Embedded-font evidence: none detected. This does not establish renderer support.</p></section>
+
+<section><h2>Current · after.pptx</h2><p class="hash">SHA-256 c440df57e5a23dabfb9a4268bf335d3c69d69fcf5f600ac8430a0f5bd81b8029</p>
+<p>Font availability: <strong>unknown</strong>. Names describe declarations, not actual use.</p>
+<div class="table-wrap"><table><thead><tr><th>Family</th><th>Role</th><th>OOXML part</th>
+<th>Evidence</th></tr></thead><tbody><tr><td colspan="4">No explicit or theme-palette declarations found.</td></tr></tbody></table></div>
+<details><summary>Unresolved theme references (0)</summary><ul></ul></details>
+<p>Embedded-font evidence: none detected. This does not establish renderer support.</p></section>
+<section><h2>Observed environment</h2><p>Changed fields: none observed</p>
+<p class="hash">Baseline fingerprint: not supplied<br>Current fingerprint: c0edcf407857c2d6808e2bc1c95a13c5051e9f6361f31c913c8d3bcdd8082674</p>
+<div class="table-wrap"><table><thead><tr><th>Tool</th><th>Evidence</th><th>Version
+output</th></tr></thead>
+<tbody><tr><td>libreoffice</td><td>unknown</td><td>Unknown</td></tr><tr><td>pdftoppm</td><td>available</td><td>pdftoppm version 26.05.0</td></tr><tr><td>pdfinfo</td><td>available</td><td>pdfinfo version 26.05.0</td></tr><tr><td>fontconfig</td><td>unavailable</td><td>Unknown</td></tr></tbody></table></div><p>Font inventory: unavailable. Full machine-readable
+snapshots are in
+<a href="summary.json">summary.json</a>; the current snapshot is in <a
+href="environment.json">environment.json</a>.</p>
+</section><section><h2>Limits of this evidence</h2><ul><li>No pages were rendered. These checks do not attribute any pixel difference to a font.</li><li>Font declarations can come from unused styles. Theme references are not resolved.</li><li>A listed family does not prove glyph coverage, shaping, font selection or embedded-font use.</li><li>Equal observed environment fingerprints do not guarantee equal rendering: fontconfig rules, Office settings, locale and other dependencies are not fully captured.</li><li>Extracted text is not document equivalence. Formatting, images, charts and some fields are outside this check. PPTX slide text follows the presentation&#x27;s declared order; notes are appended in part filename order. Packages without presentation metadata are explicitly marked as filename-order fallbacks. This is not semantic slide matching.</li></ul></section>
+<footer>Office Diff Action · Local inspection. No telemetry, external scripts or document
+upload.</footer>
+</main></body></html>

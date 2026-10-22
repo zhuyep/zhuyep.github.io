@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "mode": "preflight",
+  "synthetic_environment": false,
+  "base": {
+    "name": "before.pptx",
+    "sha256": "75eb54b98672672b919dc9cac897e8618bef3c677fe3fd5b56c8d307918237df",
+    "font_inspection": {
+      "declarations": [],
+      "theme_references": [],
+      "embedded_fonts": [],
+      "limitations": [
+        "Declarations may come from unused styles or defaults; they are not effective fonts.",
+        "Style inheritance, theme references, script selection, and renderer substitutions are not resolved.",
+        "Theme palette entries are catalogs, not a list of required installed fonts.",
+        "Word fontTable catalog names are not treated as usage declarations.",
+        "Embedded font clues do not prove that a renderer can load or use those fonts.",
+        "Glyph coverage, font licensing, and full OOXML schema validity are not checked."
+      ]
+    },
+    "declared_families": [],
+    "inventory_check": "unknown",
+    "families_absent_from_inventory": []
+  },
+  "current": {
+    "name": "after.pptx",
+    "sha256": "c440df57e5a23dabfb9a4268bf335d3c69d69fcf5f600ac8430a0f5bd81b8029",
+    "font_inspection": {
+      "declarations": [],
+      "theme_references": [],
+      "embedded_fonts": [],
+      "limitations": [
+        "Declarations may come from unused styles or defaults; they are not effective fonts.",
+        "Style inheritance, theme references, script selection, and renderer substitutions are not resolved.",
+        "Theme palette entries are catalogs, not a list of required installed fonts.",
+        "Word fontTable catalog names are not treated as usage declarations.",
+        "Embedded font clues do not prove that a renderer can load or use those fonts.",
+        "Glyph coverage, font licensing, and full OOXML schema validity are not checked."
+      ]
+    },
+    "declared_families": [],
+    "inventory_check": "unknown",
+    "families_absent_from_inventory": []
+  },
+  "text": {
+    "status": "changed",
+    "truncated": false,
+    "diff": "--- base/before.pptx\n+++ current/after.pptx\n@@ -1,5 +1,5 @@\n+--- ppt/slides/slide2.xml ---\n+Decision\n+\n --- ppt/slides/slide1.xml ---\n Overview\n-\n---- ppt/slides/slide2.xml ---\n-Decision"
+  },
+  "font_declaration_changes": {
+    "added": [],
+    "removed": []
+  },
+  "environment_comparison": {
+    "status": "not_compared",
+    "changed_fields": [],
+    "baseline_fingerprint": null,
+    "current_fingerprint": "c0edcf407857c2d6808e2bc1c95a13c5051e9f6361f31c913c8d3bcdd8082674",
+    "limitations": [
+      "This fingerprint describes observed configuration; it does not guarantee reproducibility.",
+      "Fontconfig inventory does not identify fonts actually selected by the Office renderer.",
+      "Font hashes describe observed file contents; paths and selection order are omitted.",
+      "Current observations are incomplete: tools.libreoffice, tools.fontconfig, fonts",
+      "No baseline environment was supplied."
+    ]
+  },
+  "baseline_environment": null,
+  "environment": {
+    "schema_version": 1,
+    "source": "captured",
+    "platform": {
+      "system": "Darwin",
+      "release": "25.6.0",
+      "machine": "arm64"
+    },
+    "tools": {
+      "libreoffice": {
+        "status": "unknown",
+        "version": null
+      },
+      "pdftoppm": {
+        "status": "available",
+        "version": "pdftoppm version 26.05.0"
+      },
+      "pdfinfo": {
+        "status": "available",
+        "version": "pdfinfo version 26.05.0"
+      },
+      "fontconfig": {
+        "status": "unavailable",
+        "version": null
+      }
+    },
+    "fonts": {
+      "status": "unavailable",
+      "families": [],
+      "file_hashes": [],
+      "unhashed_files": 0
+    },
+    "fingerprint": "c0edcf407857c2d6808e2bc1c95a13c5051e9f6361f31c913c8d3bcdd8082674"
+  },
+  "warnings": [
+    "Base font availability is unknown: no complete font inventory.",
+    "Current font availability is unknown: no complete font inventory.",
+    "libreoffice is not verified in the current environment.",
+    "fontconfig is not verified in the current environment."
+  ],
+  "limitations": [
+    "No pages were rendered. These checks do not attribute any pixel difference to a font.",
+    "Font declarations can come from unused styles. Theme references are not resolved.",
+    "A listed family does not prove glyph coverage, shaping, font selection or embedded-font use.",
+    "Equal observed environment fingerprints do not guarantee equal rendering: fontconfig rules, Office settings, locale and other dependencies are not fully captured.",
+    "Extracted text is not document equivalence. Formatting, images, charts and some fields are outside this check. PPTX slide text follows the presentation's declared order; notes are appended in part filename order. Packages without presentation metadata are explicitly marked as filename-order fallbacks. This is not semantic slide matching."
+  ]
+}
