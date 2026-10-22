@@ -114,3 +114,17 @@ html[data-theme=dark]{--graph-source:#d2b184;--graph-edge:#657263;--graph-dot:#4
 @font-face{font-family:TianjiHand;src:url('/games/wenchen/tianji-hand.woff') format('woff');font-display:swap}
 .wenchen-card{grid-column:1/-1;display:grid;grid-template-columns:1fr 1.1fr;border:1px solid #111;background:#fff;color:#111}.wenchen-card .game-info{padding:35px 40px}.wenchen-card .game-title-row h2{color:#111;font-family:TianjiHand,var(--serif);font-size:43px;font-weight:400}.wenchen-card .game-title-row span{background:#fff;color:#555;border-color:#aaa}.wenchen-card .game-info h3{color:#111;font-size:29px;font-family:TianjiHand,var(--serif);font-weight:400}.wenchen-card .game-info p{color:#444}.wenchen-card .primary-button{background:#111;border-color:#111;color:#fff;width:100%;justify-content:space-between;min-height:50px}.wenchen-card .game-rules{border-color:#ccc}.wenchen-card .game-rules summary{color:#111;min-height:44px;display:flex;align-items:center}.wenchen-card .game-rules a{color:#111}.wenchen-card .game-info .wenchen-note{font-size:10px;margin:10px 0 4px;letter-spacing:.5px}.wenchen-art{position:relative;min-height:360px;overflow:hidden;background:#fff url('/games/wenchen/ink-hand.jpg') right center/contain no-repeat}.wenchen-symbol{position:absolute;left:8%;bottom:12%;display:flex;gap:14px;align-items:flex-start;color:#111}.wenchen-symbol strong{font:normal 41px/1.3 TianjiHand,var(--serif);writing-mode:vertical-rl;letter-spacing:7px;color:#111}.wenchen-symbol small{font-size:7px;letter-spacing:1px;writing-mode:vertical-rl;margin-top:5px}@media(max-width:759px){.wenchen-card{display:block}.wenchen-art{min-height:220px;background-position:center;background-size:260px}.wenchen-symbol{bottom:15%;left:13%}.wenchen-symbol strong{font-size:34px;letter-spacing:5px}.wenchen-card .game-info{padding:24px}.wenchen-card .game-info h3{font-size:27px}.wenchen-card .game-title-row h2{font-size:38px}}
 
+
+/* Inline work reading briefs, authorized 2026-10-22. */
+.intel-card>.work-brief{grid-column:1/-1;margin-top:14px;padding:16px 18px;border-left:2px solid var(--green);background:var(--soft);text-align:left;overflow-wrap:anywhere}
+.work-brief-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:10px}
+.work-brief-heading strong,.work-brief-pending strong{font-size:14px;font-weight:600;letter-spacing:1px;color:var(--ink)}
+.work-brief-heading span{font-size:12px;color:var(--green);white-space:nowrap}
+.work-brief dl{margin:0;display:grid;gap:8px}
+.work-brief dl>div{display:grid;grid-template-columns:2em minmax(0,1fr);gap:12px}
+.work-brief dt{font-size:13px;line-height:1.8;color:var(--muted)}
+.work-brief dd{margin:0;font-size:14px;line-height:1.8;color:var(--ink)}
+.intel-card .work-brief .work-brief-boundary{margin:12px 0 7px;font-size:12px;line-height:1.8;color:var(--muted);display:block;-webkit-line-clamp:unset}
+.work-brief small{font-size:11px;line-height:1.8;color:var(--muted);display:block}
+.intel-card .work-brief-pending p{font-size:13px;color:var(--muted);margin:7px 0 0}
+@media(max-width:759px){.intel-card>.work-brief{padding:14px 13px;margin-top:12px}.work-brief dd{font-size:14px}.work-brief dl>div{gap:10px}.work-brief-heading span{font-size:11px}}

@@ -853,8 +853,63 @@ function intelResults() {
   const rows = matchingIntel();
   return facetMarkup(intelFacet) + (intelView === "graph" ? graphMarkup(rows) : intelView === "trends" ? trendsMarkup(rows, data.intel) : intelListResults(rows));
 }
+var DajiWorkBrief = (() => {
+  var __defProp = Object.defineProperty;
+  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __export = (target, all) => {
+    for (var name in all)
+      __defProp(target, name, { get: all[name], enumerable: true });
+  };
+  var __copyProps = (to, from, except, desc) => {
+    if (from && typeof from === "object" || typeof from === "function") {
+      for (let key of __getOwnPropNames(from))
+        if (!__hasOwnProp.call(to, key) && key !== except)
+          __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+    }
+    return to;
+  };
+  var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+  // demo/modules/intel-work-brief.js
+  var intel_work_brief_exports = {};
+  __export(intel_work_brief_exports, {
+    parseWorkBrief: () => parseWorkBrief,
+    workBriefMarkup: () => workBriefMarkup
+  });
+  var FIELDS = ["\u5173\u8054", "\u5173\u6CE8", "\u501F\u9274", "\u8FB9\u754C"];
+  function parseWorkBrief(text = "") {
+    if (typeof text !== "string") return null;
+    const header = text.match(/^【航发关联预判\s*·\s*([^】]+)】/);
+    if (!header) return /^航发关联预判待补/.test(text) ? { pending: true } : null;
+    if (header[1].includes("\u5F85\u8865")) return { pending: true };
+    const end = text.indexOf("\n\u793E\u533A\u8BA8\u8BBA\uFF1A");
+    const body = end < 0 ? text : text.slice(0, end);
+    const values = {};
+    for (let i = 0; i < FIELDS.length; i++) {
+      const label = FIELDS[i], start = body.indexOf(label + "\uFF1A", header[0].length);
+      if (start < 0) return null;
+      const next = i < FIELDS.length - 1 ? body.indexOf(FIELDS[i + 1] + "\uFF1A", start + label.length + 1) : body.indexOf("\uFF08AI\u521D\u5224", start);
+      if (next < 0) return null;
+      values[label] = body.slice(start + label.length + 1, next).trim();
+      if (!values[label]) return null;
+    }
+    const level = header[1].split("\xB7")[0].trim();
+    if (!["\u76F4\u63A5\u76F8\u5173", "\u65B9\u6CD5\u53EF\u501F\u9274", "\u6301\u7EED\u89C2\u5BDF", "\u5173\u8054\u8F83\u5F31"].includes(level)) return null;
+    return { level, summaryOnly: header[1].includes("\u4EC5\u636E\u6458\u8981"), values };
+  }
+  function workBriefMarkup(record, { escape }) {
+    const brief = parseWorkBrief(record.discussion);
+    if (!brief) return "";
+    if (brief.pending) return '<aside class="work-brief work-brief-pending" aria-label="\u822A\u53D1\u5173\u8054\u9884\u5224"><strong>\u5DE5\u4F5C\u601D\u8003</strong><p>\u9884\u5224\u5F85\u8865\uFF0C\u73B0\u6709\u4F9D\u636E\u4E0D\u8DB3\u3002</p></aside>';
+    return `<aside class="work-brief" aria-label="\u822A\u53D1\u5173\u8054\u9884\u5224"><div class="work-brief-heading"><strong>\u5DE5\u4F5C\u601D\u8003</strong><span>${escape(brief.level)}</span></div><dl>${["\u5173\u8054", "\u5173\u6CE8", "\u501F\u9274"].map((label) => `<div><dt>${label}</dt><dd>${escape(brief.values[label])}</dd></div>`).join("")}</dl><p class="work-brief-boundary">\u8FB9\u754C\uFF1A${escape(brief.values["\u8FB9\u754C"])}</p><small>AI\u521D\u5224 \xB7 ${brief.summaryOnly ? "\u4EC5\u636E\u6458\u8981\uFF0C\u539F\u6587\u5F85\u6838" : "\u4F9D\u636E\u91C7\u96C6\u6B63\u6587\uFF0C\u672A\u7ECF\u4E13\u9879\u6838\u9A8C"}</small></aside>`;
+  }
+  return __toCommonJS(intel_work_brief_exports);
+})();
+
 function intelListResults(rows) {
-  return `<div class="result-heading"><span role="status" aria-live="polite">\u627E\u5230 <b>${rows.length}</b> \u6761\u60C5\u62A5</span><span>${filters.q.trim() ? "\u76F8\u5173\u5185\u5BB9\u4F18\u5148" : "\u6700\u8FD1\u6536\u5F55"}</span></div>${rows.length ? rows.slice(0, limit).map((r, i) => `<article class="intel-card ${i === 0 ? "featured" : ""}"><button class="card-open" data-read="${esc2(r.key)}"><span class="meta"><span class="brand-tag intel">${esc2(r.category)}</span><span>${date2(r.reportDate)} \u6536\u5F55</span></span><h2>${esc2(r.title)}</h2><p>${esc2(r.summary)}</p><span class="meta"><span class="meta-pill">\u4F18\u5148\u7EA7 ${esc2(r.score)}</span><span>${esc2(r.sourceName)}</span></span></button>${bookmark(r)}</article>`).join("") : empty("\u6682\u672A\u627E\u5230", "\u6362\u4E2A\u5173\u952E\u8BCD\uFF0C\u6216\u51CF\u5C11\u5173\u952E\u8BCD\u6570\u91CF\u518D\u8BD5\u8BD5\u3002", button("reset", "\u67E5\u770B\u5168\u90E8\u60C5\u62A5"))}${rows.length > limit ? button("more", "\u518D\u770B 12 \u6761", "load-more") : ""}`;
+  return `<div class="result-heading"><span role="status" aria-live="polite">\u627E\u5230 <b>${rows.length}</b> \u6761\u60C5\u62A5</span><span>${filters.q.trim() ? "\u76F8\u5173\u5185\u5BB9\u4F18\u5148" : "\u6700\u8FD1\u6536\u5F55"}</span></div>${rows.length ? rows.slice(0, limit).map((r, i) => `<article class="intel-card ${i === 0 ? "featured" : ""}"><button class="card-open" data-read="${esc2(r.key)}"><span class="meta"><span class="brand-tag intel">${esc2(r.category)}</span><span>${date2(r.reportDate)} \u6536\u5F55</span></span><h2>${esc2(r.title)}</h2><p>${esc2(r.summary)}</p><span class="meta"><span class="meta-pill">\u4F18\u5148\u7EA7 ${esc2(r.score)}</span><span>${esc2(r.sourceName)}</span></span></button>${bookmark(r)}${DajiWorkBrief.workBriefMarkup(r,{escape:esc2})}</article>`).join("") : empty("\u6682\u672A\u627E\u5230", "\u6362\u4E2A\u5173\u952E\u8BCD\uFF0C\u6216\u51CF\u5C11\u5173\u952E\u8BCD\u6570\u91CF\u518D\u8BD5\u8BD5\u3002", button("reset", "\u67E5\u770B\u5168\u90E8\u60C5\u62A5"))}${rows.length > limit ? button("more", "\u518D\u770B 12 \u6761", "load-more") : ""}`;
 }
 function library() {
   return title("\u8A00\u5E93", "\u8A00\u4E4B\u6709\u636E\uFF0C\u843D\u7B14\u6709\u7AE0\u3002", "\u5199\u4F5C\u8D44\u6E90 \xB7 \u516C\u5F00\u6750\u6599\u539F\u521B\u6574\u7406") + `<div class="tabs library-tabs" aria-label="\u8A00\u5E93\u529F\u80FD">${[["blocks", "\u6BB5\u843D\u5E93"], ["intent", "\u6211\u60F3\u8868\u8FBE"]].map(([k, t]) => `<button data-tab="${k}" class="${tab === k ? "active" : ""}" aria-pressed="${tab === k}">${t}</button>`).join("")}</div>${tab === "intent" ? `<section class="intent-intro"><h2>\u5148\u8BF4\u60F3\u6CD5\uFF0C\u518D\u627E\u8868\u8FBE\u3002</h2><p>\u5199\u4E0B\u4E00\u53E5\u6734\u7D20\u7684\u8BDD\uFF0C\u4ECE\u5DF2\u6709\u7D20\u6750\u4E2D\u5339\u914D\u5408\u9002\u6BB5\u843D\u3002</p><div class="suggestions">${INTENT_EXAMPLES.map((q) => `<button data-example="${esc2(q)}">${esc2(q)}</button>`).join("")}</div></section>` : ""}${searchBar(tab === "intent" ? "\u4F8B\u5982\uFF1A\u4EFB\u52A1\u5DF2\u7ECF\u660E\u786E\uFF0C\u5173\u952E\u662F\u6293\u843D\u5B9E" : "\u641C\u7D22\u6BB5\u843D\u3001\u4E3B\u9898\u3001\u573A\u666F\u6216\u6765\u6E90")}<details class="filter-panel"><summary>\u6309\u7528\u9014\u7B5B\u9009</summary><div class="filter-fields">${field("category", "\u6BB5\u843D\u7528\u9014", unique(data.blocks.map((r) => r.category)))}${field("scene", "\u8BB2\u8BDD\u573A\u666F", SCENE_GROUPS.filter((s) => s !== "\u5168\u90E8\u573A\u666F"))}<div class="field"><label for="filter-validity">\u9002\u7528\u72B6\u6001</label><select id="filter-validity" data-filter="validity">${options(Object.keys(valid), filters.validity).replace(/>current</g, ">\u5F53\u524D\u9002\u7528<").replace(/>watch</g, ">\u4F7F\u7528\u524D\u590D\u6838<").replace(/>historical</g, ">\u5386\u53F2\u53C2\u8003<")}</select></div></div></details><div class="page-columns"><section class="content-pane" id="results">${blockResults()}</section><aside class="side-column"><section class="side-panel library-info"><div class="section-heading"><h2>\u539F\u6587\u4E0E\u8868\u8FBE</h2></div><p>${esc2(payload.yanku.notice)}</p><div class="subtle-note">${payload.yanku.materials.length} \u4EFD\u6838\u6E90\u6750\u6599 \xB7 ${data.blocks.length} \u6BB5\u539F\u521B\u6574\u7406<br>\u8D44\u6599\u66F4\u65B0 ${date2(payload.yanku.generatedAt)}</div></section></aside></div>`;
