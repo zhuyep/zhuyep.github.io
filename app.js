@@ -876,6 +876,7 @@ var DajiWorkBrief = (() => {
   var intel_work_brief_exports = {};
   __export(intel_work_brief_exports, {
     parseWorkBrief: () => parseWorkBrief,
+    readingReason: () => readingReason,
     workBriefMarkup: () => workBriefMarkup
   });
   var FIELDS = ["\u5173\u8054", "\u5173\u6CE8", "\u501F\u9274", "\u8FB9\u754C"];
@@ -899,11 +900,18 @@ var DajiWorkBrief = (() => {
     if (!["\u76F4\u63A5\u76F8\u5173", "\u65B9\u6CD5\u53EF\u501F\u9274", "\u6301\u7EED\u89C2\u5BDF", "\u5173\u8054\u8F83\u5F31"].includes(level)) return null;
     return { level, summaryOnly: header[1].includes("\u4EC5\u636E\u6458\u8981"), values };
   }
+  function readingReason(brief) {
+    if (!brief || brief.pending) return "";
+    const field = ["\u6301\u7EED\u89C2\u5BDF", "\u5173\u8054\u8F83\u5F31"].includes(brief.level) ? "\u5173\u6CE8" : "\u501F\u9274";
+    const text = brief.values[field];
+    const sentence = text.match(/^[\s\S]*?[。！？][”’」』]?/)?.[0] || text;
+    return /[。！？][”’」』]?$/.test(sentence) ? sentence : sentence + "\u3002";
+  }
   function workBriefMarkup(record, { escape }) {
-    const brief = parseWorkBrief(record.discussion);
-    if (!brief) return "";
-    if (brief.pending) return '<aside class="work-brief work-brief-pending" aria-label="\u822A\u53D1\u5173\u8054\u9884\u5224"><strong>\u5DE5\u4F5C\u601D\u8003</strong><p>\u9884\u5224\u5F85\u8865\uFF0C\u73B0\u6709\u4F9D\u636E\u4E0D\u8DB3\u3002</p></aside>';
-    return `<aside class="work-brief" aria-label="\u822A\u53D1\u5173\u8054\u9884\u5224"><div class="work-brief-heading"><strong>\u5DE5\u4F5C\u601D\u8003</strong><span>${escape(brief.level)}</span></div><dl>${["\u5173\u8054", "\u5173\u6CE8", "\u501F\u9274"].map((label) => `<div><dt>${label}</dt><dd>${escape(brief.values[label])}</dd></div>`).join("")}</dl><p class="work-brief-boundary">\u8FB9\u754C\uFF1A${escape(brief.values["\u8FB9\u754C"])}</p><small>AI\u521D\u5224 \xB7 ${brief.summaryOnly ? "\u4EC5\u636E\u6458\u8981\uFF0C\u539F\u6587\u5F85\u6838" : "\u4F9D\u636E\u91C7\u96C6\u6B63\u6587\uFF0C\u672A\u7ECF\u4E13\u9879\u6838\u9A8C"}</small></aside>`;
+    const brief = parseWorkBrief(record.discussion), reason = readingReason(brief);
+    if (!reason) return "";
+    const basis = brief.summaryOnly ? "\u4EC5\u636E\u6458\u8981\uFF0C\u539F\u6587\u5F85\u6838" : "\u4F9D\u636E\u91C7\u96C6\u6B63\u6587\uFF0C\u672A\u7ECF\u4E13\u9879\u6838\u9A8C";
+    return `<button type="button" class="work-brief" data-read="${escape(record.key || "intel:" + record.id)}" title="AI\u9605\u8BFB\u63D0\u793A \xB7 ${basis}"><span class="work-brief-label">AI \u770B\u70B9</span><span class="work-brief-reason">${escape(reason)}</span><span class="work-brief-arrow" aria-hidden="true">\u2197</span></button>`;
   }
   return __toCommonJS(intel_work_brief_exports);
 })();
