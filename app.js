@@ -875,6 +875,7 @@ var DajiWorkBrief = (() => {
   // demo/modules/intel-work-brief.js
   var intel_work_brief_exports = {};
   __export(intel_work_brief_exports, {
+    intelCardMarkup: () => intelCardMarkup,
     parseWorkBrief: () => parseWorkBrief,
     readingReason: () => readingReason,
     workBriefMarkup: () => workBriefMarkup
@@ -907,18 +908,21 @@ var DajiWorkBrief = (() => {
     const sentence = text.match(/^[\s\S]*?[。！？][”’」』]?/)?.[0] || text;
     return /[。！？][”’」』]?$/.test(sentence) ? sentence : sentence + "\u3002";
   }
-  function workBriefMarkup(record, { escape }) {
+  function workBriefMarkup(record, { escape, inline = false }) {
     const brief = parseWorkBrief(record.discussion), reason = readingReason(brief);
-    if (!reason) return "";
+    if (!reason) return inline && brief?.pending ? '<span class="work-brief work-brief-pending"><span class="work-brief-label">\u770B\u70B9\u5F85\u8865</span><span class="work-brief-reason">\u4F9D\u636E\u4E0D\u8DB3\uFF0C\u6682\u4E0D\u4F5C\u5224\u65AD\u3002</span></span>' : "";
     const basis = brief.summaryOnly ? "\u4EC5\u636E\u6458\u8981\uFF0C\u539F\u6587\u5F85\u6838" : "\u4F9D\u636E\u91C7\u96C6\u6B63\u6587\uFF0C\u672A\u7ECF\u4E13\u9879\u6838\u9A8C";
-    return `<button type="button" class="work-brief" data-read="${escape(record.key || "intel:" + record.id)}" title="AI\u9605\u8BFB\u63D0\u793A \xB7 ${basis}"><span class="work-brief-label">AI \u770B\u70B9</span><span class="work-brief-reason">${escape(reason)}</span><span class="work-brief-arrow" aria-hidden="true">\u2197</span></button>`;
+    const body = `<span class="work-brief-label">AI \u770B\u70B9</span><span class="work-brief-reason">${escape(reason)}</span>`;
+    return inline ? `<span class="work-brief" title="AI\u9605\u8BFB\u63D0\u793A \xB7 ${basis}">${body}</span>` : `<button type="button" class="work-brief" data-read="${escape(record.key || "intel:" + record.id)}" title="AI\u9605\u8BFB\u63D0\u793A \xB7 ${basis}">${body}<span class="work-brief-arrow" aria-hidden="true">\u2197</span></button>`;
+  }
+  function intelCardMarkup(record, { escape, bookmark, date }) {
+    const key = record.key || "intel:" + record.id;
+    return `<article class="intel-card intel-card-compact"><button type="button" class="card-open intel-card-open" data-read="${escape(key)}"><span class="meta intel-card-meta"><span class="brand-tag intel">${escape(record.category)}</span><span>${escape(date(record.reportDate))} \u6536\u5F55</span><span class="intel-card-source">${escape(record.sourceName)}</span></span><h2>${escape(record.title)}</h2><p class="intel-summary">${escape(record.summary)}</p>${workBriefMarkup(record, { escape, inline: true })}</button>${bookmark(record)}</article>`;
   }
   return __toCommonJS(intel_work_brief_exports);
 })();
 
-function intelListResults(rows) {
-  return `<div class="result-heading"><span role="status" aria-live="polite">\u627E\u5230 <b>${rows.length}</b> \u6761\u60C5\u62A5</span><span>${filters.q.trim() ? "\u76F8\u5173\u5185\u5BB9\u4F18\u5148" : "\u6700\u8FD1\u6536\u5F55"}</span></div>${rows.length ? rows.slice(0, limit).map((r, i) => `<article class="intel-card ${i === 0 ? "featured" : ""}"><button class="card-open" data-read="${esc2(r.key)}"><span class="meta"><span class="brand-tag intel">${esc2(r.category)}</span><span>${date2(r.reportDate)} \u6536\u5F55</span></span><h2>${esc2(r.title)}</h2><p>${esc2(r.summary)}</p><span class="meta"><span class="meta-pill">\u4F18\u5148\u7EA7 ${esc2(r.score)}</span><span>${esc2(r.sourceName)}</span></span></button>${bookmark(r)}${DajiWorkBrief.workBriefMarkup(r,{escape:esc2})}</article>`).join("") : empty("\u6682\u672A\u627E\u5230", "\u6362\u4E2A\u5173\u952E\u8BCD\uFF0C\u6216\u51CF\u5C11\u5173\u952E\u8BCD\u6570\u91CF\u518D\u8BD5\u8BD5\u3002", button("reset", "\u67E5\u770B\u5168\u90E8\u60C5\u62A5"))}${rows.length > limit ? button("more", "\u518D\u770B 12 \u6761", "load-more") : ""}`;
-}
+function intelListResults(rows){return `<div class="result-heading"><span role="status" aria-live="polite">找到 <b>${rows.length}</b> 条情报</span><span>${filters.q.trim()?'相关内容优先':'最近收录'}</span></div>${rows.length?rows.slice(0,limit).map(r=>DajiWorkBrief.intelCardMarkup(r,{escape:esc2,bookmark,date:date2})).join(''):empty('暂未找到','换个关键词，或减少关键词数量再试试。',button('reset','查看全部情报'))}${rows.length>limit?button('more','再看 12 条','load-more'):''}`}
 function library() {
   return title("\u8A00\u5E93", "\u8A00\u4E4B\u6709\u636E\uFF0C\u843D\u7B14\u6709\u7AE0\u3002", "\u5199\u4F5C\u8D44\u6E90 \xB7 \u516C\u5F00\u6750\u6599\u539F\u521B\u6574\u7406") + `<div class="tabs library-tabs" aria-label="\u8A00\u5E93\u529F\u80FD">${[["blocks", "\u6BB5\u843D\u5E93"], ["intent", "\u6211\u60F3\u8868\u8FBE"]].map(([k, t]) => `<button data-tab="${k}" class="${tab === k ? "active" : ""}" aria-pressed="${tab === k}">${t}</button>`).join("")}</div>${tab === "intent" ? `<section class="intent-intro"><h2>\u5148\u8BF4\u60F3\u6CD5\uFF0C\u518D\u627E\u8868\u8FBE\u3002</h2><p>\u5199\u4E0B\u4E00\u53E5\u6734\u7D20\u7684\u8BDD\uFF0C\u4ECE\u5DF2\u6709\u7D20\u6750\u4E2D\u5339\u914D\u5408\u9002\u6BB5\u843D\u3002</p><div class="suggestions">${INTENT_EXAMPLES.map((q) => `<button data-example="${esc2(q)}">${esc2(q)}</button>`).join("")}</div></section>` : ""}${searchBar(tab === "intent" ? "\u4F8B\u5982\uFF1A\u4EFB\u52A1\u5DF2\u7ECF\u660E\u786E\uFF0C\u5173\u952E\u662F\u6293\u843D\u5B9E" : "\u641C\u7D22\u6BB5\u843D\u3001\u4E3B\u9898\u3001\u573A\u666F\u6216\u6765\u6E90")}<details class="filter-panel"><summary>\u6309\u7528\u9014\u7B5B\u9009</summary><div class="filter-fields">${field("category", "\u6BB5\u843D\u7528\u9014", unique(data.blocks.map((r) => r.category)))}${field("scene", "\u8BB2\u8BDD\u573A\u666F", SCENE_GROUPS.filter((s) => s !== "\u5168\u90E8\u573A\u666F"))}<div class="field"><label for="filter-validity">\u9002\u7528\u72B6\u6001</label><select id="filter-validity" data-filter="validity">${options(Object.keys(valid), filters.validity).replace(/>current</g, ">\u5F53\u524D\u9002\u7528<").replace(/>watch</g, ">\u4F7F\u7528\u524D\u590D\u6838<").replace(/>historical</g, ">\u5386\u53F2\u53C2\u8003<")}</select></div></div></details><div class="page-columns"><section class="content-pane" id="results">${blockResults()}</section><aside class="side-column"><section class="side-panel library-info"><div class="section-heading"><h2>\u539F\u6587\u4E0E\u8868\u8FBE</h2></div><p>${esc2(payload.yanku.notice)}</p><div class="subtle-note">${payload.yanku.materials.length} \u4EFD\u6838\u6E90\u6750\u6599 \xB7 ${data.blocks.length} \u6BB5\u539F\u521B\u6574\u7406<br>\u8D44\u6599\u66F4\u65B0 ${date2(payload.yanku.generatedAt)}</div></section></aside></div>`;
 }

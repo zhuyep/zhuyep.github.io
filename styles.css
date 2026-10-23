@@ -116,10 +116,19 @@ html[data-theme=dark]{--graph-source:#d2b184;--graph-edge:#657263;--graph-dot:#4
 
 
 /* Inline work reading briefs, authorized 2026-10-22. */
-.intel-card>.work-brief{grid-column:1/-1;display:flex;align-items:baseline;gap:10px;width:100%;margin-top:12px;padding:12px 0 0;border:0;border-top:1px solid var(--line);border-radius:0;background:transparent;color:var(--green);font:inherit;text-align:left;cursor:pointer}
-.work-brief-label{flex:none;font-size:11px;line-height:1.8;letter-spacing:.04em}
-.work-brief-reason{flex:1;min-width:0;font-size:14px;line-height:1.8;overflow-wrap:anywhere}
+.intel-card.intel-card-compact{position:relative;display:block;margin:10px 0;padding:15px 16px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+.intel-card.intel-card-compact.featured{margin:10px 0;padding:15px 16px;border:1px solid var(--line);background:var(--surface)}
+.intel-card .intel-card-open{display:block;width:100%;padding:0;text-align:left}
+.intel-card .intel-card-meta{padding-right:32px;gap:6px 10px;font-size:11px;line-height:1.6}
+.intel-card .intel-card-source{min-width:0;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.intel-card .bookmark{position:absolute;top:3px;right:4px;width:44px;height:44px}
+.intel-card.intel-card-compact h2{font-size:18px;line-height:1.5;letter-spacing:0;margin:6px 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.intel-card .intel-summary{font-size:13px;line-height:1.65;margin:0;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.intel-card .work-brief{display:flex;align-items:baseline;gap:8px;width:100%;margin-top:8px;padding:0;border:0;border-radius:0;background:transparent;color:var(--green);font:inherit;text-align:left}
+.work-brief-label{flex:none;font-size:10px;line-height:1.65;letter-spacing:.04em}
+.work-brief-reason{flex:1;min-width:0;font-size:13px;line-height:1.65;overflow-wrap:anywhere}
 .work-brief-arrow{flex:none;font-size:14px;color:var(--muted)}
-.work-brief:hover .work-brief-reason{color:var(--ink)}
+.intel-card-open:hover h2,.work-brief:hover .work-brief-reason{color:var(--ink)}
+.intel-card .work-brief-pending{color:var(--muted)}
 .work-brief:focus-visible{outline:2px solid var(--red);outline-offset:5px}
-@media(max-width:759px){.intel-card>.work-brief{gap:8px;margin-top:10px;padding-top:10px}.work-brief-reason{font-size:13px}}
+@media(max-width:759px){.intel-card.intel-card-compact,.intel-card.intel-card-compact.featured{margin:8px 0;padding:12px 13px}.intel-card.intel-card-compact h2{font-size:17px;line-height:1.5;margin:5px 0}.intel-card .intel-summary{font-size:12px;line-height:1.6}.intel-card .intel-card-meta{font-size:10px;gap:4px 8px}.intel-card .intel-card-source{max-width:135px}.intel-card .work-brief{gap:7px;margin-top:7px}.work-brief-reason{font-size:12px;line-height:1.65}}
