@@ -194,4 +194,4 @@ body.wiki-page-mode .book-heading.study-heading{display:flex;padding-top:16px}
 
 /* Filled saved bookmark, shared by intelligence and study materials. */
 .bookmark[aria-pressed="true"] svg,.bookmark[aria-pressed="true"] svg path{fill:currentColor}
-.bookmark[aria-pressed="true"]:hover{background:var(--red-wash)}
+.bookmark,.bookmark:hover,.bookmark[aria-pressed="true"],.bookmark[aria-pressed="true"]:hover{background:transparent;box-shadow:none}
