@@ -1,0 +1,289 @@
+// demo/modules/video-cinema.js
+var esc = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+var names = {};
+var collections = { recent: "\u65B0\u8FD1\u7535\u5F71", hot: "\u70ED\u95E8\u7535\u5F71", tv: "\u70ED\u95E8\u5267\u96C6", rated: "\u9AD8\u5206\u4F73\u7247" };
+var plain = (value) => value.replace(/[\s\p{P}\p{S}]/gu, "").toLowerCase();
+function cinemaHeading() {
+  return `<header class="cinema-heading"><div><span class="eyebrow">\u5927\u5409\u653E\u6620\u5BA4 \xB7 \u7535\u5F71\u4E0E\u5267\u96C6</span><h1 class="cinema-slogan"><span>\u770B\u7247\u4E0D\u8FF7\u8DEF\uFF0C</span><span>\u89C2\u5F71\u627E\u8001\u732A</span></h1></div></header>`;
+}
+function cinemaShell() {
+  return `<section class="cinema" id="daji-cinema" aria-label="\u5927\u5409\u653E\u6620\u5BA4">${cinemaHeading()}<p class="cinema-message" role="status">\u6B63\u5728\u6253\u5F00\u5F71\u9662\u2026\u2026</p></section>`;
+}
+function mountCinema(host) {
+  if (location.hostname === "zhuyep.github.io") {
+    host.innerHTML += '<div class="cinema-door"><h2>\u53BB\u5F71\u9662\u5750\u5750</h2><p>\u5728\u7EBF\u641C\u7D22\u548C\u89C2\u770B\u5728\u8BF8\u4E8B\u5927\u5409\u4E3B\u7AD9\u63D0\u4F9B\u3002</p><a class="primary-button" href="https://zhushi-daji-preview.pages.dev/#video">\u6253\u5F00\u5927\u5409\u653E\u6620\u5BA4 \u2197</a></div>';
+    return () => {
+    };
+  }
+  const lifecycle = new AbortController();
+  let disposed = false, busy = false, message = "", requestId = 0;
+  let detail = null, episodeIndex = 0, stopPlayer = () => {
+  }, playVersion = 0, pending;
+  const state = { query: "", list: [], failures: [], selected: null };
+  let collection = "recent", discoveryData, discoveryBusy = true, discoveryError = "", homeRequestId = 0;
+  try {
+    localStorage.removeItem("zhushi-daji-cinema-v1");
+  } catch {
+  }
+  async function api(path, options = {}) {
+    const response = await fetch("/api/video/" + path, { credentials: "same-origin", cache: "no-store", ...options });
+    let data;
+    try {
+      data = await response.json();
+    } catch {
+      throw Error("\u5F71\u9662\u6682\u65F6\u6CA1\u6709\u54CD\u5E94\uFF0C\u8BF7\u7A0D\u540E\u518D\u8BD5");
+    }
+    if (!response.ok) {
+      throw Error(data.error || (data.failures?.length ? "\u7247\u6E90\u6682\u65F6\u6CA1\u6709\u54CD\u5E94\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5\u6216\u66F4\u6362\u6765\u6E90" : "\u6682\u65F6\u672A\u80FD\u6253\u5F00\uFF0C\u8BF7\u7A0D\u540E\u518D\u8BD5"));
+    }
+    return data;
+  }
+  function groups() {
+    const grouped = /* @__PURE__ */ new Map();
+    for (const item of state.list) {
+      const key = plain(item.name) + ":" + item.year;
+      if (!grouped.has(key)) grouped.set(key, []);
+      grouped.get(key).push(item);
+    }
+    return [...grouped.values()];
+  }
+  function homeMarkup() {
+    const items = discoveryData?.items || [];
+    const featureIndex = Math.max(0, items.findIndex((item) => Number(item.rating) >= 7));
+    const featured = items[featureIndex];
+    const updated = discoveryData?.updatedAt ? new Intl.DateTimeFormat("zh-CN", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Shanghai" }).format(new Date(discoveryData.updatedAt)) : "";
+    return `<section class="cinema-discovery" aria-label="\u5F71\u7247\u63A8\u8350"><div class="cinema-discovery-top"><div><span class="eyebrow">\u7ED9\u81EA\u5DF1\u7559\u4E00\u70B9\u597D\u65F6\u5149</span><h2>\u4ECA\u665A\uFF0C\u653E\u6620\u4EC0\u4E48\uFF1F</h2></div><p>\u4ECE\u8FD1\u671F\u7247\u5355\u5F00\u59CB\uFF0C\u6216\u641C\u4E00\u90E8\u4E00\u76F4\u60F3\u770B\u7684\u7247\u3002</p></div><nav class="cinema-collections" aria-label="\u63A8\u8350\u7247\u5355">${Object.entries(collections).map(([key, title]) => `<button data-cinema-collection="${key}" aria-pressed="${key === collection}">${title}</button>`).join("")}</nav><div class="cinema-discovery-meta"><span>${discoveryData ? `\u8C46\u74E3 \xB7 ${esc(collections[collection])} \xB7 ${esc(updated)}\u66F4\u65B0${discoveryData.stale ? "\uFF08\u6700\u8FD1\u53EF\u7528\u7247\u5355\uFF09" : ""}` : "\u6B63\u5728\u8BFB\u53D6\u8FD1\u671F\u7247\u5355"}</span><span>\u70B9\u5F71\u7247\uFF0C\u641C\u7D22\u89C2\u770B\u6765\u6E90</span></div>${discoveryBusy ? '<div class="cinema-recommend-loading" role="status">\u6B63\u5728\u6311\u9009\u7247\u5355\u2026\u2026</div>' : discoveryError ? `<p class="cinema-warning" role="status">${esc(discoveryError)} <button data-cinema-retry>\u91CD\u65B0\u8BFB\u53D6</button></p>` : `${featured ? `<div class="cinema-feature"><div class="cinema-feature-copy"><span class="eyebrow">${esc(collections[collection])} \xB7 \u672C\u671F\u4E00\u77A5</span><h3>${esc(featured.name)}</h3><p>${featured.rating ? `\u8C46\u74E3 ${esc(featured.rating)} \u5206 \xB7 ` : ""}\u770B\u770B\u6545\u4E8B\u7B80\u4ECB\uFF0C\u518D\u9009\u4E00\u4E2A\u6765\u6E90\u5F00\u59CB\u653E\u6620\u3002</p><button class="primary-button" data-cinema-recommend="${featureIndex}">\u641C\u7247\u89C2\u770B <span aria-hidden="true">\u2197</span></button><a href="${esc(featured.subjectUrl)}" target="_blank" rel="noopener noreferrer">\u5728\u8C46\u74E3\u4E86\u89E3\u8FD9\u90E8${collection === "tv" ? "\u5267" : "\u7535\u5F71"} \u2197</a></div><button class="cinema-feature-poster" data-cinema-recommend="${featureIndex}" aria-label="\u641C\u7247\u89C2\u770B\uFF1A${esc(featured.name)}"><span aria-hidden="true">\u6620</span>${featured.cover ? `<img src="${esc(featured.cover)}" alt="${esc(featured.name)}" fetchpriority="high">` : ""}</button></div>` : ""}<div class="cinema-grid cinema-recommendations">${items.map((item, i) => `<button class="cinema-card" data-cinema-recommend="${i}" aria-label="\u641C\u7247\u89C2\u770B\uFF1A${esc(item.name)}"><span class="cinema-poster"><span aria-hidden="true">\u5927\u5409\u653E\u6620</span>${item.cover ? `<img src="${esc(item.cover)}" alt="${esc(item.name)}" loading="lazy">` : ""}${item.rating ? `<small class="cinema-rating">\u8C46\u74E3 ${esc(item.rating)}</small>` : "<small>\u6682\u65E0\u8BC4\u5206</small>"}</span><strong>${esc(item.name)}</strong><span class="cinema-card-note">\u641C\u7247\u89C2\u770B <i aria-hidden="true">\u2197</i></span></button>`).join("")}</div><p class="cinema-list-note">\u7247\u5355\u6765\u81EA\u8C46\u74E3\uFF0C\u987A\u5E8F\u4E0E\u8BC4\u5206\u968F\u6765\u6E90\u66F4\u65B0\u3002\u63A8\u8350\u4E0D\u4EE3\u8868\u5DF2\u627E\u5230\u53EF\u64AD\u6765\u6E90\u3002</p>`}</section>`;
+  }
+  function refreshDiscovery() {
+    const target = host.querySelector("[data-cinema-discovery]");
+    if (!disposed && target) target.innerHTML = homeMarkup();
+  }
+  async function loadDiscovery(key) {
+    const id = ++homeRequestId;
+    collection = key;
+    discoveryError = "";
+    discoveryBusy = true;
+    discoveryData = null;
+    refreshDiscovery();
+    try {
+      const result = await api("discover?" + new URLSearchParams({ collection: key }), { signal: lifecycle.signal });
+      if (disposed || id !== homeRequestId) return;
+      discoveryData = result;
+    } catch (error) {
+      if (disposed || id !== homeRequestId) return;
+      discoveryError = "\u7247\u5355\u6682\u65F6\u6CA1\u6709\u54CD\u5E94\uFF0C\u4ECD\u53EF\u8F93\u5165\u7247\u540D\u641C\u7D22\u3002";
+    }
+    if (!disposed && id === homeRequestId) {
+      discoveryBusy = false;
+      refreshDiscovery();
+    }
+  }
+  function resultMarkup() {
+    if (busy) return '<div class="cinema-empty" role="status"><span class="cinema-reel" aria-hidden="true">\u25C9</span><h2>\u6B63\u5728\u641C\u7247</h2><p>\u9010\u4E2A\u67E5\u8BE2\u5DF2\u9009\u6765\u6E90\uFF0C\u8BF7\u7A0D\u7B49\u7247\u523B\u3002</p></div>';
+    if (!state.query) return `<div data-cinema-discovery>${homeMarkup()}</div>`;
+    const grouped = groups();
+    return `${state.failures.length ? `<p class="cinema-warning" role="status">${esc(state.failures.join("\u3001"))}\u6682\u65F6\u672A\u80FD\u54CD\u5E94\uFF0C\u5DF2\u5C55\u793A\u5176\u4F59\u6765\u6E90\u7684\u7ED3\u679C\u3002</p>` : ""}<div class="cinema-result-heading"><h2>\u201C${esc(state.query)}\u201D</h2><button class="text-button" data-cinema-home>\u2190 \u56DE\u5230\u7247\u5355</button><span>${grouped.length}\u90E8 \xB7 ${state.list.length}\u6761\u7ED3\u679C</span></div>${!grouped.length ? '<div class="cinema-empty"><h2>\u6682\u65F6\u6CA1\u6709\u627E\u5230</h2><p>\u8BD5\u8BD5\u7247\u540D\u7B80\u79F0\uFF0C\u6216\u52FE\u9009\u5176\u4ED6\u6765\u6E90\u540E\u91CD\u65B0\u641C\u7D22\u3002</p></div>' : `<div class="cinema-grid">${grouped.map((items, i) => {
+      const item = items[0];
+      return `<button class="cinema-card" data-cinema-open="${i}" aria-label="\u9009\u96C6\u89C2\u770B\uFF1A${esc(item.name)}\uFF0C${esc(item.year)}\uFF0C${items.length}\u4E2A\u6765\u6E90"><span class="cinema-poster"><span aria-hidden="true">\u5149\u5F71</span>${item.cover ? `<img src="${esc(item.cover)}" alt="${esc(item.name)}" loading="lazy" referrerpolicy="no-referrer">` : ""}<small>${items.length}\u4E2A\u6765\u6E90</small></span><strong>${esc(item.name)}</strong><span class="cinema-card-meta">${esc(item.year || "\u5E74\u4EFD\u672A\u6807\u6CE8")} \xB7 ${esc(item.type || "\u5F71\u89C6")}</span><span class="cinema-card-note">${esc(item.remarks)} <i aria-hidden="true">\u2197</i></span></button>`;
+    }).join("")}</div>`}`;
+  }
+  function playerMarkup() {
+    if (!detail) return "";
+    if (detail.loading) return '<section class="cinema-player-panel"><p role="status">\u6B63\u5728\u6253\u5F00\u5267\u96C6\u4FE1\u606F\u2026\u2026</p><button class="text-button" data-cinema-back>\u2190 \u8FD4\u56DE\u641C\u7D22\u7ED3\u679C</button></section>';
+    const alternatives = state.list.filter((v) => plain(v.name) === plain(detail.name) && v.year === detail.year);
+    return `<section class="cinema-player-panel" aria-label="${esc(detail.name)}\u64AD\u653E\u5668"><header><button class="text-button" data-cinema-back>\u2190 \u8FD4\u56DE\u641C\u7D22\u7ED3\u679C</button><span>${esc(detail.sourceName)} \xB7 \u7B2C${episodeIndex + 1}/${detail.episodes.length}\u96C6</span></header><h2>${esc(detail.name)}</h2><div class="cinema-screen"><video controls playsinline preload="metadata" crossorigin="anonymous" aria-label="${esc(detail.name)}\u89C6\u9891"></video></div><p class="cinema-play-error" role="alert" hidden></p><div class="cinema-play-actions"><button class="secondary-button" data-cinema-previous ${episodeIndex <= 0 ? "disabled" : ""}>\u4E0A\u4E00\u96C6</button><button class="primary-button" data-cinema-next ${episodeIndex >= detail.episodes.length - 1 ? "disabled" : ""}>\u4E0B\u4E00\u96C6</button><span>\u652F\u6301\u5168\u5C4F\u3001\u62D6\u52A8\u4E0E\u500D\u901F</span></div><div class="cinema-alternatives"><span>\u6362\u4E2A\u6765\u6E90</span>${alternatives.map((v, i) => `<button data-cinema-source="${i}" aria-pressed="${v.sourceKey === detail.sourceKey}">${esc(v.sourceName)}</button>`).join("") || `<span>${esc(detail.sourceName)}</span>`}</div><details class="cinema-episodes" open><summary>\u5267\u96C6\u5217\u8868 \xB7 ${detail.episodes.length}\u96C6</summary><div>${detail.episodes.map((e, i) => `<button data-cinema-episode="${i}" aria-label="\u64AD\u653E\u7B2C${i + 1}\u96C6" aria-pressed="${i === episodeIndex}">${esc(e.name || String(i + 1))}</button>`).join("")}</div></details></section>`;
+  }
+  function draw() {
+    if (disposed) return;
+    const sourceCount = Object.keys(names).length;
+    host.innerHTML = `${cinemaHeading()}<form class="cinema-search" data-cinema-search><label for="cinema-query">\u627E\u4E00\u90E8\u60F3\u770B\u7684\u7247</label><div class="cinema-search-line"><input id="cinema-query" type="search" value="${esc(state.query)}" maxlength="80" placeholder="\u8F93\u5165\u7535\u5F71\u3001\u7535\u89C6\u5267\u540D\u79F0" required autocomplete="off"><button class="primary-button" type="submit" ${busy || !sourceCount ? "disabled" : ""}>${busy ? "\u641C\u7D22\u4E2D\u2026" : "\u641C\u7247"}</button></div><details class="cinema-source-picker"><summary>${sourceCount}\u4E2A\u7247\u6E90 \xB7 \u8C03\u6574\u641C\u7D22\u6765\u6E90</summary><fieldset><legend>\u641C\u7D22\u6765\u6E90</legend>${Object.entries(names).map(([key, name]) => `<label><input type="checkbox" data-cinema-filter="${key}" ${state.selected?.includes(key) ? "checked" : ""}>${esc(name)}</label>`).join("")}</fieldset></details></form><p class="cinema-message" role="alert">${esc(message)}</p><div class="cinema-content">${detail ? playerMarkup() : resultMarkup()}</div><p class="cinema-footnote">\u5F71\u7247\u6765\u81EA\u6240\u9009\u7B2C\u4E09\u65B9\u6765\u6E90\uFF0C\u6E05\u6670\u5EA6\u548C\u53EF\u64AD\u60C5\u51B5\u4F1A\u6709\u53D8\u5316\u3002<a href="https://github.com/LibreSpark/LibreTV" target="_blank" rel="noopener noreferrer">\u7075\u611F\u6765\u81EALibreTV \u2197</a></p>`;
+  }
+  async function search(query) {
+    query = query.trim();
+    if (!query || !state.selected?.length) {
+      message = "\u8BF7\u8F93\u5165\u7247\u540D\uFF0C\u5E76\u81F3\u5C11\u52FE\u9009\u4E00\u4E2A\u6765\u6E90";
+      draw();
+      return;
+    }
+    pending?.abort();
+    pending = new AbortController();
+    const id = ++requestId;
+    stopPlayer();
+    detail = null;
+    state.query = query;
+    busy = true;
+    message = "";
+    draw();
+    try {
+      const response = await api("search?" + new URLSearchParams({ q: query, sources: state.selected.join(",") }), { signal: pending.signal });
+      if (disposed || id !== requestId) return;
+      state.list = response.list;
+      state.failures = response.failures;
+    } catch (error) {
+      if (id !== requestId || disposed || error.name === "AbortError") return;
+      state.list = [];
+      state.failures = [];
+      message = error.message;
+    }
+    if (id === requestId && !disposed) {
+      busy = false;
+      draw();
+    }
+  }
+  async function open(item, index = 0) {
+    stopPlayer();
+    const id = ++requestId;
+    message = "";
+    detail = { loading: true };
+    draw();
+    try {
+      const next = await api("detail?" + new URLSearchParams({ source: item.sourceKey, id: item.id }));
+      if (disposed || id !== requestId) return;
+      detail = next;
+      episodeIndex = Math.min(Math.max(index, 0), detail.episodes.length - 1);
+      draw();
+      startPlayer();
+    } catch (error) {
+      if (!disposed && id === requestId) {
+        detail = null;
+        message = error.message;
+        draw();
+      }
+    }
+  }
+  function startPlayer() {
+    const video = host.querySelector("video"), current = detail, index = episodeIndex, version = ++playVersion;
+    const episode = current.episodes[index];
+    let hls;
+    const error = () => {
+      const el = host.querySelector(".cinema-play-error");
+      if (el && version === playVersion) {
+        el.hidden = false;
+        el.textContent = "\u8FD9\u4E2A\u6765\u6E90\u6682\u65F6\u65E0\u6CD5\u64AD\u653E\uFF0C\u8BD5\u8BD5\u4E0B\u65B9\u7684\u5176\u4ED6\u6765\u6E90\u3002";
+      }
+    };
+    video.addEventListener("loadedmetadata", () => {
+      video.play().catch(() => {
+      });
+    }, { once: true });
+    video.addEventListener("error", error);
+    video.addEventListener("ended", () => {
+      if (index < current.episodes.length - 1 && version === playVersion) changeEpisode(index + 1);
+    });
+    stopPlayer = () => {
+      ++playVersion;
+      video.pause();
+      hls?.destroy();
+      video.removeAttribute("src");
+      video.load();
+      stopPlayer = () => {
+      };
+    };
+    if (!/\.m3u8(?:[?#]|$)/i.test(episode.url) || video.canPlayType("application/vnd.apple.mpegurl")) {
+      video.src = episode.url;
+      return;
+    }
+    const hlsPath = "/vendor/hls.light.mjs";
+    import(hlsPath).then(({ default: Hls }) => {
+      if (disposed || version !== playVersion || !video.isConnected) return;
+      if (!Hls.isSupported()) {
+        error();
+        return;
+      }
+      hls = new Hls({ maxBufferLength: 30, backBufferLength: 30, maxMaxBufferLength: 60, enableWorker: true });
+      hls.on(Hls.Events.ERROR, (_, data) => {
+        if (data.fatal) error();
+      });
+      hls.loadSource(episode.url);
+      hls.attachMedia(video);
+    }).catch(error);
+  }
+  function changeEpisode(index) {
+    stopPlayer();
+    episodeIndex = index;
+    draw();
+    startPlayer();
+  }
+  host.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (event.target.matches("[data-cinema-search]")) {
+      search(host.querySelector("#cinema-query").value);
+      return;
+    }
+  }, { signal: lifecycle.signal });
+  host.addEventListener("click", async (event) => {
+    const b = event.target.closest("button");
+    if (!b) return;
+    if (b.hasAttribute("data-cinema-open")) {
+      const item = groups()[Number(b.dataset.cinemaOpen)]?.[0];
+      if (item) open(item);
+    }
+    if (b.hasAttribute("data-cinema-collection")) loadDiscovery(b.dataset.cinemaCollection);
+    if (b.hasAttribute("data-cinema-retry")) loadDiscovery(collection);
+    if (b.hasAttribute("data-cinema-recommend")) {
+      const item = discoveryData?.items[Number(b.dataset.cinemaRecommend)];
+      if (item) search(item.name);
+    }
+    if (b.hasAttribute("data-cinema-home")) {
+      pending?.abort();
+      ++requestId;
+      busy = false;
+      stopPlayer();
+      detail = null;
+      state.query = "";
+      message = "";
+      draw();
+    }
+    if (b.hasAttribute("data-cinema-example")) search(b.dataset.cinemaExample);
+    if (b.hasAttribute("data-cinema-back")) {
+      stopPlayer();
+      ++requestId;
+      detail = null;
+      draw();
+    }
+    if (b.hasAttribute("data-cinema-episode")) changeEpisode(Number(b.dataset.cinemaEpisode));
+    if (b.hasAttribute("data-cinema-next")) changeEpisode(episodeIndex + 1);
+    if (b.hasAttribute("data-cinema-previous")) changeEpisode(episodeIndex - 1);
+    if (b.hasAttribute("data-cinema-source")) {
+      const alternatives = state.list.filter((v) => plain(v.name) === plain(detail.name) && v.year === detail.year);
+      const item = alternatives[Number(b.dataset.cinemaSource)];
+      if (item) open(item, episodeIndex);
+    }
+  }, { signal: lifecycle.signal });
+  host.addEventListener("change", (event) => {
+    if (!event.target.hasAttribute("data-cinema-filter")) return;
+    const key = event.target.dataset.cinemaFilter;
+    state.query = host.querySelector("#cinema-query").value;
+    state.selected = event.target.checked ? [.../* @__PURE__ */ new Set([...state.selected, key])] : state.selected.filter((v) => v !== key);
+  }, { signal: lifecycle.signal });
+  host.addEventListener("error", (event) => {
+    if (event.target.tagName === "IMG") event.target.remove();
+  }, { capture: true, signal: lifecycle.signal });
+  api("status").then((status) => {
+    if (!disposed) {
+      names = Object.fromEntries((status.sources || []).map((v) => [v.key, v.name]));
+      state.selected = state.selected === null ? Object.keys(names) : state.selected.filter((key) => names[key]);
+      draw();
+    }
+  }).catch(() => {
+    if (!disposed) {
+      message = "\u8BF7\u7A0D\u540E\u5237\u65B0\u91CD\u8BD5";
+      draw();
+    }
+  });
+  api("visit", { method: "POST" }).catch(() => {
+  });
+  loadDiscovery("recent");
+  return () => {
+    disposed = true;
+    ++requestId;
+    pending?.abort();
+    stopPlayer();
+    lifecycle.abort();
+  };
+}
+export {
+  cinemaHeading,
+  cinemaShell,
+  mountCinema
+};

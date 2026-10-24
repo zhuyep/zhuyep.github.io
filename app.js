@@ -3,7 +3,7 @@ import {
 } from "./modules/wiki-release/book-search-8346ecbfecd020.js";
 import {
   cinemaShell
-} from "./modules/chunks/chunk-WRBXIYM4.js";
+} from "./modules/chunks/video-cinema-public-8e503f9c741410f2.js";
 import {
   NODE_LABELS,
   buildIntelTrends,
@@ -834,7 +834,7 @@ function render() {
     });
   }
   if (page === "video") {
-    import("./modules/chunks/video-cinema-UN3TFXAS.js").then(({ mountCinema }) => {
+    import("./modules/chunks/video-cinema-public-8e503f9c741410f2.js").then(({ mountCinema }) => {
       if (page === "video" && cinemaVersion === cinemaMountVersion) cinemaCleanup = mountCinema($("#daji-cinema"));
     });
   }
