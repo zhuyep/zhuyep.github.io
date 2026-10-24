@@ -305,23 +305,80 @@ function mountDeskToys(root = document) {
 }
 
 // demo/modules/reading-route.js
-function readingHash(key) {
-  const [kind, ...id] = key.split(":");
-  if (!["intel", "block"].includes(kind) || !id.join(":")) throw Error("\u9605\u8BFB\u6807\u8BC6\u65E0\u6548");
-  return "#" + (kind === "intel" ? "intel" : "library") + "/" + encodeURIComponent(id.join(":"));
-}
-function parseRoute(hash) {
-  const value = hash.replace(/^#/, ""), [section, ...tail] = value.split("/");
-  const page2 = ["today", "intel", "library", "games", "video", "books"].includes(section) ? section : "today";
-  if (tail.length && ["intel", "library"].includes(section)) {
-    try {
-      return { page: page2, key: (page2 === "intel" ? "intel:" : "block:") + decodeURIComponent(tail.join("/")) };
-    } catch {
-      return { page: page2, key: null, invalid: true };
+var DajiStudy = (() => {
+  var __defProp = Object.defineProperty;
+  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __export = (target, all) => {
+    for (var name in all)
+      __defProp(target, name, { get: all[name], enumerable: true });
+  };
+  var __copyProps = (to, from, except, desc) => {
+    if (from && typeof from === "object" || typeof from === "function") {
+      for (let key of __getOwnPropNames(from))
+        if (!__hasOwnProp.call(to, key) && key !== except)
+          __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
     }
+    return to;
+  };
+  var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+  // <stdin>
+  var stdin_exports = {};
+  __export(stdin_exports, {
+    bookRoomShell: () => bookRoomShell,
+    libraryRoomShell: () => libraryRoomShell,
+    navPage: () => navPage,
+    parseRoute: () => parseRoute,
+    readingHash: () => readingHash,
+    routeHash: () => routeHash,
+    studyHeader: () => studyHeader
+  });
+
+  // demo/modules/reading-route.js
+  var navPage = (page) => page === "library" ? "books" : page;
+  var routeHash = (page) => page === "library" ? "#books/library" : "#" + page;
+  function readingHash(key) {
+    const [kind, ...id] = key.split(":");
+    if (!["intel", "block"].includes(kind) || !id.join(":")) throw Error("\u9605\u8BFB\u6807\u8BC6\u65E0\u6548");
+    return (kind === "intel" ? "#intel" : "#books/library") + "/" + encodeURIComponent(id.join(":"));
   }
-  return { page: page2, key: null };
-}
+  function parseRoute(hash) {
+    const value = hash.replace(/^#/, ""), [section, ...tail] = value.split("/");
+    const nestedLibrary = section === "books" && tail[0] === "library";
+    const page = nestedLibrary ? "library" : ["today", "intel", "library", "games", "video", "books"].includes(section) ? section : "today";
+    const ids = nestedLibrary ? tail.slice(1) : tail;
+    if (ids.length && ["intel", "library"].includes(page)) {
+      try {
+        const id = decodeURIComponent(ids.join("/"));
+        if (!id) throw Error("\u9605\u8BFB\u6807\u8BC6\u4E3A\u7A7A");
+        return { page, key: (page === "intel" ? "intel:" : "block:") + id };
+      } catch {
+        return { page, key: null, invalid: true };
+      }
+    }
+    return { page, key: null };
+  }
+
+  // demo/modules/study-navigation.js
+  var SECTIONS = [["search", "#books/search", "\u8D44\u6599\u641C\u7D22"], ["wiki", "#books/wiki", "Wiki \u8D44\u6599\u5E93"], ["library", "#books/library", "\u8A00\u5E93"]];
+  function studyHeader(view) {
+    return `<header class="book-heading study-heading"><span class="book-room-name">\u51EF\u5377\u6709\u76CA</span><nav class="book-modules" aria-label="\u4E66\u623F\u6A21\u5757">${SECTIONS.map(([key, href, name]) => `<a href="${href}"${view === key ? ' aria-current="page"' : ""}>${name}</a>`).join("")}</nav></header>`;
+  }
+  function bookRoomShell(markup, hash = typeof location === "undefined" ? "#books" : location.hash) {
+    const view = hash.split("?")[0] === "#books/wiki" ? "wiki" : "search";
+    return markup.replace(/<header class="book-heading">[\s\S]*?<\/header>/, studyHeader(view));
+  }
+  function libraryRoomShell(markup) {
+    return `<section class="book-room book-room-library" aria-label="\u4E66\u623F \xB7 \u8A00\u5E93">${studyHeader("library")}${markup}</section>`;
+  }
+  return __toCommonJS(stdin_exports);
+})();
+
+function readingHash(key) {return DajiStudy.readingHash(key);}
+
+function parseRoute(hash) {return DajiStudy.parseRoute(hash);}
 
 // demo/modules/personal-backup.js
 var DESK_KEY = "zhushi-daji-desk-v3";
@@ -749,7 +806,7 @@ function navigate(next, sub) {
     limit = 12;
   }
   page = next;
-  if (location.hash !== "#" + next) history.pushState(null, "", "#" + next);
+  if (location.hash !== DajiStudy.routeHash(next)) history.pushState(null, "", DajiStudy.routeHash(next));
   render();
   if (!["games", "video", "books"].includes(page) && !data) load();
   else if (needsFullContent()) loadFull();
@@ -763,12 +820,13 @@ function render() {
   bookCleanup = null;
   const cinemaVersion = ++cinemaMountVersion;
   document.querySelectorAll("[data-page]").forEach((b) => {
-    if (b.dataset.page === page) b.setAttribute("aria-current", "page");
+    if (b.dataset.page === DajiStudy.navPage(page)) b.setAttribute("aria-current", "page");
     else b.removeAttribute("aria-current");
   });
   const waiting = needsFullContent();
-  $("#page").innerHTML = page === "books" ? bookShell() : page === "video" ? cinemaShell() : page === "games" ? games() : !data || waiting ? empty(contentError ? "\u8D44\u6599\u6682\u65F6\u672A\u80FD\u6253\u5F00" : "\u6B63\u5728\u8BFB\u53D6\u8D44\u6599", contentError || "\u6B63\u5728\u6253\u5F00\u5B8C\u6574\u7684\u60C5\u62A5\u4E0E\u8A00\u5E93\uFF0C\u53EF\u4EE5\u5148\u53BB\u201C\u653E\u677E\u201D\u901B\u901B\u3002", contentError ? button("reload-page", "\u91CD\u65B0\u8BFB\u53D6") : "") : page === "today" ? today() : page === "intel" ? intel() : library();
-  document.title = `${{ today: "\u4ECA\u65E5", intel: "\u60C5\u62A5", library: "\u8A00\u5E93", games: "\u653E\u677E", video: "\u5927\u5409\u653E\u6620\u5BA4", books: "\u51EF\u5377\u6709\u76CA" }[page]} \xB7 \u8BF8\u4E8B\u5927\u5409`;
+  $("#page").innerHTML = page === "books" ? DajiStudy.bookRoomShell(bookShell()) : page === "video" ? cinemaShell() : page === "games" ? games() : !data || waiting ? empty(contentError ? "\u8D44\u6599\u6682\u65F6\u672A\u80FD\u6253\u5F00" : "\u6B63\u5728\u8BFB\u53D6\u8D44\u6599", contentError || "\u6B63\u5728\u6253\u5F00\u5B8C\u6574\u7684\u60C5\u62A5\u4E0E\u8A00\u5E93\uFF0C\u53EF\u4EE5\u5148\u53BB\u201C\u653E\u677E\u201D\u901B\u901B\u3002", contentError ? button("reload-page", "\u91CD\u65B0\u8BFB\u53D6") : "") : page === "today" ? today() : page === "intel" ? intel() : library();
+  if (page === "library") $("#page").innerHTML = DajiStudy.libraryRoomShell($("#page").innerHTML);
+  document.title = `${{ today: "\u4ECA\u65E5", intel: "\u60C5\u62A5", library: "书房 · 言库", games: "\u653E\u677E", video: "\u5927\u5409\u653E\u6620\u5BA4", books: "\u51EF\u5377\u6709\u76CA" }[page]} \xB7 \u8BF8\u4E8B\u5927\u5409`;
   mountIntelExtras();
   if (page === "books") {
     import("./modules/wiki-release/book-search-8346ecbfecd020.js").then(({ mountBooks }) => {
@@ -782,7 +840,7 @@ function render() {
   }
 }
 function side() {
-  return `<aside class="side-column"><section class="side-panel book-entry"><span class="side-label">\u4E66\u623F \xB7 \u627E\u4E66\u4E0E\u8D44\u6599</span><h2>\u60F3\u627E\u7684\u90A3\u672C\u4E66\uFF0C<br>\u4ECE\u8FD9\u91CC\u5F00\u59CB\u3002</h2><p>\u641C\u4E66\u540D\u3001\u4F5C\u8005\u6216\u4E3B\u9898\uFF0C\u6CBF\u7740\u51FA\u5904\u627E\u5230\u516C\u5F00\u8D44\u6599\u3002</p>${button("books", "\u53BB\u4E66\u623F\u627E\u4E00\u627E \u2197", "inline-link")}</section><section class="side-panel cinema-entry"><span class="side-label">\u5927\u5409\u653E\u6620\u5BA4 \xB7 \u7535\u5F71\u4E0E\u5267\u96C6</span><h2>\u770B\u4E00\u90E8\u7535\u5F71\uFF0C<br>\u6362\u4E00\u79CD\u5FC3\u60C5\u3002</h2><p>\u641C\u5230\u7247\u540D\uFF0C\u9009\u597D\u4E00\u96C6\uFF0C\u5728\u8FD9\u91CC\u770B\u3002</p>${button("video", "\u53BB\u653E\u6620\u5BA4\u5750\u5750 \u2197", "inline-link")}</section><section class="side-panel library-info"><span class="side-label">\u8A00\u5E93 \xB7 \u6BCF\u6B21\u8BFB\u4E00\u6BB5</span><blockquote>\u884C\u4E4B\u6709\u65B9\uFF0C<br>\u8A00\u4E4B\u6709\u636E\u3002</blockquote><p>\u4ECE\u6743\u5A01\u516C\u5F00\u6750\u6599\u4E2D\u6574\u7406\u8868\u8FBE\u3002\u6BCF\u4E00\u6BB5\uFF0C\u90FD\u80FD\u56DE\u5230\u5B83\u7684\u51FA\u5904\u3002</p>${button("library", "\u7FFB\u4E00\u7FFB\u8A00\u5E93 \u2192", "inline-link")}</section><section class="side-panel ink-panel"><span class="side-label">\u7247\u523B\u95F2\u8DA3</span><h2>\u4E8B\u60C5\u6162\u6162\u505A\uFF0C<br>\u5076\u5C14\u6362\u6362\u8111\u3002</h2><p>\u770B\u4E00\u770B\u547D\u76D8\uFF0C\u6216\u968F\u624B\u73A9\u4E00\u5C40\u3002</p>${button("games", "\u53BB\u653E\u677E\u4E00\u4E0B \u2197", "inline-link")}</section></aside>`;
+  return `<aside class="side-column"><section class="side-panel book-entry"><span class="side-label">\u4E66\u623F \xB7 \u627E\u4E66\u4E0E\u8D44\u6599</span><h2>\u60F3\u627E\u7684\u90A3\u672C\u4E66\uFF0C<br>\u4ECE\u8FD9\u91CC\u5F00\u59CB\u3002</h2><p>\u641C\u4E66\u540D\u3001\u4F5C\u8005\u6216\u4E3B\u9898\uFF0C\u6CBF\u7740\u51FA\u5904\u627E\u5230\u516C\u5F00\u8D44\u6599\u3002</p>${button("books", "\u53BB\u4E66\u623F\u627E\u4E00\u627E \u2197", "inline-link")}</section><section class="side-panel cinema-entry"><span class="side-label">\u5927\u5409\u653E\u6620\u5BA4 \xB7 \u7535\u5F71\u4E0E\u5267\u96C6</span><h2>\u770B\u4E00\u90E8\u7535\u5F71\uFF0C<br>\u6362\u4E00\u79CD\u5FC3\u60C5\u3002</h2><p>\u641C\u5230\u7247\u540D\uFF0C\u9009\u597D\u4E00\u96C6\uFF0C\u5728\u8FD9\u91CC\u770B\u3002</p>${button("video", "\u53BB\u653E\u6620\u5BA4\u5750\u5750 \u2197", "inline-link")}</section><section class="side-panel library-info"><span class="side-label">书房 · 言库</span><blockquote>\u884C\u4E4B\u6709\u65B9\uFF0C<br>\u8A00\u4E4B\u6709\u636E\u3002</blockquote><p>\u4ECE\u6743\u5A01\u516C\u5F00\u6750\u6599\u4E2D\u6574\u7406\u8868\u8FBE\u3002\u6BCF\u4E00\u6BB5\uFF0C\u90FD\u80FD\u56DE\u5230\u5B83\u7684\u51FA\u5904\u3002</p>${button("library", "\u7FFB\u4E00\u7FFB\u8A00\u5E93 \u2192", "inline-link")}</section><section class="side-panel ink-panel"><span class="side-label">\u7247\u523B\u95F2\u8DA3</span><h2>\u4E8B\u60C5\u6162\u6162\u505A\uFF0C<br>\u5076\u5C14\u6362\u6362\u8111\u3002</h2><p>\u770B\u4E00\u770B\u547D\u76D8\uFF0C\u6216\u968F\u624B\u73A9\u4E00\u5C40\u3002</p>${button("games", "\u53BB\u653E\u677E\u4E00\u4E0B \u2197", "inline-link")}</section></aside>`;
 }
 var visitStats = null;
 var visitError = false;
@@ -837,7 +895,7 @@ async function showVisits() {
 function today() {
   let rows = updates.filter((u) => todayFilter === "all" || u.kind === todayFilter).slice(0, 12);
   const now = new Intl.DateTimeFormat("zh-CN", { year: "numeric", month: "long", day: "numeric", weekday: "long" }).format(/* @__PURE__ */ new Date()), total = counts();
-  return title("\u4ECA\u65E5\u4E00\u89C8", "\u628A\u89C1\u95FB\u6536\u597D\uFF0C\u628A\u65E5\u5B50\u8FC7\u597D\u3002", now) + `<section class="overview" aria-label="\u5DE5\u4F5C\u53F0\u603B\u89C8"><button data-page="intel"><span>\u60C5\u62A5<small>\u5DF2\u6536\u5F55</small></span><strong>${total.intel}</strong></button><button data-page="library"><span>\u8A00\u5E93<small>\u539F\u521B\u6BB5\u843D</small></span><strong>${total.blocks}</strong></button><button data-action="visits" class="visit-overview" aria-label="\u4ECA\u65E5\u8BBF\u95EE\uFF0C\u67E5\u770B\u8FD17\u5929\u8D8B\u52BF">${visitCard()}</button></section><div class="page-columns"><section class="content-pane"><div class="section-heading"><h2>\u8FD1\u65E5\u66F4\u65B0</h2><small>\u5404\u680F\u52A8\u6001\uFF0C\u6C47\u4E8E\u6B64\u5904</small></div><div class="tabs" aria-label="\u66F4\u65B0\u5206\u7C7B">${[["all", "\u5168\u90E8"], ["intel", "\u60C5\u62A5"], ["library", "\u8A00\u5E93"], ["games", "\u653E\u677E"]].map(([k, t]) => `<button data-today="${k}" class="${todayFilter === k ? "active" : ""}" aria-pressed="${todayFilter === k}">${t}</button>`).join("")}</div>${rows.map((u) => `<article class="update-row"><span class="update-stamp ${u.kind}">${u.kind === "intel" ? "\u60C5" : u.kind === "games" ? "\u95F2" : "\u8A00"}</span><button class="update-open" ${u.item ? `data-read="${esc2(u.item.key)}"` : u.kind === "games" ? 'data-page="games"' : `data-update="${esc2(u.update.id)}"`}><span class="meta"><span class="brand-tag ${u.kind}">${label(u.kind)}</span><span>${date2(u.date)} ${u.dateLabel}</span></span><h3>${esc2(u.title)}</h3><p>${esc2(u.summary)}</p></button><span class="update-arrow" aria-hidden="true">\u2197</span></article>`).join("")}${button(todayFilter === "library" ? "library" : todayFilter === "games" ? "games" : "intel", "\u8FDB\u5165\u680F\u76EE\uFF0C\u7EE7\u7EED\u6D4F\u89C8 \u2192", "load-more")}</section>${side()}</div>`;
+  return title("\u4ECA\u65E5\u4E00\u89C8", "\u628A\u89C1\u95FB\u6536\u597D\uFF0C\u628A\u65E5\u5B50\u8FC7\u597D\u3002", now) + `<section class="overview" aria-label="\u5DE5\u4F5C\u53F0\u603B\u89C8"><button data-page="intel"><span>\u60C5\u62A5<small>\u5DF2\u6536\u5F55</small></span><strong>${total.intel}</strong></button><button data-page="library"><span>言库<small>书房 · 写作素材</small></span><strong>${total.blocks}</strong></button><button data-action="visits" class="visit-overview" aria-label="\u4ECA\u65E5\u8BBF\u95EE\uFF0C\u67E5\u770B\u8FD17\u5929\u8D8B\u52BF">${visitCard()}</button></section><div class="page-columns"><section class="content-pane"><div class="section-heading"><h2>\u8FD1\u65E5\u66F4\u65B0</h2><small>\u5404\u680F\u52A8\u6001\uFF0C\u6C47\u4E8E\u6B64\u5904</small></div><div class="tabs" aria-label="\u66F4\u65B0\u5206\u7C7B">${[["all", "\u5168\u90E8"], ["intel", "\u60C5\u62A5"], ["library", "\u8A00\u5E93"], ["games", "\u653E\u677E"]].map(([k, t]) => `<button data-today="${k}" class="${todayFilter === k ? "active" : ""}" aria-pressed="${todayFilter === k}">${t}</button>`).join("")}</div>${rows.map((u) => `<article class="update-row"><span class="update-stamp ${u.kind}">${u.kind === "intel" ? "\u60C5" : u.kind === "games" ? "\u95F2" : "\u8A00"}</span><button class="update-open" ${u.item ? `data-read="${esc2(u.item.key)}"` : u.kind === "games" ? 'data-page="games"' : `data-update="${esc2(u.update.id)}"`}><span class="meta"><span class="brand-tag ${u.kind}">${label(u.kind)}</span><span>${date2(u.date)} ${u.dateLabel}</span></span><h3>${esc2(u.title)}</h3><p>${esc2(u.summary)}</p></button><span class="update-arrow" aria-hidden="true">\u2197</span></article>`).join("")}${button(todayFilter === "library" ? "library" : todayFilter === "games" ? "games" : "intel", "\u8FDB\u5165\u680F\u76EE\uFF0C\u7EE7\u7EED\u6D4F\u89C8 \u2192", "load-more")}</section>${side()}</div>`;
 }
 function searchBar(placeholder) {
   return `<div class="toolbar"><label class="search-field">${icon("search")}<input data-query type="search" value="${esc2(filters.q)}" placeholder="${placeholder}" aria-label="${placeholder}" autocomplete="off"></label><button class="secondary-button" data-action="saved-filter" aria-pressed="${filters.saved}">${filters.saved ? "\u67E5\u770B\u5168\u90E8" : "\u53EA\u770B\u6536\u85CF"}</button></div>`;
@@ -962,7 +1020,7 @@ function games() {
   return title("\u653E\u677E\u4E00\u4E0B", "\u6682\u653E\u624B\u8FB9\u4E8B\uFF0C\u7559\u4E00\u70B9\u65F6\u95F4\u7ED9\u81EA\u5DF1\u3002", "\u5929\u673A\u7C3F \xB7 \u5C0F\u6E38\u620F \xB7 \u7247\u523B\u95F2\u8DA3") + `<div class="game-grid"><article class="game-card wenchen-card"><div class="wenchen-art" aria-hidden="true"><div class="wenchen-symbol"><strong>\u5929\u673A\u7C3F</strong><small>T I A N J I  B U</small></div></div><div class="game-info"><div class="game-title-row"><h2>\u5929\u673A\u7C3F</h2><span>\u4E1C\u65B9\u547D\u7406</span></div><h3>\u4F60\u7684\u6545\u4E8B\uFF0C<br/>\u4E0D\u6B62\u516B\u4E2A\u5B57\u3002</h3><p>\u4ECE\u53E4\u7C4D\u91CC\u7684\u672F\u8BED\uFF0C\u8BFB\u5230\u4F60\u8FD9\u5F20\u76D8\u7684\u4F9D\u636E\u3002\u5DE5\u4F5C\u3001\u6536\u5165\u3001\u611F\u60C5\u9010\u7AE0\u5C55\u5F00\uFF0C\u5206\u6790\u4E0E\u8C03\u6574\u5EFA\u8BAE\u5206\u5F00\u770B\u3002</p>${button("game", "\u770B\u770B\u6211\u7684\u89E3\u8BFB <span>\u2197</span>", "primary-button", `data-game="wenchen"`)}<p class="wenchen-note">\u65E0\u9700\u6CE8\u518C \xB7 \u751F\u8FB0\u5728\u6D4F\u89C8\u5668\u672C\u5730\u8BA1\u7B97</p><details class="game-rules"><summary>\u5173\u4E8E\u5929\u673A\u7C3F</summary><p>\u4F20\u7EDF\u6587\u5316\u4F53\u9A8C\uFF0C\u4EC5\u4F9B\u5A31\u4E50\u4E0E\u81EA\u6211\u601D\u8003\u3002\u8BA1\u7B97\u6309\u4E1C\u516B\u533A\u6807\u51C6\u65F6\uFF1B\u547D\u76D8\u4E0D\u7528\u4E8E\u5224\u65AD\u75BE\u75C5\u3001\u6295\u8D44\u6216\u5A5A\u59FB\u7ED3\u679C\u3002</p><a href="https://github.com/zhuyep/mingli-lab" target="_blank" rel="noopener noreferrer">\u5929\u673A\u7C3F Tianji Bu \xB7 MIT \u5F00\u6E90 \u2197</a></details></div></article><article class="game-card"><div class="game-art"><small>\u8282\u594F\u4E0E\u53CD\u5E94</small><svg class="hex-art" viewBox="0 0 160 170" aria-hidden="true"><path d="M80 13 145 50v73l-65 37-65-37V50z" stroke="#b7624c"/><path d="m80 37 45 26v50l-45 26-45-26V63z" stroke="#e5c889"/><path d="m80 61 24 14v27l-24 14-24-14V75z" stroke="#8ca6a0"/></svg></div><div class="game-info"><div class="game-title-row"><h2>Hextris</h2><span>\u53CD\u5E94\u6D88\u9664</span></div><h3>\u8BA9\u989C\u8272\uFF0C\u6070\u597D\u76F8\u9022\u3002</h3><p>\u8F6C\u52A8\u516D\u8FB9\u5F62\uFF0C\u8BA9\u540C\u8272\u65B9\u5757\u8FDE\u6210\u4E00\u7EBF\u3002\u89C4\u5219\u7B80\u5355\uFF0C\u8282\u594F\u6E10\u7D27\u3002</p>${button("game", "\u5F00\u59CB\u4E00\u5C40 <span>\u2197</span>", "primary-button", `data-game="hextris"`)}<details class="game-rules"><summary>\u73A9\u6CD5\u4E0E\u5F00\u6E90\u51FA\u5904</summary><p>\u70B9\u5DE6\u53F3\u6309\u94AE\u65CB\u8F6C\uFF0C\u8FDE\u63A5\u81F3\u5C11\u4E09\u4E2A\u540C\u8272\u5757\u6D88\u9664\u3002\u7559\u610F\u8FB9\u754C\uFF0C\u53CA\u65F6\u6E05\u7A7A\u5806\u79EF\u3002</p><a href="https://github.com/Hextris/hextris" target="_blank" rel="noopener noreferrer">Hextris \xB7 GPL-3.0 \u2197</a></details></div></article><article class="game-card"><div class="game-art puzzle"><small>\u5B89\u9759\u5730\u63A8\u7406</small><div class="mini-board" aria-hidden="true">${"<i></i>".repeat(16)}</div></div><div class="game-info"><div class="game-title-row"><h2>0h h1</h2><span>\u4E8C\u8272\u903B\u8F91</span></div><h3>\u4E24\u79CD\u989C\u8272\uFF0C\u4E00\u70B9\u63A8\u7406\u3002</h3><p>\u6CA1\u6709\u8BA1\u65F6\u50AC\u4FC3\uFF0C\u7528\u4E09\u6761\u89C4\u5219\u586B\u6EE1\u65B9\u683C\u3002\u4ECE\u5C0F\u68CB\u76D8\u5F00\u59CB\uFF0C\u6162\u6162\u627E\u5230\u79E9\u5E8F\u3002</p>${button("game", "\u9759\u4E0B\u6765\uFF0C\u89E3\u4E00\u5C40 <span>\u2197</span>", "primary-button", `data-game="0hh1"`)}<details class="game-rules"><summary>\u73A9\u6CD5\u4E0E\u5F00\u6E90\u51FA\u5904</summary><p>\u6BCF\u884C\u6BCF\u5217\u4E24\u8272\u6570\u91CF\u76F8\u540C\uFF1B\u4E0D\u8FDE\u7EED\u51FA\u73B0\u4E09\u4E2A\u540C\u8272\uFF1B\u4EFB\u610F\u4E24\u884C\u3001\u4E24\u5217\u90FD\u4E0D\u80FD\u5B8C\u5168\u4E00\u6837\u3002\u6E38\u620F\u5185\u6709\u4E2D\u6587\u6559\u7A0B\u4E0E\u63D0\u793A\u3002</p><a href="https://github.com/florisluiten/0hh1" target="_blank" rel="noopener noreferrer">Q42 / Martin Kool \xB7 MIT \u2197</a></details></div></article></div><p class="subtle-note">\u8FD9\u91CC\u7684\u5E94\u7528\u90FD\u5728\u7AD9\u5185\u6253\u5F00\u3002\u5929\u673A\u7C3F\u4E0D\u4FDD\u5B58\u751F\u8FB0\uFF1B\u6E38\u620F\u6210\u7EE9\u4FDD\u5B58\u5728\u5F53\u524D\u6D4F\u89C8\u5668\u3002</p>`;
 }
 function showReader(head, html, actions2 = "", section = "\u5DE5\u4F5C\u53F0", keepRoute = false) {
-  if (!keepRoute && parseRoute(location.hash).key) history.replaceState(null, "", "#" + page);
+  if (!keepRoute && parseRoute(location.hash).key) history.replaceState(null, "", DajiStudy.routeHash(page));
   readerKey = "";
   $("#reader-section").textContent = section;
   $("#reader-content").innerHTML = `<article class="reader-body"><h1 id="reader-title">${head}</h1>${html}</article>`;
@@ -1277,14 +1335,15 @@ document.querySelectorAll("dialog").forEach((d) => d.addEventListener("close", (
   document.body.append($("#toast"));
   if (d.id === "game-dialog") $("#game-frame").innerHTML = "";
   if (d.id === "reader") {
-    if (parseRoute(location.hash).key) history.replaceState(null, "", "#" + page);
+    if (parseRoute(location.hash).key) history.replaceState(null, "", DajiStudy.routeHash(page));
     readerKey = "";
-    if (data) document.title = { today: "\u4ECA\u65E5", intel: "\u60C5\u62A5", library: "\u8A00\u5E93", games: "\u653E\u677E", video: "\u5927\u5409\u653E\u6620\u5BA4", books: "\u51EF\u5377\u6709\u76CA" }[page] + " \xB7 \u8BF8\u4E8B\u5927\u5409";
+    if (data) document.title = { today: "\u4ECA\u65E5", intel: "\u60C5\u62A5", library: "书房 · 言库", games: "\u653E\u677E", video: "\u5927\u5409\u653E\u6620\u5BA4", books: "\u51EF\u5377\u6709\u76CA" }[page] + " \xB7 \u8BF8\u4E8B\u5927\u5409";
   }
 }));
 function applyRoute() {
   const route = parseRoute(location.hash);
   page = route.page;
+  if (page === "library" && location.hash.startsWith("#library")) history.replaceState(null,"",route.key ? readingHash(route.key) : DajiStudy.routeHash(page));
   if (!data) {
     render();
     if (!["games", "video", "books"].includes(page)) load();
