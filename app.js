@@ -1,3 +1,4 @@
+import {renderToday,fetchOpcSnapshot} from "./modules/chunks/today-updates-7d73cf0572d0a2f9.js";
 import {
   bookShell
 } from "./modules/wiki-release/book-search-8346ecbfecd020.js";
@@ -892,11 +893,14 @@ async function showVisits() {
   const sum = s.days.reduce((n, d) => n + (d.views || 0), 0);
   showReader("\u8BBF\u95EE\u8DB3\u8FF9", `<p class="subtle-note">\u770B\u770B\u8FD9\u5468\uFF0C\u6709\u591A\u5C11\u6B21\u6253\u5F00\u3002</p><div class="visit-totals"><div><span>\u4ECA\u65E5\u8BBF\u95EE</span><strong>${visitNumber(s.today)}</strong></div><div><span>\u8FD1 7 \u5929\u7D2F\u8BA1</span><strong>${s.startedAt ? visitNumber(sum) : "\u2014"}</strong></div><div><span>\u603B\u8BBF\u95EE</span><strong>${visitNumber(s.total)}</strong></div></div><section class="visit-chart"><h2>\u8FD1 7 \u5929</h2><svg viewBox="0 0 340 204" role="img" aria-label="\u8FD17\u5929\u8BBF\u95EE\u6B21\u6570\uFF0C${esc2(s.days.map((d) => d.date + "\uFF1A" + (d.views === null ? "\u672A\u8BB0\u5F55" : d.views + "\u6B21")).join("\uFF1B"))}">${bars}</svg><p class="subtle-note">${s.startedAt ? "\u81EA " + date2(s.startedOn) + " \u5F00\u59CB\u8BB0\u5F55\uFF0C\u4E4B\u524D\u7684\u65E5\u671F\u6807\u4E3A\u300C\u2014\u300D\u3002" : "\u5C1A\u672A\u5F00\u59CB\u8BB0\u5F55\u3002"}</p></section><div class="source-box"><h2>\u600E\u4E48\u7B97\u4E00\u6B21\u8BBF\u95EE</h2><p>\u6253\u5F00\u6216\u5237\u65B0\u9875\u9762\u8BA1\u4E00\u6B21\uFF1B\u5207\u6362\u680F\u76EE\u3001\u5C55\u5F00\u6587\u7AE0\u548C\u73A9\u6E38\u620F\u4E0D\u91CD\u590D\u8BA1\u6570\u3002\u6B21\u6570\u4E0D\u7B49\u4E8E\u72EC\u7ACB\u8BBF\u5BA2\u4EBA\u6570\u3002</p><p>\u6309\u5317\u4EAC\u65F6\u95F4\u6C47\u603B\u5F53\u524D\u5DE5\u4F5C\u53F0\u7684\u8BBF\u95EE\u3002\u7535\u8111\u548C\u624B\u673A\u8BBF\u95EE\u540C\u4E00\u4E2A\u670D\u52A1\uFF0C\u4F1A\u4E00\u8D77\u7D2F\u8BA1\u3002</p></div>`, "", "\u5DE5\u4F5C\u53F0 \xB7 \u8BBF\u95EE");
 }
-function today() {
-  let rows = updates.filter((u) => todayFilter === "all" || u.kind === todayFilter).slice(0, 12);
-  const now = new Intl.DateTimeFormat("zh-CN", { year: "numeric", month: "long", day: "numeric", weekday: "long" }).format(/* @__PURE__ */ new Date()), total = counts();
-  return title("\u4ECA\u65E5\u4E00\u89C8", "\u628A\u89C1\u95FB\u6536\u597D\uFF0C\u628A\u65E5\u5B50\u8FC7\u597D\u3002", now) + `<section class="overview" aria-label="\u5DE5\u4F5C\u53F0\u603B\u89C8"><button data-page="intel"><span>\u60C5\u62A5<small>\u5DF2\u6536\u5F55</small></span><strong>${total.intel}</strong></button><button data-page="library"><span>言库<small>书房 · 写作素材</small></span><strong>${total.blocks}</strong></button><button data-action="visits" class="visit-overview" aria-label="\u4ECA\u65E5\u8BBF\u95EE\uFF0C\u67E5\u770B\u8FD17\u5929\u8D8B\u52BF">${visitCard()}</button></section><div class="page-columns"><section class="content-pane"><div class="section-heading"><h2>\u8FD1\u65E5\u66F4\u65B0</h2><small>\u5404\u680F\u52A8\u6001\uFF0C\u6C47\u4E8E\u6B64\u5904</small></div><div class="tabs" aria-label="\u66F4\u65B0\u5206\u7C7B">${[["all", "\u5168\u90E8"], ["intel", "\u60C5\u62A5"], ["library", "\u8A00\u5E93"], ["games", "\u653E\u677E"]].map(([k, t]) => `<button data-today="${k}" class="${todayFilter === k ? "active" : ""}" aria-pressed="${todayFilter === k}">${t}</button>`).join("")}</div>${rows.map((u) => `<article class="update-row"><span class="update-stamp ${u.kind}">${u.kind === "intel" ? "\u60C5" : u.kind === "games" ? "\u95F2" : "\u8A00"}</span><button class="update-open" ${u.item ? `data-read="${esc2(u.item.key)}"` : u.kind === "games" ? 'data-page="games"' : `data-update="${esc2(u.update.id)}"`}><span class="meta"><span class="brand-tag ${u.kind}">${label(u.kind)}</span><span>${date2(u.date)} ${u.dateLabel}</span></span><h3>${esc2(u.title)}</h3><p>${esc2(u.summary)}</p></button><span class="update-arrow" aria-hidden="true">\u2197</span></article>`).join("")}${button(todayFilter === "library" ? "library" : todayFilter === "games" ? "games" : "intel", "\u8FDB\u5165\u680F\u76EE\uFF0C\u7EE7\u7EED\u6D4F\u89C8 \u2192", "load-more")}</section>${side()}</div>`;
+let todayOpc={status:'pending',entries:[]},todayOpcBusy=false,todayOpcCheckedAt=0,todayLimit=18;
+function refreshTodayOpc(force=false){
+ if(page!=='today'||todayOpcBusy||!force&&Date.now()-todayOpcCheckedAt<60000)return;
+ todayOpcBusy=true;todayOpcCheckedAt=Date.now();
+ fetchOpcSnapshot().then(snapshot=>{todayOpc=snapshot}).finally(()=>{todayOpcBusy=false;if(page==='today')render()});
 }
+function today(){refreshTodayOpc();return renderToday({data,payload,filter:todayFilter,limit:todayLimit,opc:todayOpc,visits:visitCard()})}
+
 function searchBar(placeholder) {
   return `<div class="toolbar"><label class="search-field">${icon("search")}<input data-query type="search" value="${esc2(filters.q)}" placeholder="${placeholder}" aria-label="${placeholder}" autocomplete="off"></label><button class="secondary-button" data-action="saved-filter" aria-pressed="${filters.saved}">${filters.saved ? "\u67E5\u770B\u5168\u90E8" : "\u53EA\u770B\u6536\u85CF"}</button></div>`;
 }
@@ -1223,6 +1227,9 @@ ${safeUrl(r.url)}`);
   "save-reader": () => toggleSave(readerKey),
   game: (b) => gameLoader.open(b.dataset.game)
 };
+actions['today-more']=()=>{todayLimit+=18;render();if(payload?.meta?.summary)loadFull()};
+actions['today-opc-refresh']=()=>{refreshTodayOpc(true)};
+window.addEventListener('focus',()=>{if(page==='today')refreshTodayOpc(true)});
 var gameLoader = createGameLoader({ dialog: $("#game-dialog"), container: $("#game-frame"), title: $("#game-title") });
 document.addEventListener("click", (e) => {
   const b = e.target.closest("button");
@@ -1255,7 +1262,7 @@ document.addEventListener("click", (e) => {
     return;
   }
   if (b.dataset.today) {
-    todayFilter = b.dataset.today;
+    todayFilter = b.dataset.today; todayLimit = 18;
     render();
     return;
   }
@@ -1373,15 +1380,8 @@ async function fetchContent(urls) {
   }
   throw lastError || Error("\u8BFB\u53D6\u5931\u8D25");
 }
-function acceptContent(p) {
-  payload = p;
-  data = normalizeContent(p);
-  updates = buildUpdates(data, p);
-  updates.push({ kind: "games", date: "2026-09-21", dateLabel: "\u5185\u5BB9\u66F4\u65B0", title: "\u5929\u673A\u7C3F\uFF1A\u628A\u547D\u7406\u5C55\u5F00\u8BB2\u6E05\u695A", summary: "\u516D\u7AE0\u65B0\u589E\u672F\u8BED\u8BE6\u89E3\u3001\u53E4\u7C4D\u77ED\u5F15\u4E0E\u672C\u76D8\u4F9D\u636E\u3002\u4E3A\u4EC0\u4E48\u8FD9\u6837\u89E3\u8BFB\u3001\u54EA\u4E9B\u6761\u4EF6\u4F1A\u6539\u53D8\u5224\u65AD\uFF0C\u9010\u6BB5\u8BF4\u6E05\u3002" });
-  updates.push({ kind: "games", date: "2026-09-05", dateLabel: "\u52A0\u5165\u5DE5\u4F5C\u53F0", title: "Hextris \u4E0E 0h h1\uFF0C\u968F\u624B\u5F00\u4E00\u5C40", summary: "\u516D\u8FB9\u5F62\u6D88\u9664\u4E0E\u4E8C\u8272\u903B\u8F91\u3002\u652F\u6301\u624B\u673A\u89E6\u63A7\uFF0C\u7AD9\u5185\u76F4\u63A5\u73A9\u3002" });
-  updates.sort((a, b) => b.date.localeCompare(a.date) || { library: 0, games: 1, intel: 2 }[a.kind] - { library: 0, games: 1, intel: 2 }[b.kind]);
-  setIntentProfiles(p.yanku.intents);
-}
+function acceptContent(p){payload=p;data=normalizeContent(p);updates=buildUpdates(data,p);setIntentProfiles(p.yanku.intents)}
+
 function loadFull() {
   if (!payload?.meta?.summary) return Promise.resolve(payload);
   if (fullContentPromise) return fullContentPromise;

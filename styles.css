@@ -146,3 +146,28 @@ html[data-theme=dark]{--graph-source:#d2b184;--graph-edge:#657263;--graph-dot:#4
 @media(max-width:759px){.book-heading.study-heading{gap:12px;flex-wrap:wrap}.study-heading .book-modules{gap:20px}.study-heading .book-room-name{font-size:16px}.study-heading .book-modules a{font-size:12px;min-height:48px}.book-room-library .page-title{padding:18px 0 14px}.book-room-library .page-title h1{font-size:26px}.site-header .main-nav>button,.site-header .main-nav>a{flex:1 1 0;width:auto;min-width:0}.site-header .main-nav .opc-nav-link{padding:0;height:65px;font-size:11px}}
 
 body.wiki-page-mode .book-heading.study-heading{display:flex;padding-top:16px}
+
+/* Today's compact index: five destinations, one chronological reading list. */
+.today-dashboard{max-width:960px;margin-inline:auto}
+.today-heading{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:22px 0 13px}
+.today-heading h1{font:500 29px/1.4 var(--serif);letter-spacing:1.5px}
+.today-heading>time{color:var(--muted);font-size:12px;white-space:nowrap}
+.today-section-statuses{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border-block:1px solid var(--line);margin-bottom:14px}
+.today-section-status{min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;position:relative;line-height:1.6}
+.today-section-status+*::before{content:'';position:absolute;left:0;height:24px;border-left:1px solid var(--line)}
+.today-section-status>span{font-size:13px}.today-section-status>small{font-size:10px;color:var(--muted);font-variant-numeric:tabular-nums}
+.today-section-status:hover>span{color:var(--red)}
+.today-dashboard .today-overview{padding:11px 0;margin-bottom:18px}
+.today-overview button{padding-inline:18px;gap:8px}.today-overview span{font-size:12px}.today-overview small{font-size:10px}.today-overview strong{font-size:25px}
+.today-feed .section-heading{margin:0}.today-feed .section-heading h2{font-size:21px}.today-feed .section-heading small{font-size:10px}
+.today-feed-tabs{gap:27px;min-height:44px}.today-feed-tabs button{min-height:44px;padding-block:10px}
+.today-entry{border-bottom:1px solid var(--line)}
+.today-entry-open{display:block;width:100%;text-align:left;padding:12px 0;min-height:44px}
+.today-entry-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:10px;line-height:1.6;color:var(--muted);margin-bottom:4px}
+.today-entry-kind{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}.today-entry-meta time{white-space:nowrap;flex:none;font-variant-numeric:tabular-nums}
+.today-entry h3{font:550 16px/1.55 var(--sans);overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.today-entry-note{font-size:12px;line-height:1.65;color:var(--muted);margin-top:4px;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.today-entry-note>span{font-size:10px;color:var(--red);margin-right:7px}
+.today-entry-open:hover h3{color:var(--red)}.today-feed-more{display:block;width:100%;min-height:46px;color:var(--red);font-size:12px}
+.today-feed-empty{padding:22px 0;color:var(--muted);font-size:13px;line-height:1.8}.today-feed-empty a{display:inline-flex;min-height:44px;align-items:center;color:var(--red)}
+@media(max-width:759px){.today-heading{padding:18px 0 11px}.today-heading h1{font-size:27px}.today-heading>time{font-size:11px}.today-section-statuses{margin-bottom:12px}.today-section-status{min-height:48px}.today-section-status>span{font-size:12px}.today-section-status>small{font-size:10px}.today-dashboard .today-overview{padding:10px 0;margin-bottom:16px}.today-overview button{padding-inline:10px;gap:6px}.today-overview span{font-size:11px}.today-overview strong{font-size:23px}.today-overview small{font-size:9px}.today-feed-tabs{gap:23px}.today-feed .section-heading h2{font-size:20px}.today-entry-open{padding-block:11px}.today-entry-meta{font-size:10px;gap:8px}.today-entry h3{font-size:15px;line-height:1.5}.today-entry-note{font-size:12px;line-height:1.6;margin-top:4px}}
