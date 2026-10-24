@@ -1,4 +1,4 @@
-import {renderToday,fetchOpcSnapshot} from "./modules/chunks/today-updates-7d73cf0572d0a2f9.js";
+import {renderToday,fetchOpcSnapshot,fetchSectionOverview} from "./modules/chunks/today-overview-1a62e0998c1fc4fb.js";
 import {
   bookShell
 } from "./modules/wiki-release/book-search-8346ecbfecd020.js";
@@ -893,13 +893,18 @@ async function showVisits() {
   const sum = s.days.reduce((n, d) => n + (d.views || 0), 0);
   showReader("\u8BBF\u95EE\u8DB3\u8FF9", `<p class="subtle-note">\u770B\u770B\u8FD9\u5468\uFF0C\u6709\u591A\u5C11\u6B21\u6253\u5F00\u3002</p><div class="visit-totals"><div><span>\u4ECA\u65E5\u8BBF\u95EE</span><strong>${visitNumber(s.today)}</strong></div><div><span>\u8FD1 7 \u5929\u7D2F\u8BA1</span><strong>${s.startedAt ? visitNumber(sum) : "\u2014"}</strong></div><div><span>\u603B\u8BBF\u95EE</span><strong>${visitNumber(s.total)}</strong></div></div><section class="visit-chart"><h2>\u8FD1 7 \u5929</h2><svg viewBox="0 0 340 204" role="img" aria-label="\u8FD17\u5929\u8BBF\u95EE\u6B21\u6570\uFF0C${esc2(s.days.map((d) => d.date + "\uFF1A" + (d.views === null ? "\u672A\u8BB0\u5F55" : d.views + "\u6B21")).join("\uFF1B"))}">${bars}</svg><p class="subtle-note">${s.startedAt ? "\u81EA " + date2(s.startedOn) + " \u5F00\u59CB\u8BB0\u5F55\uFF0C\u4E4B\u524D\u7684\u65E5\u671F\u6807\u4E3A\u300C\u2014\u300D\u3002" : "\u5C1A\u672A\u5F00\u59CB\u8BB0\u5F55\u3002"}</p></section><div class="source-box"><h2>\u600E\u4E48\u7B97\u4E00\u6B21\u8BBF\u95EE</h2><p>\u6253\u5F00\u6216\u5237\u65B0\u9875\u9762\u8BA1\u4E00\u6B21\uFF1B\u5207\u6362\u680F\u76EE\u3001\u5C55\u5F00\u6587\u7AE0\u548C\u73A9\u6E38\u620F\u4E0D\u91CD\u590D\u8BA1\u6570\u3002\u6B21\u6570\u4E0D\u7B49\u4E8E\u72EC\u7ACB\u8BBF\u5BA2\u4EBA\u6570\u3002</p><p>\u6309\u5317\u4EAC\u65F6\u95F4\u6C47\u603B\u5F53\u524D\u5DE5\u4F5C\u53F0\u7684\u8BBF\u95EE\u3002\u7535\u8111\u548C\u624B\u673A\u8BBF\u95EE\u540C\u4E00\u4E2A\u670D\u52A1\uFF0C\u4F1A\u4E00\u8D77\u7D2F\u8BA1\u3002</p></div>`, "", "\u5DE5\u4F5C\u53F0 \xB7 \u8BBF\u95EE");
 }
-let todayOpc={status:'pending',entries:[]},todayOpcBusy=false,todayOpcCheckedAt=0,todayLimit=18;
+let todayOpc={status:'pending',entries:[]},todayOpcBusy=false,todayOpcCheckedAt=0,todayLimit=18,todayOverview={},todayOverviewBusy=false,todayOverviewCheckedAt=0;
 function refreshTodayOpc(force=false){
  if(page!=='today'||todayOpcBusy||!force&&Date.now()-todayOpcCheckedAt<60000)return;
  todayOpcBusy=true;todayOpcCheckedAt=Date.now();
  fetchOpcSnapshot().then(snapshot=>{todayOpc=snapshot}).finally(()=>{todayOpcBusy=false;if(page==='today')render()});
 }
-function today(){refreshTodayOpc();return renderToday({data,payload,filter:todayFilter,limit:todayLimit,opc:todayOpc,visits:visitCard()})}
+function refreshTodayOverview(){
+ if(page!=='today'||todayOverviewBusy||Date.now()-todayOverviewCheckedAt<60000)return;
+ todayOverviewBusy=true;todayOverviewCheckedAt=Date.now();
+ fetchSectionOverview().then(value=>{todayOverview=value}).finally(()=>{todayOverviewBusy=false;if(page==='today')render()});
+}
+function today(){refreshTodayOpc();refreshTodayOverview();return renderToday({data,payload,filter:todayFilter,limit:todayLimit,opc:todayOpc,overview:todayOverview,visits:visitCard()})}
 
 function searchBar(placeholder) {
   return `<div class="toolbar"><label class="search-field">${icon("search")}<input data-query type="search" value="${esc2(filters.q)}" placeholder="${placeholder}" aria-label="${placeholder}" autocomplete="off"></label><button class="secondary-button" data-action="saved-filter" aria-pressed="${filters.saved}">${filters.saved ? "\u67E5\u770B\u5168\u90E8" : "\u53EA\u770B\u6536\u85CF"}</button></div>`;
