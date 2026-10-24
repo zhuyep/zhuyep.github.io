@@ -193,5 +193,5 @@ body.wiki-page-mode .book-heading.study-heading{display:flex;padding-top:16px}
 @media(max-width:359px){.today-module-card{padding-inline:4px}.today-module-card>strong{font-size:20px}.today-module-card>strong>small{font-size:8px}.today-module-card.is-status>strong{font-size:11px}.today-module-detail{font-size:8px}.today-visits>strong{font-size:21px}}
 
 /* Filled saved bookmark, shared by intelligence and study materials. */
-.bookmark[aria-pressed="true"] svg{fill:currentColor}
+.bookmark[aria-pressed="true"] svg,.bookmark[aria-pressed="true"] svg path{fill:currentColor}
 .bookmark[aria-pressed="true"]:hover{background:var(--red-wash)}
