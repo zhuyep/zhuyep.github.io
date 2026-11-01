@@ -1,0 +1,53 @@
+:root { color-scheme: light; --paper: #f8f6ef; --surface: #fffdf8; --ink: #292b28; --muted: #696c62; --red: #b73325; --line: #dddcd2; --green: #626b59; --soft: #eeeee4; --serif: "Songti SC", "STSong", "Noto Serif CJK SC", serif; --sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; }
+html[data-theme="dark"] { color-scheme: dark; --paper: #1c211f; --surface: #242a26; --ink: #e9e5d9; --muted: #b0b2a6; --red: #ee9279; --line: #444b41; --green: #b3bda3; --soft: #2e352f; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.7 var(--sans); }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+a { color: inherit; }
+h1, h2, p { margin: 0; }
+h1, h2 { font-weight: 500; font-family: var(--serif); }
+.maixiang-shell { width: min(960px, calc(100% - 40px)); margin: 0 auto; padding: 28px 0 64px; }
+.maixiang-back { display: inline-flex; min-height: 44px; align-items: center; font-size: 13px; text-decoration: none; }
+.maixiang-back:hover { color: var(--red); }
+.maixiang-hero { display: flex; justify-content: space-between; gap: 24px; align-items: flex-end; padding: 12px 0 22px; }
+.maixiang-kicker { display: block; letter-spacing: .18em; font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+h1 { font-size: 40px; letter-spacing: .12em; }
+.maixiang-lead { margin-top: 8px; color: var(--muted); font-size: 14px; }
+.maixiang-pulse { width: 220px; height: 48px; flex: none; }
+.maixiang-pulse path { fill: none; stroke: var(--red); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 280; animation: maixiang-draw 2.8s ease-in-out infinite; }
+@keyframes maixiang-draw { 0%, 100% { stroke-dashoffset: 40; opacity: .45; } 50% { stroke-dashoffset: 0; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .maixiang-pulse path { animation: none; } }
+.maixiang-disclaimer, .maixiang-access, .maixiang-handoff { color: var(--muted); font-size: 13px; }
+.maixiang-disclaimer { border-top: 1px solid var(--line); padding-top: 14px; }
+.maixiang-banner { background: var(--soft); border: 1px solid var(--line); padding: 10px 12px; margin: 0 0 12px; font-size: 13px; }
+.maixiang-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 18px 0; }
+.maixiang-grid article { background: var(--surface); border: 1px solid var(--line); padding: 16px 16px 18px; min-height: 148px; }
+.maixiang-grid h2 { font-size: 22px; margin-bottom: 10px; }
+.maixiang-grid p, .maixiang-grid li { font-size: 14px; line-height: 1.75; }
+.maixiang-grid ul { margin: 0; padding-left: 1.1em; }
+.maixiang-empty { color: var(--muted); }
+.maixiang-actions, .maixiang-form-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.maixiang-actions button, .maixiang-form-actions button, .maixiang-sample { min-height: 46px; padding: 10px 16px; border-radius: 4px; border: 1px solid var(--ink); background: var(--ink); color: var(--paper); }
+.maixiang-actions button[data-sample], .maixiang-form-actions button[type="button"] { background: var(--surface); color: var(--ink); border-color: var(--line); }
+.maixiang-form { margin-top: 16px; padding: 16px; background: var(--surface); border: 1px solid var(--line); display: grid; gap: 10px; }
+.maixiang-form[hidden] { display: none; }
+.maixiang-form h2 { font-size: 22px; }
+label { display: grid; gap: 6px; font-size: 13px; color: var(--muted); }
+[hidden] { display: none !important; }
+select, textarea { width: 100%; border: 1px solid var(--line); background: var(--paper); padding: 10px; border-radius: 3px; }
+textarea { min-height: 110px; resize: vertical; line-height: 1.7; }
+.maixiang-status { min-height: 1.5em; margin-top: 12px; font-size: 14px; }
+.maixiang-access { margin-top: 8px; }
+.maixiang-handoff { margin-top: 22px; }
+.maixiang-handoff summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; }
+.maixiang-handoff p { margin: 8px 0 12px; }
+code { font-size: .92em; }
+@media (max-width: 759px) {
+  .maixiang-shell { width: min(100% - 32px, 590px); }
+  .maixiang-hero { display: block; }
+  .maixiang-pulse { margin-top: 12px; }
+  h1 { font-size: 32px; }
+  .maixiang-grid { grid-template-columns: 1fr; }
+  .maixiang-actions button, .maixiang-form-actions button { flex: 1 1 140px; }
+}

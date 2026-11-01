@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="referrer" content="no-referrer">
+<meta name="description" content="脉象是诸事大吉里的私人健康看板入口。此页不包含个人健康档案。">
+<title>脉象 · 诸事大吉</title>
+<link rel="stylesheet" href="/maixiang/maixiang.css">
+</head>
+<body>
+<main class="maixiang-shell" id="maixiang-app">
+<a class="maixiang-back" href="/#today">← 诸事大吉</a>
+<header class="maixiang-hero">
+<div>
+<span class="maixiang-kicker">健康 · 私人</span>
+<h1>脉象</h1>
+<p class="maixiang-lead">看清脉络，慢慢养。</p>
+</div>
+<svg class="maixiang-pulse" viewBox="0 0 240 48" aria-hidden="true"><path d="M2 24h78l12-14 14 28 12-22 10 8h110"/></svg>
+</header>
+<p class="maixiang-disclaimer">不诊断、不开药，也不能代替面诊。</p>
+<section aria-label="健康看板" data-board>
+<div class="maixiang-grid">
+<article><h2>近期</h2><p>私人档案还未接通。</p></article>
+<article><h2>关注</h2><p class="maixiang-empty">还没有关注项。</p></article>
+<article><h2>下一步</h2><p>先记一笔，或问小护士一句。文字只留在这个标签页。</p></article>
+</div>
+</section>
+<div class="maixiang-actions">
+<button type="button" data-open="log">记一笔</button>
+<button type="button" data-open="ask">问小护士</button>
+<button type="button" data-sample aria-pressed="false">看合成样例</button>
+</div>
+<form class="maixiang-form" data-form hidden method="post" action="/maixiang/">
+<h2 data-form-title>记一笔</h2>
+<label data-log-kind>这一笔<select data-kind><option value="movement">走动</option><option value="meal">饮食</option><option value="rest">休息</option><option value="note">其他</option></select></label>
+<label>一句<textarea data-text maxlength="500" autocomplete="off" placeholder="今天的走动、饮食或休息，一句就好。"></textarea></label>
+<div class="maixiang-form-actions"><button type="submit" data-submit>记下</button><button type="button" data-open="">收起</button></div>
+</form>
+<p class="maixiang-status" data-status role="status"></p>
+<p class="maixiang-access" data-access>正在确认档案接口是否关闭……</p>
+<details class="maixiang-handoff">
+<summary>怎样接到小护士</summary>
+<p>这页不调用外部模型。记一笔、问小护士会在当前页面发出 <code>zhushi:maixiang</code>，并把结构化任务放进这个标签页的 sessionStorage（键 <code>zhushi-daji-maixiang-queue-v1</code>）。深链只有意图，没有正文：<code>/maixiang/?intent=log</code>、<code>/maixiang/?intent=ask</code>。页面带 noindex。</p>
+<p>后续 Grok Bot 在同一页订阅该事件即可接手。正式存储应是登录后的私有 D1、KV 或 R2。<code>POST /api/maixiang/v1/tasks</code> 现在对匿名请求返回 401，不落盘、不回显正文，也不写入访问统计库。</p>
+</details>
+</main>
+<script type="module">
+import {mountMaixiang} from '/maixiang/maixiang.js';
+const root = document.querySelector('#maixiang-app');
+try { mountMaixiang(root); }
+catch { root.querySelector('[data-status]').textContent = '看板脚本没有跑起来。空态和免责声明仍然有效，内容没有上传。'; }
+</script>
+</body>
+</html>
