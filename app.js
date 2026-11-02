@@ -1,10 +1,9 @@
-import {renderToday,fetchOpcSnapshot,fetchSectionOverview} from "./modules/chunks/today-overview-1a62e0998c1fc4fb.js";
 import {
   bookShell
-} from "./modules/wiki-release/book-search-8346ecbfecd020.js";
+} from "./modules/chunks/chunk-JYSFH35P.js";
 import {
   cinemaShell
-} from "./modules/chunks/video-cinema-public-8e503f9c741410f2.js";
+} from "./modules/chunks/chunk-K4JNUKM4.js";
 import {
   NODE_LABELS,
   buildIntelTrends,
@@ -13,8 +12,74 @@ import {
   validReportDate
 } from "./modules/chunks/chunk-Y36WSFEI.js";
 
+// demo/modules/intel-work-brief.js
+var FIELDS = ["\u5173\u8054", "\u5173\u6CE8", "\u501F\u9274", "\u8FB9\u754C"];
+var READING_INVITATIONS = {
+  "intel-ef78b1ef9b0d89f1b56e": "\u8DDF\u8E2A\u5916\u90E8\u6A21\u578B\u4F9B\u7ED9\u7684\u53D8\u5316\u7EBF\u7D22\uFF0C\u4F9B\u822A\u53D1 AI \u9009\u578B\u89C2\u5BDF\uFF1B\u878D\u8D44\u8BF4\u6CD5\u4ECD\u5F85\u6838\u5B9E\u3002",
+  "intel-701c1733fb9fb7f7c4fe": "\u501F\u9274\u5F15\u7528\u56FE\u8C31\uFF0C\u63A2\u7D22\u822A\u53D1\u6807\u51C6\u53D8\u66F4\u7684\u5F71\u54CD\u521D\u7B5B\u65B9\u6CD5\uFF0C\u4ECD\u987B\u4E13\u4E1A\u590D\u6838\u3002",
+  "intel-674a9b4429cf6698bcc5": "\u8DDF\u8FDB\u667A\u80FD\u4F53\u8F6F\u4EF6\u7684\u6807\u51C6\u4E0E\u8BD5\u70B9\u53E3\u5F84\uFF0C\u4F9B\u822A\u53D1\u5DE5\u4E1A\u8F6F\u4EF6\u89C4\u5212\u53C2\u8003\u3002",
+  "intel-8b3ef63f5c4e566c2c64": "\u501F\u6B64\u6BD4\u8F83\u4E13\u4E1A\u4EFB\u52A1\u7684\u667A\u80FD\u4F53\u8BC4\u6D4B\u65B9\u6CD5\uFF0C\u81EA\u6211\u6539\u8FDB\u4E3B\u5F20\u4ECD\u5F85\u9A8C\u8BC1\u3002",
+  "intel-5089b61afea9a586ae0a": "\u4E3A AI \u7814\u7A76\u65B9\u5411\u50A8\u5907\u653F\u7B56\u7EBF\u7D22\uFF0C\u914D\u5957\u8D44\u91D1\u4E0E\u4EFB\u52A1\u4ECD\u5F85\u6838\u5B9E\u3002",
+  "intel-a8282be94d69fdaa5b29": "\u501F\u5916\u90E8\u63A5\u5165\u4E89\u8BAE\uFF0C\u68C0\u67E5\u822A\u53D1\u667A\u80FD\u4F53\u7684\u6743\u9650\u3001\u8EAB\u4EFD\u4E0E\u4EBA\u5DE5\u786E\u8BA4\u8FB9\u754C\u3002",
+  "intel-2d3f60d5139ccdbe0fea": "\u4E3A\u4EFF\u771F\u4E0E\u865A\u5B9E\u4EA4\u4E92\u50A8\u5907\u65B9\u5411\u7EBF\u7D22\uFF0C\u6682\u4E0D\u80FD\u636E\u6B64\u5224\u65AD\u843D\u5730\u6761\u4EF6\u3002",
+  "intel-3358593b9b1411d6372a": "\u4EC5\u4F5C\u5916\u90E8 AI \u4F9B\u5E94\u5546\u7684\u8D44\u672C\u98CE\u9669\u7EBF\u7D22\uFF0C\u4E0D\u80FD\u636E\u6B64\u5224\u65AD\u6280\u672F\u80FD\u529B\u3002",
+  "intel-7b77594de365872e0495": "\u89C2\u5BDF\u8DE8\u516C\u53F8\u4E13\u9879\u7EC4\u5982\u4F55\u9A8C\u8BC1\u5236\u9020 AI\uFF0C\u4F9B\u822A\u53D1\u5355\u5DE5\u5E8F\u8BD5\u70B9\u6BD4\u8F83\u3002",
+  "intel-c93b9ce6b3af6d14585c": "\u8DDF\u8E2A\u673A\u5668\u4EBA\u4EFF\u771F\u5230\u73B0\u573A\u8C03\u8BD5\u7684\u95ED\u73AF\uFF0C\u5148\u770B\u5177\u4F53\u5DE5\u4F4D\u4E0E\u5BF9\u7167\u6570\u636E\u3002",
+  "intel-0ebfe851ce4d7a530764": "\u5BF9\u7167\u822A\u53D1 AI \u8BD5\u70B9\u8F6C\u89C4\u6A21\u5316\u7684\u573A\u666F\u3001\u6570\u636E\u4E0E\u9A8C\u8BC1\u95E8\u69DB\uFF0C\u539F\u6587\u5F85\u6838\u3002",
+  "intel-f4ef15a9b56c5a14baa2": "\u6BD4\u8F83\u5171\u4EAB AI \u57FA\u5EA7\u4E0E\u81EA\u5EFA\u65B9\u6848\u7684\u6570\u636E\u9694\u79BB\u8FB9\u754C\uFF0C\u5148\u6838\u5B9E\u5E73\u53F0\u80FD\u529B\u3002",
+  "intel-342f6f6f025d33f9f52e": "\u4E3A\u822A\u53D1\u7B97\u529B\u9700\u6C42\u5206\u6863\u627E\u5916\u90E8\u53C2\u7167\uFF0C\u5148\u770B\u96C6\u91C7\u89C4\u683C\u4E0E\u4E2D\u6807\u7ED3\u679C\u3002",
+  "intel-9d577bc6cf520103f35c": "\u6BD4\u8F83\u4EFF\u771F\u3001\u8BD5\u9A8C\u6570\u636E\u7684\u6807\u6CE8\u4E0E\u5171\u4EAB\u53E3\u5F84\uFF0C\u5148\u6838\u5BF9\u6807\u51C6\u6587\u672C\u3002",
+  "intel-65f045324b9729b83caf": "\u4E3A\u822A\u53D1\u76D1\u6D4B\u7684\u7AEF\u4FA7\u63A8\u7406\u9009\u578B\u50A8\u5907\u7EBF\u7D22\uFF0C\u5148\u770B\u529F\u8017\u3001\u65F6\u5EF6\u4E0E\u51FA\u8D27\u8BC1\u636E\u3002",
+  "intel-ae002f5b930a18ab9ed5": "\u5BF9\u7167\u771F\u5B9E\u6570\u636E\u7684\u91C7\u96C6\u4E0E\u6CBB\u7406\u6D41\u7A0B\uFF0C\u4E3B\u4F53\u548C\u6570\u636E\u80FD\u529B\u4ECD\u5F85\u6838\u5B9E\u3002",
+  "intel-cdde3b018196abe84f69": "\u4E3A\u822A\u53D1 AI \u8BD5\u70B9\u590D\u5236\u627E\u9A8C\u6536\u53C2\u7167\uFF0C\u5148\u770B\u5177\u540D\u5BA2\u6237\u4E0E\u91CD\u590D\u90E8\u7F72\u8BC1\u636E\u3002",
+  "intel-debb0c81a6d6ca3cd7a3": "\u5148\u6838\u5BF9\u7269\u7406 AI \u7684\u4EFB\u52A1\u4E0E\u6210\u529F\u7387\uFF0C\u5224\u65AD\u662F\u5426\u503C\u5F97\u505A\u822A\u53D1\u573A\u666F\u590D\u73B0\u3002",
+  "intel-92a22fec30bb8929bef4": "\u4E3A\u8FB9\u7F18\u63A8\u7406\u6BD4\u8F83\u5B58\u50A8\u5E26\u5BBD\u4E0E\u529F\u8017\uFF0C\u7814\u53D1\u8BF4\u6CD5\u548C\u6307\u6807\u4ECD\u5F85\u6838\u5B9E\u3002",
+  "intel-f9f897bfa311f670c855": "\u4E3A\u667A\u80FD\u4F53\u63A5\u5165 PLM\u3001MES \u6216\u4EFF\u771F\u94FE\u627E\u6848\u4F8B\uFF0C\u91CD\u70B9\u770B\u63A5\u53E3\u4E0E\u590D\u6838\u70B9\u3002"
+};
+function parseWorkBrief(text = "") {
+  if (typeof text !== "string") return null;
+  const header = text.match(/^【航发关联预判\s*·\s*([^】]+)】/);
+  if (!header) return /^航发关联预判待补/.test(text) ? { pending: true } : null;
+  if (header[1].includes("\u5F85\u8865")) return { pending: true };
+  const end = text.indexOf("\n\u793E\u533A\u8BA8\u8BBA\uFF1A");
+  const body = end < 0 ? text : text.slice(0, end);
+  const values = {};
+  for (let i = 0; i < FIELDS.length; i++) {
+    const label2 = FIELDS[i], start = body.indexOf(label2 + "\uFF1A", header[0].length);
+    if (start < 0) return null;
+    const next = i < FIELDS.length - 1 ? body.indexOf(FIELDS[i + 1] + "\uFF1A", start + label2.length + 1) : body.indexOf("\uFF08AI\u521D\u5224", start);
+    if (next < 0) return null;
+    values[label2] = body.slice(start + label2.length + 1, next).trim();
+    if (!values[label2]) return null;
+  }
+  const level = header[1].split("\xB7")[0].trim();
+  if (!["\u76F4\u63A5\u76F8\u5173", "\u65B9\u6CD5\u53EF\u501F\u9274", "\u6301\u7EED\u89C2\u5BDF", "\u5173\u8054\u8F83\u5F31"].includes(level)) return null;
+  return { level, summaryOnly: header[1].includes("\u4EC5\u636E\u6458\u8981"), values };
+}
+function readingReason(brief, record = {}) {
+  if (!brief || brief.pending) return "";
+  const invitation = READING_INVITATIONS[record.id || record.key?.replace(/^intel:/, "")];
+  if (invitation) return invitation;
+  const field2 = ["\u6301\u7EED\u89C2\u5BDF", "\u5173\u8054\u8F83\u5F31"].includes(brief.level) ? "\u5173\u6CE8" : "\u501F\u9274";
+  const text = brief.values[field2];
+  const sentence2 = text.match(/^[\s\S]*?[。！？][”’」』]?/)?.[0] || text;
+  return /[。！？][”’」』]?$/.test(sentence2) ? sentence2 : sentence2 + "\u3002";
+}
+function workBriefMarkup(record, { escape: escape2, inline = false }) {
+  const brief = parseWorkBrief(record.discussion), reason = readingReason(brief, record);
+  if (!reason) return inline && brief?.pending ? '<span class="work-brief work-brief-pending"><span class="work-brief-label">\u770B\u70B9\u5F85\u8865</span><span class="work-brief-reason">\u4F9D\u636E\u4E0D\u8DB3\uFF0C\u6682\u4E0D\u4F5C\u5224\u65AD\u3002</span></span>' : "";
+  const basis = brief.summaryOnly ? "\u4EC5\u636E\u6458\u8981\uFF0C\u539F\u6587\u5F85\u6838" : "\u4F9D\u636E\u91C7\u96C6\u6B63\u6587\uFF0C\u672A\u7ECF\u4E13\u9879\u6838\u9A8C";
+  const body = `<span class="work-brief-label">\u8350\u8BFB</span><span class="work-brief-reason">${escape2(reason)}</span>`;
+  return inline ? `<span class="work-brief" title="AI\u9605\u8BFB\u63D0\u793A \xB7 ${basis}">${body}</span>` : `<button type="button" class="work-brief" data-read="${escape2(record.key || "intel:" + record.id)}" title="AI\u9605\u8BFB\u63D0\u793A \xB7 ${basis}">${body}<span class="work-brief-arrow" aria-hidden="true">\u2197</span></button>`;
+}
+function intelCardMarkup(record, { escape: escape2, bookmark: bookmark2, date: date3 }) {
+  const key = record.key || "intel:" + record.id;
+  return `<article class="intel-card intel-card-compact intel-card-dense"><button type="button" class="card-open intel-card-open" data-read="${escape2(key)}"><span class="meta intel-card-meta"><span class="brand-tag intel">${escape2(record.category)}</span><span class="intel-card-source">${escape2(record.sourceName)}</span><span>${escape2(date3(record.reportDate))} \u6536\u5F55</span></span><h2>${escape2(record.title)}</h2>${workBriefMarkup(record, { escape: escape2, inline: true })}</button>${bookmark2(record)}</article>`;
+}
+
 // demo/modules/game-loader.js
-var GAMES = { hextris: "Hextris \xB7 \u516D\u8FB9\u5F62\u6D88\u9664", "0hh1": "0h h1 \xB7 \u4E8C\u8272\u903B\u8F91", wenchen: "\u5929\u673A\u7C3F \xB7 \u4E1C\u65B9\u547D\u4E66" };
+var GAME_TITLES = { hextris: "Hextris \xB7 \u516D\u8FB9\u5F62\u6D88\u9664", "0hh1": "0h h1 \xB7 \u4E8C\u8272\u903B\u8F91", wenchen: "\u5929\u673A\u7C3F \xB7 \u4E1C\u65B9\u547D\u4E66" };
+var GAMES = GAME_TITLES;
 function createGameLoader({ dialog, container, title: title2, events = window, slowMs = 12e3, timeoutMs = 45e3 }) {
   let cleanup = () => {
   };
@@ -92,6 +157,175 @@ function createGameLoader({ dialog, container, title: title2, events = window, s
   }
   dialog.addEventListener("close", stop);
   return { open, stop };
+}
+
+// demo/modules/today-updates.js
+var SECTIONS = [["intel", "\u60C5\u62A5", "#intel"], ["books", "\u4E66\u623F", "#books"], ["games", "\u653E\u677E", "#games"], ["maixiang", "\u8109\u8C61", "/maixiang/"], ["opc", "\u6731\u5BB6\u519B", "/opc/"]];
+var SECTION_RELEASES = [
+  { id: "study-library-20261024", kind: "books", date: "2026-10-24", dateLabel: "\u529F\u80FD\u8C03\u6574", title: "\u8A00\u5E93\u5E76\u5165\u4E66\u623F\uFF0C\u8D44\u6599\u4E0E\u5199\u4F5C\u7D20\u6750\u4E00\u8D77\u67E5", note: "\u6BB5\u843D\u68C0\u7D22\u3001\u6536\u85CF\u4E0E\u590D\u5236\u4FDD\u7559\uFF0C\u539F\u6765\u7684\u7D20\u6750\u94FE\u63A5\u4ECD\u53EF\u4F7F\u7528\u3002", href: "#books/library" },
+  { id: "cinema-public-20261024", kind: "video", date: "2026-10-24", dateLabel: "\u529F\u80FD\u8C03\u6574", title: "\u5F71\u9662\u514D\u5BC6\u7801\u8FDB\u5165\uFF0C\u641C\u7247\u540E\u76F4\u63A5\u64AD\u653E", note: "\u201C\u770B\u7247\u4E0D\u8FF7\u8DEF\uFF0C\u89C2\u5F71\u627E\u8001\u732A\u201D\u4FDD\u7559\u5728\u5F71\u9662\u9876\u90E8\u3002", href: "#video" },
+  { id: "tianji-20260921", kind: "games", date: "2026-09-21", dateLabel: "\u5185\u5BB9\u66F4\u65B0", title: "\u5929\u673A\u7C3F\uFF1A\u672F\u8BED\u3001\u53E4\u7C4D\u77ED\u5F15\u4E0E\u672C\u76D8\u4F9D\u636E", note: "\u516D\u7AE0\u9010\u6BB5\u89E3\u91CA\u5224\u65AD\u4F9D\u636E\uFF0C\u4EE5\u53CA\u54EA\u4E9B\u6761\u4EF6\u4F1A\u6539\u53D8\u89E3\u8BFB\u3002", href: "#games" },
+  { id: "games-20260905", kind: "games", date: "2026-09-05", dateLabel: "\u680F\u76EE\u4E0A\u7EBF", title: "Hextris \u4E0E 0h h1\uFF0C\u968F\u624B\u5F00\u4E00\u5C40", note: "\u516D\u8FB9\u5F62\u6D88\u9664\u4E0E\u4E8C\u8272\u903B\u8F91\uFF0C\u652F\u6301\u624B\u673A\u89E6\u63A7\u3002", href: "#games" }
+];
+var escape = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+var validDate = (value) => /^\d{4}-\d{2}-\d{2}$/.test(value || "") && Number.isFinite(Date.parse(value)) ? value : "";
+var day = (value) => {
+  if (!value || !Number.isFinite(Date.parse(value))) return "";
+  const parts = Object.fromEntries(new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date(value)).map((p) => [p.type, p.value]));
+  return [parts.year, parts.month, parts.day].join("-");
+};
+var opcHome = () => globalThis.location?.hostname === "zhuyep.github.io" ? "https://zhushi-daji-preview.pages.dev/opc/" : "/opc/";
+var sectionHome = (key, href) => key === "opc" ? opcHome() : href;
+var shortDate = (value) => value?.slice(5).replace("-", ".") || "";
+var sentence = (value) => {
+  const s = String(value ?? "").replace(/\s+/g, " ").trim();
+  return s.match(/^.*?[。！？][”’」』]?/)?.[0] || s;
+};
+function opcSnapshot(raw) {
+  if (!raw || typeof raw !== "object" || !Array.isArray(raw.events) || raw.mode === "demo" || raw.mode === "simulation") return { status: "unavailable", entries: [] };
+  const seen = /* @__PURE__ */ new Set(), entries = [];
+  for (const event of raw.events.slice(0, 100)) {
+    if (!event || event.demo || String(event.id || "").startsWith("demo-")) continue;
+    const date3 = day(event.received_at || event.at);
+    if (!date3) continue;
+    const message = String(event.message ?? "").trim();
+    if (!message) continue;
+    const id = String(event.id || [event.received_at, event.at, event.worker_id, message].join("|"));
+    if (seen.has(id)) continue;
+    seen.add(id);
+    entries.push({ id: "opc:" + id, kind: "opc", date: date3, sortAt: Date.parse(event.received_at || event.at), dateLabel: event.received_at ? "\u6536\u5230\u56DE\u62A5" : "\u4E8B\u4EF6\u8BB0\u5F55", title: String(event.task_title || event.title || [event.worker_name || "\u6731\u5BB6\u519B", "\u5DE5\u4F5C\u56DE\u62A5"].join(" \xB7 ")), note: sentence(message), href: "/opc/" });
+  }
+  return { status: "ready", entries: entries.sort((a, b) => b.sortAt - a.sortAt).slice(0, 5) };
+}
+async function fetchOpcSnapshot(fetchImpl = globalThis.fetch) {
+  if (globalThis.location?.hostname === "zhuyep.github.io") return { status: "primary", entries: [] };
+  const controller = new AbortController(), timer = setTimeout(() => controller.abort(), 6e3);
+  try {
+    const res = await fetchImpl("/api/opc/state", { method: "GET", credentials: "same-origin", cache: "no-store", redirect: "error", signal: controller.signal });
+    if (res.status === 401 || res.status === 403) return { status: "locked", entries: [] };
+    if (!res.ok || !res.headers.get("content-type")?.includes("application/json")) return { status: "unavailable", entries: [] };
+    const reader = res.body?.getReader();
+    if (!reader) return { status: "unavailable", entries: [] };
+    let size = 0;
+    const chunks = [];
+    try {
+      for (; ; ) {
+        const part = await reader.read();
+        if (part.done) break;
+        size += part.value.byteLength;
+        if (size > 262144) throw Error("Snapshot too large");
+        chunks.push(part.value);
+      }
+    } catch (e) {
+      await reader.cancel().catch(() => {
+      });
+      throw e;
+    } finally {
+      reader.releaseLock();
+    }
+    const all = new Uint8Array(size);
+    let offset = 0;
+    for (const chunk of chunks) {
+      all.set(chunk, offset);
+      offset += chunk.byteLength;
+    }
+    return opcSnapshot(JSON.parse(new TextDecoder().decode(all)));
+  } catch {
+    return { status: "unavailable", entries: [] };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+function unifiedUpdates({ data: data2, payload: payload2, opc = { status: "pending", entries: [] }, releases = SECTION_RELEASES }) {
+  const intel2 = (data2?.intel || []).map((r) => ({ id: "intel:" + r.id, kind: "intel", date: validDate(r.reportDate), dateLabel: "\u6536\u5F55", title: r.title, note: readingReason(parseWorkBrief(r.discussion), r), noteLabel: "\u8350\u8BFB", category: r.sourceName || r.category, priority: Number(r.score) || 0, key: r.key || "intel:" + r.id }));
+  const books = (payload2?.yanku?.updates || []).map((u) => ({ id: "library:" + u.id, kind: "books", date: validDate(u.date), dateLabel: "\u7D20\u6750\u66F4\u65B0", title: u.title, note: sentence(u.detail), category: "\u8A00\u5E93", updateId: u.id }));
+  const order = { books: 0, intel: 1, video: 2, games: 3, maixiang: 4, opc: 5 }, seen = /* @__PURE__ */ new Set();
+  return [...intel2, ...books, ...releases, ...opc.status === "ready" ? opc.entries : []].filter((r) => r.date && (SECTIONS.some(([key]) => key === r.kind) || r.kind === "video") && !seen.has(r.id) && seen.add(r.id)).sort((a, b) => b.date.localeCompare(a.date) || (b.sortAt || 0) - (a.sortAt || 0) || order[a.kind] - order[b.kind] || (b.priority || 0) - (a.priority || 0));
+}
+function action(row) {
+  if (row.kind === "opc") return `href="${opcHome()}"`;
+  if (row.key) return `data-read="${escape(row.key)}"`;
+  if (row.updateId) return `data-update="${escape(row.updateId)}"`;
+  const known = SECTIONS.some(([, , href]) => href === row.href) || row.href === "#books/library" || row.href === "#video";
+  const fallback = row.kind === "video" ? "#video" : SECTIONS.find(([key]) => key === row.kind)?.[2] || "#today";
+  return `href="${escape(known ? row.href : fallback)}"`;
+}
+async function publicOverviewJson(url, fetchImpl) {
+  const controller = new AbortController(), timer = setTimeout(() => controller.abort(), 5e3);
+  try {
+    const res = await fetchImpl(url, { method: "GET", credentials: "omit", cache: "no-cache", redirect: "error", signal: controller.signal });
+    if (!res.ok || !res.headers.get("content-type")?.includes("application/json")) throw Error("Unavailable");
+    const reader = res.body?.getReader();
+    if (!reader) throw Error("Unavailable");
+    let size = 0;
+    const chunks = [];
+    try {
+      for (; ; ) {
+        const p = await reader.read();
+        if (p.done) break;
+        size += p.value.byteLength;
+        if (size > 65536) throw Error("Too large");
+        chunks.push(p.value);
+      }
+    } catch (e) {
+      await reader.cancel().catch(() => {
+      });
+      throw e;
+    } finally {
+      reader.releaseLock();
+    }
+    const bytes = new Uint8Array(size);
+    let offset = 0;
+    for (const chunk of chunks) {
+      bytes.set(chunk, offset);
+      offset += chunk.byteLength;
+    }
+    return JSON.parse(new TextDecoder().decode(bytes));
+  } finally {
+    clearTimeout(timer);
+  }
+}
+async function fetchSectionOverview(fetchImpl = globalThis.fetch) {
+  const mirror = globalThis.location?.hostname === "zhuyep.github.io", results = await Promise.allSettled([publicOverviewJson("/assets/wiki/manifest.json", fetchImpl), mirror ? Promise.resolve(null) : publicOverviewJson("/api/video/status", fetchImpl)]), out = { wikiState: "unavailable", videoState: mirror ? "primary" : "unavailable" };
+  const wiki = results[0].status === "fulfilled" ? results[0].value : null;
+  if (Number.isInteger(wiki?.pages) && wiki.pages >= 0 && wiki.pages <= 1e5) {
+    out.wikiState = "ready";
+    out.wikiPages = wiki.pages;
+  }
+  const cinema = results[1].status === "fulfilled" ? results[1].value : null;
+  if (Array.isArray(cinema?.sources) && cinema.sources.length && cinema.sources.length <= 100 && cinema.sources.every((s) => typeof s.key === "string" && /^[a-z0-9_-]+$/i.test(s.key))) {
+    out.videoState = "ready";
+    out.videoSources = new Set(cinema.sources.map((s) => s.key)).size;
+  }
+  return out;
+}
+function overviewCards({ updates: updates2, total, opc, overview = {} }) {
+  const loading = { pending: "\u8BFB\u53D6\u4E2D", locked: "\u9700\u767B\u5F55", ready: opc.entries.length ? "\u5DF2\u8FDE\u63A5" : "\u5F85\u56DE\u62A5", unavailable: "\u6682\u4E0D\u53EF\u8BFB", primary: "\u4E3B\u7AD9\u67E5\u770B" }, hasWiki = overview.wikiState === "ready", hasVideo = overview.videoState === "ready";
+  const videoDetail = hasVideo ? `\u542B\u5F71\u9662 ${overview.videoSources} \u6E90` : overview.videoState === "primary" ? "\u5F71\u9662\u5728\u4E3B\u7AD9" : overview.videoState === "unavailable" ? "\u7247\u6E90\u6682\u4E0D\u53EF\u8BFB" : "\u6E38\u620F \xB7 \u5F71\u9662";
+  const cards = [{ key: "intel", value: total.intel, unit: "\u6761", detail: "\u5FEB\u901F\u68C0\u7D22" }, { key: "books", value: hasWiki ? overview.wikiPages : "\u2014", unit: hasWiki ? "\u9875Wiki" : "", detail: `${total.blocks} \u6BB5\u7D20\u6750` }, { key: "games", value: Object.keys(GAME_TITLES).length, unit: "\u9879", detail: videoDetail }, { key: "maixiang", value: "\u770B\u677F", unit: "", detail: "\u79C1\u4EBA\u5165\u53E3", status: true }, { key: "opc", value: loading[opc.status] || "\u6682\u4E0D\u53EF\u8BFB", unit: "", detail: opc.status === "ready" ? `${opc.entries.length} \u6761\u8FD1\u671F\u56DE\u62A5` : "\u79C1\u4EBA\u529E\u516C\u5BA4", status: true }];
+  return `<section class="today-module-overview" aria-label="\u5DE5\u4F5C\u53F0\u603B\u89C8"><nav class="today-module-grid" aria-label="\u680F\u76EE\u603B\u89C8">${cards.map((card) => {
+    const [, label2, href] = SECTIONS.find(([key]) => key === card.key), latest = updates2.find((r) => r.kind === card.key || card.key === "games" && r.kind === "video"), dateText = latest ? "\u66F4\u65B0 " + shortDate(latest.date) : card.key === "opc" && opc.status === "ready" ? "\u5C1A\u65E0\u56DE\u62A5" : "\u8FDB\u5165\u67E5\u770B", accessible = [label2, card.value + card.unit, card.detail, latest ? latest.date + " " + latest.dateLabel : ""].filter(Boolean).join("\uFF0C");
+    return `<a class="today-module-card${card.status ? " is-status" : ""}" data-overview="${card.key}" href="${sectionHome(card.key, href)}" aria-label="${escape(accessible)}"><span class="today-module-label">${label2}</span><strong>${escape(card.value)}<small>${card.unit}</small></strong><span class="today-module-detail">${escape(card.detail)}</span><span class="today-module-date">${escape(dateText)}</span></a>`;
+  }).join("")}</nav></section>`;
+}
+function renderToday({ data: data2, payload: payload2, filter = "all", limit: limit2 = 18, opc = { status: "pending", entries: [] }, visits = "", overview = {}, now = /* @__PURE__ */ new Date() }) {
+  if (filter === "library") filter = "books";
+  if (filter === "video") filter = "games";
+  const updates2 = unifiedUpdates({ data: data2, payload: payload2, opc }), rows = updates2.filter((r) => filter === "all" || r.kind === filter || filter === "games" && r.kind === "video"), visible = rows.slice(0, limit2), total = payload2?.meta?.counts || { intel: data2?.intel?.length || 0, blocks: data2?.blocks?.length || 0 };
+  const currentDate = day(now), dateLabel = new Intl.DateTimeFormat("zh-CN", { timeZone: "Asia/Shanghai", month: "long", day: "numeric", weekday: "short" }).format(now);
+  let empty2 = "";
+  if (!visible.length) {
+    const text = filter === "opc" ? { locked: "\u767B\u5F55\u529E\u516C\u5BA4\u540E\uFF0C\u8FD9\u91CC\u4F1A\u6C47\u603B\u6700\u8FD1\u7684\u771F\u5B9E\u5DE5\u4F5C\u56DE\u62A5\u3002", unavailable: "\u6682\u65F6\u8BFB\u4E0D\u5230\u529E\u516C\u5BA4\u52A8\u6001\uFF0C\u53EF\u4EE5\u7A0D\u540E\u91CD\u8BD5\u3002", pending: "\u6B63\u5728\u8BFB\u53D6\u529E\u516C\u5BA4\u52A8\u6001\u2026\u2026", ready: "\u5C1A\u672A\u6536\u5230\u5DE5\u4F5C\u56DE\u62A5\uFF0C\u53EF\u8FDB\u5165\u529E\u516C\u5BA4\u67E5\u770B\u4EFB\u52A1\u3002", primary: "\u6731\u5BB6\u519B\u7684\u5DE5\u4F5C\u56DE\u62A5\u5728\u4E3B\u7AD9\u6309\u767B\u5F55\u6743\u9650\u5C55\u793A\u3002" }[opc.status] : filter === "maixiang" ? "\u8109\u8C61\u662F\u79C1\u4EBA\u770B\u677F\uFF0C\u52A8\u6001\u4E0D\u653E\u5728\u516C\u5F00\u9996\u9875\u3002" : "\u8FD9\u4E2A\u680F\u76EE\u8FD8\u6CA1\u6709\u53EF\u5C55\u793A\u7684\u66F4\u65B0\u3002";
+    const extra = filter === "opc" ? `<a href="${opcHome()}">\u8FDB\u5165\u6731\u5BB6\u519B \u2197</a>${["locked", "unavailable"].includes(opc.status) ? '<button class="text-button" data-action="today-opc-refresh">\u5237\u65B0\u52A8\u6001</button>' : ""}` : filter === "maixiang" ? '<a href="/maixiang/">\u6253\u5F00\u8109\u8C61 \u2197</a>' : "";
+    empty2 = `<div class="today-feed-empty"><p>${escape(text)}</p>${extra}</div>`;
+  }
+  const markup = visible.map((r) => {
+    const tag = r.key || r.updateId ? "button" : "a", label2 = r.kind === "video" ? "\u5F71\u9662" : SECTIONS.find(([key]) => key === r.kind)[1];
+    return `<article class="today-entry"><${tag} class="today-entry-open" ${tag === "button" ? 'type="button" ' : ""}${action(r)}><span class="today-entry-meta"><span class="today-entry-kind">${label2}${r.category ? " \xB7 " + escape(r.category) : ""}</span><time datetime="${r.date}">${shortDate(r.date)} ${escape(r.dateLabel)}</time></span><h3>${escape(r.title)}</h3>${r.note ? `<p class="today-entry-note">${r.noteLabel ? "<span>" + escape(r.noteLabel) + "</span>" : ""}${escape(r.note)}</p>` : ""}</${tag}></article>`;
+  }).join("");
+  const countText = filter === "opc" && opc.status !== "ready" ? { pending: "\u8BFB\u53D6\u4E2D", locked: "\u9700\u767B\u5F55", unavailable: "\u6682\u4E0D\u53EF\u8BFB", primary: "\u4E3B\u7AD9\u67E5\u770B" }[opc.status] || "\u6682\u4E0D\u53EF\u8BFB" : `\u6700\u8FD1 ${visible.length} \u6761`;
+  const more = rows.length > limit2 || payload2?.meta?.summary && ["all", "intel"].includes(filter) ? '<button class="today-feed-more" data-action="today-more">\u518D\u770B\u4E00\u4E9B \u2193</button>' : "";
+  return `<div class="today-dashboard"><section class="today-heading"><div><h1>\u4ECA\u65E5\u4E00\u89C8</h1><time class="today-date" datetime="${currentDate}">${escape(dateLabel)}</time></div><button data-action="visits" class="today-visits visit-overview" aria-label="\u4ECA\u65E5\u8BBF\u95EE\uFF0C\u67E5\u770B\u8FD17\u5929\u8D8B\u52BF">${visits}</button></section>${payload2?.meta?.stale ? `<p class="status-warning" role="status">${escape(payload2.meta.message || "\u6B63\u5728\u5C55\u793A\u4E0A\u4E00\u6B21\u53EF\u7528\u8D44\u6599\u3002")}</p>` : ""}${overviewCards({ updates: updates2, total, opc, overview })}<section class="today-feed" aria-labelledby="today-feed-title"><div class="section-heading"><h2 id="today-feed-title">\u66F4\u65B0\u52A8\u6001</h2><small>${countText}</small></div><div class="tabs today-feed-tabs" aria-label="\u66F4\u65B0\u5206\u7C7B">${[["all", "\u5168\u90E8"], ...SECTIONS.map(([key, label2]) => [key, label2])].map(([key, label2]) => `<button data-today="${key}" class="${filter === key ? "active" : ""}" aria-pressed="${filter === key}">${label2}</button>`).join("")}</div><div class="today-feed-entries">${markup}${empty2}</div>${more}</section></div>`;
 }
 
 // demo/modules/desk-toys.js
@@ -253,8 +487,8 @@ function mountDeskToys(root = document) {
       skipPointerClick = false;
       if (!canMove()) return;
       const box = button2.getBoundingClientRect();
-      const side2 = event.detail === 0 || event.clientX < box.left + box.width / 2 ? 1 : -1;
-      velocity = kind === "zhu" ? clamp(velocity + side2 * 175, -230, 230) : 1050;
+      const side = event.detail === 0 || event.clientX < box.left + box.width / 2 ? 1 : -1;
+      velocity = kind === "zhu" ? clamp(velocity + side * 175, -230, 230) : 1050;
       wake();
     });
     paint();
@@ -305,81 +539,43 @@ function mountDeskToys(root = document) {
   };
 }
 
+// demo/modules/study-navigation.js
+var SECTIONS2 = [["search", "#books/search", "\u8D44\u6599\u641C\u7D22"], ["wiki", "#books/wiki", "Wiki \u8D44\u6599\u5E93"], ["library", "#books/library", "\u8A00\u5E93"]];
+function studyHeader(view) {
+  return `<header class="book-heading study-heading"><span class="book-room-name">\u51EF\u5377\u6709\u76CA</span><nav class="book-modules" aria-label="\u4E66\u623F\u6A21\u5757">${SECTIONS2.map(([key, href, name]) => `<a href="${href}"${view === key ? ' aria-current="page"' : ""}>${name}</a>`).join("")}</nav></header>`;
+}
+function bookRoomShell(markup, hash = typeof location === "undefined" ? "#books" : location.hash) {
+  const view = hash.split("?")[0] === "#books/wiki" ? "wiki" : "search";
+  return markup.replace(/<header class="book-heading">[\s\S]*?<\/header>/, studyHeader(view));
+}
+function libraryRoomShell(markup) {
+  return `<section class="book-room book-room-library" aria-label="\u4E66\u623F \xB7 \u8A00\u5E93">${studyHeader("library")}${markup}</section>`;
+}
+
 // demo/modules/reading-route.js
-var DajiStudy = (() => {
-  var __defProp = Object.defineProperty;
-  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-  var __getOwnPropNames = Object.getOwnPropertyNames;
-  var __hasOwnProp = Object.prototype.hasOwnProperty;
-  var __export = (target, all) => {
-    for (var name in all)
-      __defProp(target, name, { get: all[name], enumerable: true });
-  };
-  var __copyProps = (to, from, except, desc) => {
-    if (from && typeof from === "object" || typeof from === "function") {
-      for (let key of __getOwnPropNames(from))
-        if (!__hasOwnProp.call(to, key) && key !== except)
-          __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+var navPage = (page2) => page2 === "library" ? "books" : page2 === "video" ? "games" : page2;
+var routeHash = (page2) => page2 === "library" ? "#books/library" : "#" + page2;
+function readingHash(key) {
+  const [kind, ...id] = key.split(":");
+  if (!["intel", "block"].includes(kind) || !id.join(":")) throw Error("\u9605\u8BFB\u6807\u8BC6\u65E0\u6548");
+  return (kind === "intel" ? "#intel" : "#books/library") + "/" + encodeURIComponent(id.join(":"));
+}
+function parseRoute(hash) {
+  const value = hash.replace(/^#/, ""), [section, ...tail] = value.split("/");
+  const nestedLibrary = section === "books" && tail[0] === "library";
+  const page2 = nestedLibrary ? "library" : ["today", "intel", "library", "games", "video", "books"].includes(section) ? section : "today";
+  const ids = nestedLibrary ? tail.slice(1) : tail;
+  if (ids.length && ["intel", "library"].includes(page2)) {
+    try {
+      const id = decodeURIComponent(ids.join("/"));
+      if (!id) throw Error("\u9605\u8BFB\u6807\u8BC6\u4E3A\u7A7A");
+      return { page: page2, key: (page2 === "intel" ? "intel:" : "block:") + id };
+    } catch {
+      return { page: page2, key: null, invalid: true };
     }
-    return to;
-  };
-  var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-
-  // <stdin>
-  var stdin_exports = {};
-  __export(stdin_exports, {
-    bookRoomShell: () => bookRoomShell,
-    libraryRoomShell: () => libraryRoomShell,
-    navPage: () => navPage,
-    parseRoute: () => parseRoute,
-    readingHash: () => readingHash,
-    routeHash: () => routeHash,
-    studyHeader: () => studyHeader
-  });
-
-  // demo/modules/reading-route.js
-  var navPage = (page) => page === "library" ? "books" : page;
-  var routeHash = (page) => page === "library" ? "#books/library" : "#" + page;
-  function readingHash(key) {
-    const [kind, ...id] = key.split(":");
-    if (!["intel", "block"].includes(kind) || !id.join(":")) throw Error("\u9605\u8BFB\u6807\u8BC6\u65E0\u6548");
-    return (kind === "intel" ? "#intel" : "#books/library") + "/" + encodeURIComponent(id.join(":"));
   }
-  function parseRoute(hash) {
-    const value = hash.replace(/^#/, ""), [section, ...tail] = value.split("/");
-    const nestedLibrary = section === "books" && tail[0] === "library";
-    const page = nestedLibrary ? "library" : ["today", "intel", "library", "games", "video", "books"].includes(section) ? section : "today";
-    const ids = nestedLibrary ? tail.slice(1) : tail;
-    if (ids.length && ["intel", "library"].includes(page)) {
-      try {
-        const id = decodeURIComponent(ids.join("/"));
-        if (!id) throw Error("\u9605\u8BFB\u6807\u8BC6\u4E3A\u7A7A");
-        return { page, key: (page === "intel" ? "intel:" : "block:") + id };
-      } catch {
-        return { page, key: null, invalid: true };
-      }
-    }
-    return { page, key: null };
-  }
-
-  // demo/modules/study-navigation.js
-  var SECTIONS = [["search", "#books/search", "\u8D44\u6599\u641C\u7D22"], ["wiki", "#books/wiki", "Wiki \u8D44\u6599\u5E93"], ["library", "#books/library", "\u8A00\u5E93"]];
-  function studyHeader(view) {
-    return `<header class="book-heading study-heading"><span class="book-room-name">\u51EF\u5377\u6709\u76CA</span><nav class="book-modules" aria-label="\u4E66\u623F\u6A21\u5757">${SECTIONS.map(([key, href, name]) => `<a href="${href}"${view === key ? ' aria-current="page"' : ""}>${name}</a>`).join("")}</nav></header>`;
-  }
-  function bookRoomShell(markup, hash = typeof location === "undefined" ? "#books" : location.hash) {
-    const view = hash.split("?")[0] === "#books/wiki" ? "wiki" : "search";
-    return markup.replace(/<header class="book-heading">[\s\S]*?<\/header>/, studyHeader(view));
-  }
-  function libraryRoomShell(markup) {
-    return `<section class="book-room book-room-library" aria-label="\u4E66\u623F \xB7 \u8A00\u5E93">${studyHeader("library")}${markup}</section>`;
-  }
-  return __toCommonJS(stdin_exports);
-})();
-
-function readingHash(key) {return DajiStudy.readingHash(key);}
-
-function parseRoute(hash) {return DajiStudy.parseRoute(hash);}
+  return { page: page2, key: null };
+}
 
 // demo/modules/personal-backup.js
 var DESK_KEY = "zhushi-daji-desk-v3";
@@ -720,7 +916,8 @@ function sceneGroupFor(scene) {
 // demo/app.js
 var $ = (s) => document.querySelector(s);
 var esc2 = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-var paths = { books: "M4 3h13a3 3 0 0 1 3 3v15H7a3 3 0 0 1-3-3V3zm0 15a3 3 0 0 1 3-3h13M8 7h8m-8 4h5", video: "M3 5h18v14H3zM3 9h18M7 5v4m5-4v4m5-4v4m-7 4 5 3-5 3z", today: "M5 4v4m14-4v4M4 10h16M5 6h14v15H5zM8 14h3m-3 3h6", intel: "M12 3a9 9 0 1 0 9 9M12 3v9l6-6M8 16l4-4", library: "M12 6c-3-2-6-2-9-1v15c3-1 6-1 9 1 3-2 6-2 9-1V5c-3-1-6-1-9 1zm0 0v15M6 9h3m-3 4h3m6-4h3m-3 4h3", games: "M20 15.5A8.5 8.5 0 0 1 8.5 4a8.5 8.5 0 1 0 11.5 11.5ZM17 3v4m-2-2h4", search: "M21 21l-5-5M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0", bookmark: "M6 3h12v18l-6-4-6 4z" };
+var pageTitle = (p) => ({ today: "\u4ECA\u65E5", intel: "\u60C5\u62A5", library: "\u4E66\u623F \xB7 \u8A00\u5E93", games: "\u653E\u677E", video: "\u653E\u677E \xB7 \u5F71\u9662", books: "\u51EF\u5377\u6709\u76CA" })[p] || "\u8BF8\u4E8B\u5927\u5409";
+var paths = { books: "M4 3h13a3 3 0 0 1 3 3v15H7a3 3 0 0 1-3-3V3zm0 15a3 3 0 0 1 3-3h13M8 7h8m-8 4h5", video: "M3 5h18v14H3zM3 9h18M7 5v4m5-4v4m5-4v4m-7 4 5 3-5 3z", today: "M5 4v4m14-4v4M4 10h16M5 6h14v15H5zM8 14h3m-3 3h6", intel: "M12 3a9 9 0 1 0 9 9M12 3v9l6-6M8 16l4-4", library: "M12 6c-3-2-6-2-9-1v15c3-1 6-1 9 1 3-2 6-2 9-1V5c-3-1-6-1-9 1zm0 0v15M6 9h3m-3 4h3m6-4h3m-3 4h3", games: "M20 15.5A8.5 8.5 0 0 1 8.5 4a8.5 8.5 0 1 0 11.5 11.5ZM17 3v4m-2-2h4", pulse: "M2 12h5l2-6 3 12 2-6h8", team: "M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm9 0a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM3 19.5c.6-3 2.5-4.5 5-4.5s4.4 1.5 5 4.5m1 0c.4-2.2 1.8-3.5 3.7-3.5 1.8 0 3 1.2 3.5 3.5", search: "M21 21l-5-5M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0", bookmark: "M6 3h12v18l-6-4-6 4z" };
 var icon = (n) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${paths[n] || paths.library}"/></svg>`;
 document.querySelectorAll("[data-icon]").forEach((e) => e.innerHTML = icon(e.dataset.icon));
 var stopDeskToys = mountDeskToys(document);
@@ -789,8 +986,8 @@ var dateTime = (v) => Number.isFinite(Date.parse(v)) ? new Date(v).toLocaleStrin
 var date2 = (v) => dateOnly(v).replaceAll("-", ".");
 var label = (k) => k === "intel" ? "\u60C5\u62A5" : k === "games" ? "\u653E\u677E" : "\u8A00\u5E93";
 var valid = { current: "\u5F53\u524D\u9002\u7528", watch: "\u4F7F\u7528\u524D\u590D\u6838", historical: "\u5386\u53F2\u53C2\u8003" };
-var empty = (title2, desc, action = "") => `<div class="empty-state"><span class="empty-icon">${icon("search")}</span><h2>${esc2(title2)}</h2><p>${esc2(desc)}</p>${action}</div>`;
-var button = (action, text, cls = "secondary-button", attrs = "") => `<button class="${cls}" data-action="${action}" ${attrs}>${text}</button>`;
+var empty = (title2, desc, action2 = "") => `<div class="empty-state"><span class="empty-icon">${icon("search")}</span><h2>${esc2(title2)}</h2><p>${esc2(desc)}</p>${action2}</div>`;
+var button = (action2, text, cls = "secondary-button", attrs = "") => `<button class="${cls}" data-action="${action2}" ${attrs}>${text}</button>`;
 var title = (head, sub, eyebrow) => `<section class="page-title"><div><span class="eyebrow">${esc2(eyebrow || "\u6731\u5370\u4E66\u658B \xB7 \u65E5\u5E38\u6240\u7528")}</span><h1>${head}</h1><p>${sub}</p></div><div class="title-aside">${page === "games" ? "<b>\u6B47\u4E00\u4F1A\u513F</b>\u547D\u7406 \xB7 \u6E38\u620F" : `<b><i class="dot"></i>\u8D44\u6599\u5DF2\u63A5\u5165</b>${page !== "library" ? dateTime(payload.horizon.generatedAt) + " \u60C5\u62A5" : ""}${page === "today" ? "<br>" : ""}${page !== "intel" ? dateTime(payload.yanku.generatedAt) + " \u8A00\u5E93" : ""}`}</div></section>${payload?.meta?.stale ? `<div class="status-warning">${esc2(payload.meta.message)}</div>` : ""}`;
 var bookmark = (r) => `<button class="bookmark" aria-label="${state.saved.includes(r.key) ? "\u53D6\u6D88\u6536\u85CF" : "\u6536\u85CF"}\uFF1A${esc2(r.title)}" aria-pressed="${state.saved.includes(r.key)}" data-save="${esc2(r.key)}">${icon("bookmark")}</button>`;
 var options = (list, value, all = "\u5168\u90E8") => `<option value="">${all}</option>` + list.map((v) => `<option value="${esc2(v)}" ${v === value ? "selected" : ""}>${esc2(v)}</option>`).join("");
@@ -807,7 +1004,7 @@ function navigate(next, sub) {
     limit = 12;
   }
   page = next;
-  if (location.hash !== DajiStudy.routeHash(next)) history.pushState(null, "", DajiStudy.routeHash(next));
+  if (location.hash !== routeHash(next)) history.pushState(null, "", routeHash(next));
   render();
   if (!["games", "video", "books"].includes(page) && !data) load();
   else if (needsFullContent()) loadFull();
@@ -821,27 +1018,24 @@ function render() {
   bookCleanup = null;
   const cinemaVersion = ++cinemaMountVersion;
   document.querySelectorAll("[data-page]").forEach((b) => {
-    if (b.dataset.page === DajiStudy.navPage(page)) b.setAttribute("aria-current", "page");
+    if (b.dataset.page === navPage(page)) b.setAttribute("aria-current", "page");
     else b.removeAttribute("aria-current");
   });
   const waiting = needsFullContent();
-  $("#page").innerHTML = page === "books" ? DajiStudy.bookRoomShell(bookShell()) : page === "video" ? cinemaShell() : page === "games" ? games() : !data || waiting ? empty(contentError ? "\u8D44\u6599\u6682\u65F6\u672A\u80FD\u6253\u5F00" : "\u6B63\u5728\u8BFB\u53D6\u8D44\u6599", contentError || "\u6B63\u5728\u6253\u5F00\u5B8C\u6574\u7684\u60C5\u62A5\u4E0E\u8A00\u5E93\uFF0C\u53EF\u4EE5\u5148\u53BB\u201C\u653E\u677E\u201D\u901B\u901B\u3002", contentError ? button("reload-page", "\u91CD\u65B0\u8BFB\u53D6") : "") : page === "today" ? today() : page === "intel" ? intel() : library();
-  if (page === "library") $("#page").innerHTML = DajiStudy.libraryRoomShell($("#page").innerHTML);
-  document.title = `${{ today: "\u4ECA\u65E5", intel: "\u60C5\u62A5", library: "书房 · 言库", games: "\u653E\u677E", video: "\u5927\u5409\u653E\u6620\u5BA4", books: "\u51EF\u5377\u6709\u76CA" }[page]} \xB7 \u8BF8\u4E8B\u5927\u5409`;
+  $("#page").innerHTML = page === "books" ? bookRoomShell(bookShell()) : page === "video" ? cinemaShell() : page === "games" ? games() : !data || waiting ? empty(contentError ? "\u8D44\u6599\u6682\u65F6\u672A\u80FD\u6253\u5F00" : "\u6B63\u5728\u8BFB\u53D6\u8D44\u6599", contentError || "\u6B63\u5728\u6253\u5F00\u5B8C\u6574\u7684\u60C5\u62A5\u4E0E\u8A00\u5E93\uFF0C\u53EF\u4EE5\u5148\u53BB\u201C\u653E\u677E\u201D\u901B\u901B\u3002", contentError ? button("reload-page", "\u91CD\u65B0\u8BFB\u53D6") : "") : page === "today" ? today() : page === "intel" ? intel() : library();
+  if (page === "library") $("#page").innerHTML = libraryRoomShell($("#page").innerHTML);
+  document.title = `${pageTitle(page)} \xB7 \u8BF8\u4E8B\u5927\u5409`;
   mountIntelExtras();
   if (page === "books") {
-    import("./modules/wiki-release/book-search-8346ecbfecd020.js").then(({ mountBooks }) => {
+    import("./modules/chunks/book-search-QBAXAJAR.js").then(({ mountBooks }) => {
       if (page === "books" && cinemaVersion === cinemaMountVersion) bookCleanup = mountBooks($("#daji-books"));
     });
   }
   if (page === "video") {
-    import("./modules/chunks/video-cinema-public-8e503f9c741410f2.js").then(({ mountCinema }) => {
+    import("./modules/chunks/video-cinema-BNSEYVC7.js").then(({ mountCinema }) => {
       if (page === "video" && cinemaVersion === cinemaMountVersion) cinemaCleanup = mountCinema($("#daji-cinema"));
     });
   }
-}
-function side() {
-  return `<aside class="side-column"><section class="side-panel book-entry"><span class="side-label">\u4E66\u623F \xB7 \u627E\u4E66\u4E0E\u8D44\u6599</span><h2>\u60F3\u627E\u7684\u90A3\u672C\u4E66\uFF0C<br>\u4ECE\u8FD9\u91CC\u5F00\u59CB\u3002</h2><p>\u641C\u4E66\u540D\u3001\u4F5C\u8005\u6216\u4E3B\u9898\uFF0C\u6CBF\u7740\u51FA\u5904\u627E\u5230\u516C\u5F00\u8D44\u6599\u3002</p>${button("books", "\u53BB\u4E66\u623F\u627E\u4E00\u627E \u2197", "inline-link")}</section><section class="side-panel cinema-entry"><span class="side-label">\u5927\u5409\u653E\u6620\u5BA4 \xB7 \u7535\u5F71\u4E0E\u5267\u96C6</span><h2>\u770B\u4E00\u90E8\u7535\u5F71\uFF0C<br>\u6362\u4E00\u79CD\u5FC3\u60C5\u3002</h2><p>\u641C\u5230\u7247\u540D\uFF0C\u9009\u597D\u4E00\u96C6\uFF0C\u5728\u8FD9\u91CC\u770B\u3002</p>${button("video", "\u53BB\u653E\u6620\u5BA4\u5750\u5750 \u2197", "inline-link")}</section><section class="side-panel library-info"><span class="side-label">书房 · 言库</span><blockquote>\u884C\u4E4B\u6709\u65B9\uFF0C<br>\u8A00\u4E4B\u6709\u636E\u3002</blockquote><p>\u4ECE\u6743\u5A01\u516C\u5F00\u6750\u6599\u4E2D\u6574\u7406\u8868\u8FBE\u3002\u6BCF\u4E00\u6BB5\uFF0C\u90FD\u80FD\u56DE\u5230\u5B83\u7684\u51FA\u5904\u3002</p>${button("library", "\u7FFB\u4E00\u7FFB\u8A00\u5E93 \u2192", "inline-link")}</section><section class="side-panel ink-panel"><span class="side-label">\u7247\u523B\u95F2\u8DA3</span><h2>\u4E8B\u60C5\u6162\u6162\u505A\uFF0C<br>\u5076\u5C14\u6362\u6362\u8111\u3002</h2><p>\u770B\u4E00\u770B\u547D\u76D8\uFF0C\u6216\u968F\u624B\u73A9\u4E00\u5C40\u3002</p>${button("games", "\u53BB\u653E\u677E\u4E00\u4E0B \u2197", "inline-link")}</section></aside>`;
 }
 var visitStats = null;
 var visitError = false;
@@ -893,19 +1087,40 @@ async function showVisits() {
   const sum = s.days.reduce((n, d) => n + (d.views || 0), 0);
   showReader("\u8BBF\u95EE\u8DB3\u8FF9", `<p class="subtle-note">\u770B\u770B\u8FD9\u5468\uFF0C\u6709\u591A\u5C11\u6B21\u6253\u5F00\u3002</p><div class="visit-totals"><div><span>\u4ECA\u65E5\u8BBF\u95EE</span><strong>${visitNumber(s.today)}</strong></div><div><span>\u8FD1 7 \u5929\u7D2F\u8BA1</span><strong>${s.startedAt ? visitNumber(sum) : "\u2014"}</strong></div><div><span>\u603B\u8BBF\u95EE</span><strong>${visitNumber(s.total)}</strong></div></div><section class="visit-chart"><h2>\u8FD1 7 \u5929</h2><svg viewBox="0 0 340 204" role="img" aria-label="\u8FD17\u5929\u8BBF\u95EE\u6B21\u6570\uFF0C${esc2(s.days.map((d) => d.date + "\uFF1A" + (d.views === null ? "\u672A\u8BB0\u5F55" : d.views + "\u6B21")).join("\uFF1B"))}">${bars}</svg><p class="subtle-note">${s.startedAt ? "\u81EA " + date2(s.startedOn) + " \u5F00\u59CB\u8BB0\u5F55\uFF0C\u4E4B\u524D\u7684\u65E5\u671F\u6807\u4E3A\u300C\u2014\u300D\u3002" : "\u5C1A\u672A\u5F00\u59CB\u8BB0\u5F55\u3002"}</p></section><div class="source-box"><h2>\u600E\u4E48\u7B97\u4E00\u6B21\u8BBF\u95EE</h2><p>\u6253\u5F00\u6216\u5237\u65B0\u9875\u9762\u8BA1\u4E00\u6B21\uFF1B\u5207\u6362\u680F\u76EE\u3001\u5C55\u5F00\u6587\u7AE0\u548C\u73A9\u6E38\u620F\u4E0D\u91CD\u590D\u8BA1\u6570\u3002\u6B21\u6570\u4E0D\u7B49\u4E8E\u72EC\u7ACB\u8BBF\u5BA2\u4EBA\u6570\u3002</p><p>\u6309\u5317\u4EAC\u65F6\u95F4\u6C47\u603B\u5F53\u524D\u5DE5\u4F5C\u53F0\u7684\u8BBF\u95EE\u3002\u7535\u8111\u548C\u624B\u673A\u8BBF\u95EE\u540C\u4E00\u4E2A\u670D\u52A1\uFF0C\u4F1A\u4E00\u8D77\u7D2F\u8BA1\u3002</p></div>`, "", "\u5DE5\u4F5C\u53F0 \xB7 \u8BBF\u95EE");
 }
-let todayOpc={status:'pending',entries:[]},todayOpcBusy=false,todayOpcCheckedAt=0,todayLimit=18,todayOverview={},todayOverviewBusy=false,todayOverviewCheckedAt=0;
-function refreshTodayOpc(force=false){
- if(page!=='today'||todayOpcBusy||!force&&Date.now()-todayOpcCheckedAt<60000)return;
- todayOpcBusy=true;todayOpcCheckedAt=Date.now();
- fetchOpcSnapshot().then(snapshot=>{todayOpc=snapshot}).finally(()=>{todayOpcBusy=false;if(page==='today')render()});
+var todayOpc = { status: "pending", entries: [] };
+var todayOpcBusy = false;
+var todayOpcCheckedAt = 0;
+var todayLimit = 18;
+var todayOverview = {};
+var todayOverviewBusy = false;
+var todayOverviewCheckedAt = 0;
+function refreshTodayOpc(force = false) {
+  if (page !== "today" || todayOpcBusy || !force && Date.now() - todayOpcCheckedAt < 6e4) return;
+  todayOpcBusy = true;
+  todayOpcCheckedAt = Date.now();
+  fetchOpcSnapshot().then((snapshot) => {
+    todayOpc = snapshot;
+  }).finally(() => {
+    todayOpcBusy = false;
+    if (page === "today") render();
+  });
 }
-function refreshTodayOverview(){
- if(page!=='today'||todayOverviewBusy||Date.now()-todayOverviewCheckedAt<60000)return;
- todayOverviewBusy=true;todayOverviewCheckedAt=Date.now();
- fetchSectionOverview().then(value=>{todayOverview=value}).finally(()=>{todayOverviewBusy=false;if(page==='today')render()});
+function refreshTodayOverview() {
+  if (page !== "today" || todayOverviewBusy || Date.now() - todayOverviewCheckedAt < 6e4) return;
+  todayOverviewBusy = true;
+  todayOverviewCheckedAt = Date.now();
+  fetchSectionOverview().then((value) => {
+    todayOverview = value;
+  }).finally(() => {
+    todayOverviewBusy = false;
+    if (page === "today") render();
+  });
 }
-function today(){refreshTodayOpc();refreshTodayOverview();return renderToday({data,payload,filter:todayFilter,limit:todayLimit,opc:todayOpc,overview:todayOverview,visits:visitCard()})}
-
+function today() {
+  refreshTodayOpc();
+  refreshTodayOverview();
+  return renderToday({ data, payload, filter: todayFilter, limit: todayLimit, opc: todayOpc, overview: todayOverview, visits: visitCard() });
+}
 function searchBar(placeholder) {
   return `<div class="toolbar"><label class="search-field">${icon("search")}<input data-query type="search" value="${esc2(filters.q)}" placeholder="${placeholder}" aria-label="${placeholder}" autocomplete="off"></label><button class="secondary-button" data-action="saved-filter" aria-pressed="${filters.saved}">${filters.saved ? "\u67E5\u770B\u5168\u90E8" : "\u53EA\u770B\u6536\u85CF"}</button></div>`;
 }
@@ -920,100 +1135,9 @@ function intelResults() {
   const rows = matchingIntel();
   return facetMarkup(intelFacet) + (intelView === "graph" ? graphMarkup(rows) : intelView === "trends" ? trendsMarkup(rows, data.intel) : intelListResults(rows));
 }
-var DajiWorkBrief = (() => {
-  var __defProp = Object.defineProperty;
-  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-  var __getOwnPropNames = Object.getOwnPropertyNames;
-  var __hasOwnProp = Object.prototype.hasOwnProperty;
-  var __export = (target, all) => {
-    for (var name in all)
-      __defProp(target, name, { get: all[name], enumerable: true });
-  };
-  var __copyProps = (to, from, except, desc) => {
-    if (from && typeof from === "object" || typeof from === "function") {
-      for (let key of __getOwnPropNames(from))
-        if (!__hasOwnProp.call(to, key) && key !== except)
-          __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-    }
-    return to;
-  };
-  var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-
-  // demo/modules/intel-work-brief.js
-  var intel_work_brief_exports = {};
-  __export(intel_work_brief_exports, {
-    intelCardMarkup: () => intelCardMarkup,
-    parseWorkBrief: () => parseWorkBrief,
-    readingReason: () => readingReason,
-    workBriefMarkup: () => workBriefMarkup
-  });
-  var FIELDS = ["\u5173\u8054", "\u5173\u6CE8", "\u501F\u9274", "\u8FB9\u754C"];
-  var READING_INVITATIONS = {
-    "intel-ef78b1ef9b0d89f1b56e": "\u8DDF\u8E2A\u5916\u90E8\u6A21\u578B\u4F9B\u7ED9\u7684\u53D8\u5316\u7EBF\u7D22\uFF0C\u4F9B\u822A\u53D1 AI \u9009\u578B\u89C2\u5BDF\uFF1B\u878D\u8D44\u8BF4\u6CD5\u4ECD\u5F85\u6838\u5B9E\u3002",
-    "intel-701c1733fb9fb7f7c4fe": "\u501F\u9274\u5F15\u7528\u56FE\u8C31\uFF0C\u63A2\u7D22\u822A\u53D1\u6807\u51C6\u53D8\u66F4\u7684\u5F71\u54CD\u521D\u7B5B\u65B9\u6CD5\uFF0C\u4ECD\u987B\u4E13\u4E1A\u590D\u6838\u3002",
-    "intel-674a9b4429cf6698bcc5": "\u8DDF\u8FDB\u667A\u80FD\u4F53\u8F6F\u4EF6\u7684\u6807\u51C6\u4E0E\u8BD5\u70B9\u53E3\u5F84\uFF0C\u4F9B\u822A\u53D1\u5DE5\u4E1A\u8F6F\u4EF6\u89C4\u5212\u53C2\u8003\u3002",
-    "intel-8b3ef63f5c4e566c2c64": "\u501F\u6B64\u6BD4\u8F83\u4E13\u4E1A\u4EFB\u52A1\u7684\u667A\u80FD\u4F53\u8BC4\u6D4B\u65B9\u6CD5\uFF0C\u81EA\u6211\u6539\u8FDB\u4E3B\u5F20\u4ECD\u5F85\u9A8C\u8BC1\u3002",
-    "intel-5089b61afea9a586ae0a": "\u4E3A AI \u7814\u7A76\u65B9\u5411\u50A8\u5907\u653F\u7B56\u7EBF\u7D22\uFF0C\u914D\u5957\u8D44\u91D1\u4E0E\u4EFB\u52A1\u4ECD\u5F85\u6838\u5B9E\u3002",
-    "intel-a8282be94d69fdaa5b29": "\u501F\u5916\u90E8\u63A5\u5165\u4E89\u8BAE\uFF0C\u68C0\u67E5\u822A\u53D1\u667A\u80FD\u4F53\u7684\u6743\u9650\u3001\u8EAB\u4EFD\u4E0E\u4EBA\u5DE5\u786E\u8BA4\u8FB9\u754C\u3002",
-    "intel-2d3f60d5139ccdbe0fea": "\u4E3A\u4EFF\u771F\u4E0E\u865A\u5B9E\u4EA4\u4E92\u50A8\u5907\u65B9\u5411\u7EBF\u7D22\uFF0C\u6682\u4E0D\u80FD\u636E\u6B64\u5224\u65AD\u843D\u5730\u6761\u4EF6\u3002",
-    "intel-3358593b9b1411d6372a": "\u4EC5\u4F5C\u5916\u90E8 AI \u4F9B\u5E94\u5546\u7684\u8D44\u672C\u98CE\u9669\u7EBF\u7D22\uFF0C\u4E0D\u80FD\u636E\u6B64\u5224\u65AD\u6280\u672F\u80FD\u529B\u3002",
-    "intel-7b77594de365872e0495": "\u89C2\u5BDF\u8DE8\u516C\u53F8\u4E13\u9879\u7EC4\u5982\u4F55\u9A8C\u8BC1\u5236\u9020 AI\uFF0C\u4F9B\u822A\u53D1\u5355\u5DE5\u5E8F\u8BD5\u70B9\u6BD4\u8F83\u3002",
-    "intel-c93b9ce6b3af6d14585c": "\u8DDF\u8E2A\u673A\u5668\u4EBA\u4EFF\u771F\u5230\u73B0\u573A\u8C03\u8BD5\u7684\u95ED\u73AF\uFF0C\u5148\u770B\u5177\u4F53\u5DE5\u4F4D\u4E0E\u5BF9\u7167\u6570\u636E\u3002",
-    "intel-0ebfe851ce4d7a530764": "\u5BF9\u7167\u822A\u53D1 AI \u8BD5\u70B9\u8F6C\u89C4\u6A21\u5316\u7684\u573A\u666F\u3001\u6570\u636E\u4E0E\u9A8C\u8BC1\u95E8\u69DB\uFF0C\u539F\u6587\u5F85\u6838\u3002",
-    "intel-f4ef15a9b56c5a14baa2": "\u6BD4\u8F83\u5171\u4EAB AI \u57FA\u5EA7\u4E0E\u81EA\u5EFA\u65B9\u6848\u7684\u6570\u636E\u9694\u79BB\u8FB9\u754C\uFF0C\u5148\u6838\u5B9E\u5E73\u53F0\u80FD\u529B\u3002",
-    "intel-342f6f6f025d33f9f52e": "\u4E3A\u822A\u53D1\u7B97\u529B\u9700\u6C42\u5206\u6863\u627E\u5916\u90E8\u53C2\u7167\uFF0C\u5148\u770B\u96C6\u91C7\u89C4\u683C\u4E0E\u4E2D\u6807\u7ED3\u679C\u3002",
-    "intel-9d577bc6cf520103f35c": "\u6BD4\u8F83\u4EFF\u771F\u3001\u8BD5\u9A8C\u6570\u636E\u7684\u6807\u6CE8\u4E0E\u5171\u4EAB\u53E3\u5F84\uFF0C\u5148\u6838\u5BF9\u6807\u51C6\u6587\u672C\u3002",
-    "intel-65f045324b9729b83caf": "\u4E3A\u822A\u53D1\u76D1\u6D4B\u7684\u7AEF\u4FA7\u63A8\u7406\u9009\u578B\u50A8\u5907\u7EBF\u7D22\uFF0C\u5148\u770B\u529F\u8017\u3001\u65F6\u5EF6\u4E0E\u51FA\u8D27\u8BC1\u636E\u3002",
-    "intel-ae002f5b930a18ab9ed5": "\u5BF9\u7167\u771F\u5B9E\u6570\u636E\u7684\u91C7\u96C6\u4E0E\u6CBB\u7406\u6D41\u7A0B\uFF0C\u4E3B\u4F53\u548C\u6570\u636E\u80FD\u529B\u4ECD\u5F85\u6838\u5B9E\u3002",
-    "intel-cdde3b018196abe84f69": "\u4E3A\u822A\u53D1 AI \u8BD5\u70B9\u590D\u5236\u627E\u9A8C\u6536\u53C2\u7167\uFF0C\u5148\u770B\u5177\u540D\u5BA2\u6237\u4E0E\u91CD\u590D\u90E8\u7F72\u8BC1\u636E\u3002",
-    "intel-debb0c81a6d6ca3cd7a3": "\u5148\u6838\u5BF9\u7269\u7406 AI \u7684\u4EFB\u52A1\u4E0E\u6210\u529F\u7387\uFF0C\u5224\u65AD\u662F\u5426\u503C\u5F97\u505A\u822A\u53D1\u573A\u666F\u590D\u73B0\u3002",
-    "intel-92a22fec30bb8929bef4": "\u4E3A\u8FB9\u7F18\u63A8\u7406\u6BD4\u8F83\u5B58\u50A8\u5E26\u5BBD\u4E0E\u529F\u8017\uFF0C\u7814\u53D1\u8BF4\u6CD5\u548C\u6307\u6807\u4ECD\u5F85\u6838\u5B9E\u3002",
-    "intel-f9f897bfa311f670c855": "\u4E3A\u667A\u80FD\u4F53\u63A5\u5165 PLM\u3001MES \u6216\u4EFF\u771F\u94FE\u627E\u6848\u4F8B\uFF0C\u91CD\u70B9\u770B\u63A5\u53E3\u4E0E\u590D\u6838\u70B9\u3002"
-  };
-  function parseWorkBrief(text = "") {
-    if (typeof text !== "string") return null;
-    const header = text.match(/^【航发关联预判\s*·\s*([^】]+)】/);
-    if (!header) return /^航发关联预判待补/.test(text) ? { pending: true } : null;
-    if (header[1].includes("\u5F85\u8865")) return { pending: true };
-    const end = text.indexOf("\n\u793E\u533A\u8BA8\u8BBA\uFF1A");
-    const body = end < 0 ? text : text.slice(0, end);
-    const values = {};
-    for (let i = 0; i < FIELDS.length; i++) {
-      const label = FIELDS[i], start = body.indexOf(label + "\uFF1A", header[0].length);
-      if (start < 0) return null;
-      const next = i < FIELDS.length - 1 ? body.indexOf(FIELDS[i + 1] + "\uFF1A", start + label.length + 1) : body.indexOf("\uFF08AI\u521D\u5224", start);
-      if (next < 0) return null;
-      values[label] = body.slice(start + label.length + 1, next).trim();
-      if (!values[label]) return null;
-    }
-    const level = header[1].split("\xB7")[0].trim();
-    if (!["\u76F4\u63A5\u76F8\u5173", "\u65B9\u6CD5\u53EF\u501F\u9274", "\u6301\u7EED\u89C2\u5BDF", "\u5173\u8054\u8F83\u5F31"].includes(level)) return null;
-    return { level, summaryOnly: header[1].includes("\u4EC5\u636E\u6458\u8981"), values };
-  }
-  function readingReason(brief, record = {}) {
-    if (!brief || brief.pending) return "";
-    const invitation = READING_INVITATIONS[record.id || record.key?.replace(/^intel:/, "")];
-    if (invitation) return invitation;
-    const field = ["\u6301\u7EED\u89C2\u5BDF", "\u5173\u8054\u8F83\u5F31"].includes(brief.level) ? "\u5173\u6CE8" : "\u501F\u9274";
-    const text = brief.values[field];
-    const sentence = text.match(/^[\s\S]*?[。！？][”’」』]?/)?.[0] || text;
-    return /[。！？][”’」』]?$/.test(sentence) ? sentence : sentence + "\u3002";
-  }
-  function workBriefMarkup(record, { escape, inline = false }) {
-    const brief = parseWorkBrief(record.discussion), reason = readingReason(brief, record);
-    if (!reason) return inline && brief?.pending ? '<span class="work-brief work-brief-pending"><span class="work-brief-label">\u770B\u70B9\u5F85\u8865</span><span class="work-brief-reason">\u4F9D\u636E\u4E0D\u8DB3\uFF0C\u6682\u4E0D\u4F5C\u5224\u65AD\u3002</span></span>' : "";
-    const basis = brief.summaryOnly ? "\u4EC5\u636E\u6458\u8981\uFF0C\u539F\u6587\u5F85\u6838" : "\u4F9D\u636E\u91C7\u96C6\u6B63\u6587\uFF0C\u672A\u7ECF\u4E13\u9879\u6838\u9A8C";
-    const body = `<span class="work-brief-label">\u8350\u8BFB</span><span class="work-brief-reason">${escape(reason)}</span>`;
-    return inline ? `<span class="work-brief" title="AI\u9605\u8BFB\u63D0\u793A \xB7 ${basis}">${body}</span>` : `<button type="button" class="work-brief" data-read="${escape(record.key || "intel:" + record.id)}" title="AI\u9605\u8BFB\u63D0\u793A \xB7 ${basis}">${body}<span class="work-brief-arrow" aria-hidden="true">\u2197</span></button>`;
-  }
-  function intelCardMarkup(record, { escape, bookmark, date }) {
-    const key = record.key || "intel:" + record.id;
-    return `<article class="intel-card intel-card-compact intel-card-dense"><button type="button" class="card-open intel-card-open" data-read="${escape(key)}"><span class="meta intel-card-meta"><span class="brand-tag intel">${escape(record.category)}</span><span class="intel-card-source">${escape(record.sourceName)}</span><span>${escape(date(record.reportDate))} \u6536\u5F55</span></span><h2>${escape(record.title)}</h2>${workBriefMarkup(record, { escape, inline: true })}</button>${bookmark(record)}</article>`;
-  }
-  return __toCommonJS(intel_work_brief_exports);
-})();
-
-function intelListResults(rows){return `<div class="result-heading"><span role="status" aria-live="polite">找到 <b>${rows.length}</b> 条情报</span><span>${filters.q.trim()?'相关内容优先':'最近收录'}</span></div>${rows.length?rows.slice(0,limit).map(r=>DajiWorkBrief.intelCardMarkup(r,{escape:esc2,bookmark,date:date2})).join(''):empty('暂未找到','换个关键词，或减少关键词数量再试试。',button('reset','查看全部情报'))}${rows.length>limit?button('more','再看 12 条','load-more'):''}`}
+function intelListResults(rows) {
+  return `<div class="result-heading"><span role="status" aria-live="polite">\u627E\u5230 <b>${rows.length}</b> \u6761\u60C5\u62A5</span><span>${filters.q.trim() ? "\u76F8\u5173\u5185\u5BB9\u4F18\u5148" : "\u6700\u8FD1\u6536\u5F55"}</span></div>${rows.length ? rows.slice(0, limit).map((r) => intelCardMarkup(r, { escape: esc2, bookmark, date: date2 })).join("") : empty("\u6682\u672A\u627E\u5230", "\u6362\u4E2A\u5173\u952E\u8BCD\uFF0C\u6216\u51CF\u5C11\u5173\u952E\u8BCD\u6570\u91CF\u518D\u8BD5\u8BD5\u3002", button("reset", "\u67E5\u770B\u5168\u90E8\u60C5\u62A5"))}${rows.length > limit ? button("more", "\u518D\u770B 12 \u6761", "load-more") : ""}`;
+}
 function library() {
   return title("\u8A00\u5E93", "\u8A00\u4E4B\u6709\u636E\uFF0C\u843D\u7B14\u6709\u7AE0\u3002", "\u5199\u4F5C\u8D44\u6E90 \xB7 \u516C\u5F00\u6750\u6599\u539F\u521B\u6574\u7406") + `<div class="tabs library-tabs" aria-label="\u8A00\u5E93\u529F\u80FD">${[["blocks", "\u6BB5\u843D\u5E93"], ["intent", "\u6211\u60F3\u8868\u8FBE"]].map(([k, t]) => `<button data-tab="${k}" class="${tab === k ? "active" : ""}" aria-pressed="${tab === k}">${t}</button>`).join("")}</div>${tab === "intent" ? `<section class="intent-intro"><h2>\u5148\u8BF4\u60F3\u6CD5\uFF0C\u518D\u627E\u8868\u8FBE\u3002</h2><p>\u5199\u4E0B\u4E00\u53E5\u6734\u7D20\u7684\u8BDD\uFF0C\u4ECE\u5DF2\u6709\u7D20\u6750\u4E2D\u5339\u914D\u5408\u9002\u6BB5\u843D\u3002</p><div class="suggestions">${INTENT_EXAMPLES.map((q) => `<button data-example="${esc2(q)}">${esc2(q)}</button>`).join("")}</div></section>` : ""}${searchBar(tab === "intent" ? "\u4F8B\u5982\uFF1A\u4EFB\u52A1\u5DF2\u7ECF\u660E\u786E\uFF0C\u5173\u952E\u662F\u6293\u843D\u5B9E" : "\u641C\u7D22\u6BB5\u843D\u3001\u4E3B\u9898\u3001\u573A\u666F\u6216\u6765\u6E90")}<details class="filter-panel"><summary>\u6309\u7528\u9014\u7B5B\u9009</summary><div class="filter-fields">${field("category", "\u6BB5\u843D\u7528\u9014", unique(data.blocks.map((r) => r.category)))}${field("scene", "\u8BB2\u8BDD\u573A\u666F", SCENE_GROUPS.filter((s) => s !== "\u5168\u90E8\u573A\u666F"))}<div class="field"><label for="filter-validity">\u9002\u7528\u72B6\u6001</label><select id="filter-validity" data-filter="validity">${options(Object.keys(valid), filters.validity).replace(/>current</g, ">\u5F53\u524D\u9002\u7528<").replace(/>watch</g, ">\u4F7F\u7528\u524D\u590D\u6838<").replace(/>historical</g, ">\u5386\u53F2\u53C2\u8003<")}</select></div></div></details><div class="page-columns"><section class="content-pane" id="results">${blockResults()}</section><aside class="side-column"><section class="side-panel library-info"><div class="section-heading"><h2>\u539F\u6587\u4E0E\u8868\u8FBE</h2></div><p>${esc2(payload.yanku.notice)}</p><div class="subtle-note">${payload.yanku.materials.length} \u4EFD\u6838\u6E90\u6750\u6599 \xB7 ${data.blocks.length} \u6BB5\u539F\u521B\u6574\u7406<br>\u8D44\u6599\u66F4\u65B0 ${dateTime(payload.yanku.generatedAt)}</div></section></aside></div>`;
 }
@@ -1026,10 +1150,10 @@ function blockResults() {
   return `<div class="result-heading"><span>${tab === "intent" && filters.q ? "\u5339\u914D\u5230" : "\u5171"} <b>${ranked.length}</b> \u6BB5\u7D20\u6750</span><span>\u53EF\u8BFB \xB7 \u53EF\u590D\u5236 \xB7 \u53EF\u8FFD\u6EAF</span></div>${ranked.length ? ranked.slice(0, limit).map(({ block: r, match }) => `<article class="block-card"><div class="block-title"><div><span class="meta"><span class="brand-tag">${esc2(r.category)}</span><span>${esc2(r.scene)}</span></span><button class="card-open" data-read="${r.key}"><h2>${esc2(r.title)}</h2></button></div>${bookmark(r)}</div>${match ? `<div class="match-reason">${esc2(match.reason)}${match.suggestedSlot ? " \xB7 \u5EFA\u8BAE\u7528\u4E8E" + esc2(match.suggestedSlot) : ""}</div>` : ""}<p class="block-text">${esc2(r.text)}</p><p class="source-line">\u539F\u521B\u6574\u7406 \xB7 \u4F9D\u636E ${esc2(r.source.sourceName)}<br>${esc2(valid[r.source.validity] || "\u4F7F\u7528\u524D\u590D\u6838")} \xB7 \u6838\u6E90 ${date2(r.source.lastCheckedAt)}</p><div class="card-actions">${button("read", "\u5C55\u5F00", "text-button", `data-key="${r.key}"`)}${button("copy", "\u590D\u5236\u7D20\u6750", "secondary-button", `data-key="${r.key}"`)}</div></article>`).join("") : empty("\u6682\u65E0\u5408\u9002\u6BB5\u843D", "\u53EF\u4EE5\u7B80\u5316\u8868\u8FBE\u3001\u6362\u4E00\u4E2A\u573A\u666F\uFF0C\u6216\u51CF\u5C11\u7B5B\u9009\u6761\u4EF6\u3002", button("reset", "\u91CD\u7F6E\u7B5B\u9009"))}${ranked.length > limit ? button("more", "\u518D\u770B 12 \u6BB5", "load-more") : ""}`;
 }
 function games() {
-  return title("\u653E\u677E\u4E00\u4E0B", "\u6682\u653E\u624B\u8FB9\u4E8B\uFF0C\u7559\u4E00\u70B9\u65F6\u95F4\u7ED9\u81EA\u5DF1\u3002", "\u5929\u673A\u7C3F \xB7 \u5C0F\u6E38\u620F \xB7 \u7247\u523B\u95F2\u8DA3") + `<div class="game-grid"><article class="game-card wenchen-card"><div class="wenchen-art" aria-hidden="true"><div class="wenchen-symbol"><strong>\u5929\u673A\u7C3F</strong><small>T I A N J I  B U</small></div></div><div class="game-info"><div class="game-title-row"><h2>\u5929\u673A\u7C3F</h2><span>\u4E1C\u65B9\u547D\u7406</span></div><h3>\u4F60\u7684\u6545\u4E8B\uFF0C<br/>\u4E0D\u6B62\u516B\u4E2A\u5B57\u3002</h3><p>\u4ECE\u53E4\u7C4D\u91CC\u7684\u672F\u8BED\uFF0C\u8BFB\u5230\u4F60\u8FD9\u5F20\u76D8\u7684\u4F9D\u636E\u3002\u5DE5\u4F5C\u3001\u6536\u5165\u3001\u611F\u60C5\u9010\u7AE0\u5C55\u5F00\uFF0C\u5206\u6790\u4E0E\u8C03\u6574\u5EFA\u8BAE\u5206\u5F00\u770B\u3002</p>${button("game", "\u770B\u770B\u6211\u7684\u89E3\u8BFB <span>\u2197</span>", "primary-button", `data-game="wenchen"`)}<p class="wenchen-note">\u65E0\u9700\u6CE8\u518C \xB7 \u751F\u8FB0\u5728\u6D4F\u89C8\u5668\u672C\u5730\u8BA1\u7B97</p><details class="game-rules"><summary>\u5173\u4E8E\u5929\u673A\u7C3F</summary><p>\u4F20\u7EDF\u6587\u5316\u4F53\u9A8C\uFF0C\u4EC5\u4F9B\u5A31\u4E50\u4E0E\u81EA\u6211\u601D\u8003\u3002\u8BA1\u7B97\u6309\u4E1C\u516B\u533A\u6807\u51C6\u65F6\uFF1B\u547D\u76D8\u4E0D\u7528\u4E8E\u5224\u65AD\u75BE\u75C5\u3001\u6295\u8D44\u6216\u5A5A\u59FB\u7ED3\u679C\u3002</p><a href="https://github.com/zhuyep/mingli-lab" target="_blank" rel="noopener noreferrer">\u5929\u673A\u7C3F Tianji Bu \xB7 MIT \u5F00\u6E90 \u2197</a></details></div></article><article class="game-card"><div class="game-art"><small>\u8282\u594F\u4E0E\u53CD\u5E94</small><svg class="hex-art" viewBox="0 0 160 170" aria-hidden="true"><path d="M80 13 145 50v73l-65 37-65-37V50z" stroke="#b7624c"/><path d="m80 37 45 26v50l-45 26-45-26V63z" stroke="#e5c889"/><path d="m80 61 24 14v27l-24 14-24-14V75z" stroke="#8ca6a0"/></svg></div><div class="game-info"><div class="game-title-row"><h2>Hextris</h2><span>\u53CD\u5E94\u6D88\u9664</span></div><h3>\u8BA9\u989C\u8272\uFF0C\u6070\u597D\u76F8\u9022\u3002</h3><p>\u8F6C\u52A8\u516D\u8FB9\u5F62\uFF0C\u8BA9\u540C\u8272\u65B9\u5757\u8FDE\u6210\u4E00\u7EBF\u3002\u89C4\u5219\u7B80\u5355\uFF0C\u8282\u594F\u6E10\u7D27\u3002</p>${button("game", "\u5F00\u59CB\u4E00\u5C40 <span>\u2197</span>", "primary-button", `data-game="hextris"`)}<details class="game-rules"><summary>\u73A9\u6CD5\u4E0E\u5F00\u6E90\u51FA\u5904</summary><p>\u70B9\u5DE6\u53F3\u6309\u94AE\u65CB\u8F6C\uFF0C\u8FDE\u63A5\u81F3\u5C11\u4E09\u4E2A\u540C\u8272\u5757\u6D88\u9664\u3002\u7559\u610F\u8FB9\u754C\uFF0C\u53CA\u65F6\u6E05\u7A7A\u5806\u79EF\u3002</p><a href="https://github.com/Hextris/hextris" target="_blank" rel="noopener noreferrer">Hextris \xB7 GPL-3.0 \u2197</a></details></div></article><article class="game-card"><div class="game-art puzzle"><small>\u5B89\u9759\u5730\u63A8\u7406</small><div class="mini-board" aria-hidden="true">${"<i></i>".repeat(16)}</div></div><div class="game-info"><div class="game-title-row"><h2>0h h1</h2><span>\u4E8C\u8272\u903B\u8F91</span></div><h3>\u4E24\u79CD\u989C\u8272\uFF0C\u4E00\u70B9\u63A8\u7406\u3002</h3><p>\u6CA1\u6709\u8BA1\u65F6\u50AC\u4FC3\uFF0C\u7528\u4E09\u6761\u89C4\u5219\u586B\u6EE1\u65B9\u683C\u3002\u4ECE\u5C0F\u68CB\u76D8\u5F00\u59CB\uFF0C\u6162\u6162\u627E\u5230\u79E9\u5E8F\u3002</p>${button("game", "\u9759\u4E0B\u6765\uFF0C\u89E3\u4E00\u5C40 <span>\u2197</span>", "primary-button", `data-game="0hh1"`)}<details class="game-rules"><summary>\u73A9\u6CD5\u4E0E\u5F00\u6E90\u51FA\u5904</summary><p>\u6BCF\u884C\u6BCF\u5217\u4E24\u8272\u6570\u91CF\u76F8\u540C\uFF1B\u4E0D\u8FDE\u7EED\u51FA\u73B0\u4E09\u4E2A\u540C\u8272\uFF1B\u4EFB\u610F\u4E24\u884C\u3001\u4E24\u5217\u90FD\u4E0D\u80FD\u5B8C\u5168\u4E00\u6837\u3002\u6E38\u620F\u5185\u6709\u4E2D\u6587\u6559\u7A0B\u4E0E\u63D0\u793A\u3002</p><a href="https://github.com/florisluiten/0hh1" target="_blank" rel="noopener noreferrer">Q42 / Martin Kool \xB7 MIT \u2197</a></details></div></article></div><p class="subtle-note">\u8FD9\u91CC\u7684\u5E94\u7528\u90FD\u5728\u7AD9\u5185\u6253\u5F00\u3002\u5929\u673A\u7C3F\u4E0D\u4FDD\u5B58\u751F\u8FB0\uFF1B\u6E38\u620F\u6210\u7EE9\u4FDD\u5B58\u5728\u5F53\u524D\u6D4F\u89C8\u5668\u3002</p>`;
+  return title("\u653E\u677E\u4E00\u4E0B", "\u6682\u653E\u624B\u8FB9\u4E8B\uFF0C\u7559\u4E00\u70B9\u65F6\u95F4\u7ED9\u81EA\u5DF1\u3002", "\u5F71\u9662 \xB7 \u5929\u673A\u7C3F \xB7 \u7247\u523B\u95F2\u8DA3") + `<div class="game-grid"><article class="game-card relax-cinema" id="relax-cinema"><div class="game-info"><div class="game-title-row"><h2>\u5927\u5409\u653E\u6620\u5BA4</h2><span>\u5F71\u9662</span></div><h3>\u770B\u4E00\u90E8\u7535\u5F71\uFF0C\u6362\u4E00\u79CD\u5FC3\u60C5\u3002</h3><p>\u5F71\u9662\u5DF2\u5E76\u5165\u653E\u677E\u3002\u641C\u5230\u7247\u540D\uFF0C\u9009\u597D\u4E00\u96C6\uFF0C\u5728\u8FD9\u91CC\u770B\u3002</p>${button("video", "\u53BB\u653E\u6620\u5BA4\u5750\u5750 <span>\u2197</span>", "primary-button", 'data-page="video"')}</div></article><article class="game-card wenchen-card"><div class="wenchen-art" aria-hidden="true"><div class="wenchen-symbol"><strong>\u5929\u673A\u7C3F</strong><small>T I A N J I  B U</small></div></div><div class="game-info"><div class="game-title-row"><h2>\u5929\u673A\u7C3F</h2><span>\u4E1C\u65B9\u547D\u7406</span></div><h3>\u4F60\u7684\u6545\u4E8B\uFF0C<br/>\u4E0D\u6B62\u516B\u4E2A\u5B57\u3002</h3><p>\u4ECE\u53E4\u7C4D\u91CC\u7684\u672F\u8BED\uFF0C\u8BFB\u5230\u4F60\u8FD9\u5F20\u76D8\u7684\u4F9D\u636E\u3002\u5DE5\u4F5C\u3001\u6536\u5165\u3001\u611F\u60C5\u9010\u7AE0\u5C55\u5F00\uFF0C\u5206\u6790\u4E0E\u8C03\u6574\u5EFA\u8BAE\u5206\u5F00\u770B\u3002</p>${button("game", "\u770B\u770B\u6211\u7684\u89E3\u8BFB <span>\u2197</span>", "primary-button", `data-game="wenchen"`)}<p class="wenchen-note">\u65E0\u9700\u6CE8\u518C \xB7 \u751F\u8FB0\u5728\u6D4F\u89C8\u5668\u672C\u5730\u8BA1\u7B97</p><details class="game-rules"><summary>\u5173\u4E8E\u5929\u673A\u7C3F</summary><p>\u4F20\u7EDF\u6587\u5316\u4F53\u9A8C\uFF0C\u4EC5\u4F9B\u5A31\u4E50\u4E0E\u81EA\u6211\u601D\u8003\u3002\u8BA1\u7B97\u6309\u4E1C\u516B\u533A\u6807\u51C6\u65F6\uFF1B\u547D\u76D8\u4E0D\u7528\u4E8E\u5224\u65AD\u75BE\u75C5\u3001\u6295\u8D44\u6216\u5A5A\u59FB\u7ED3\u679C\u3002</p><a href="https://github.com/zhuyep/mingli-lab" target="_blank" rel="noopener noreferrer">\u5929\u673A\u7C3F Tianji Bu \xB7 MIT \u5F00\u6E90 \u2197</a></details></div></article><article class="game-card"><div class="game-art"><small>\u8282\u594F\u4E0E\u53CD\u5E94</small><svg class="hex-art" viewBox="0 0 160 170" aria-hidden="true"><path d="M80 13 145 50v73l-65 37-65-37V50z" stroke="#b7624c"/><path d="m80 37 45 26v50l-45 26-45-26V63z" stroke="#e5c889"/><path d="m80 61 24 14v27l-24 14-24-14V75z" stroke="#8ca6a0"/></svg></div><div class="game-info"><div class="game-title-row"><h2>Hextris</h2><span>\u53CD\u5E94\u6D88\u9664</span></div><h3>\u8BA9\u989C\u8272\uFF0C\u6070\u597D\u76F8\u9022\u3002</h3><p>\u8F6C\u52A8\u516D\u8FB9\u5F62\uFF0C\u8BA9\u540C\u8272\u65B9\u5757\u8FDE\u6210\u4E00\u7EBF\u3002\u89C4\u5219\u7B80\u5355\uFF0C\u8282\u594F\u6E10\u7D27\u3002</p>${button("game", "\u5F00\u59CB\u4E00\u5C40 <span>\u2197</span>", "primary-button", `data-game="hextris"`)}<details class="game-rules"><summary>\u73A9\u6CD5\u4E0E\u5F00\u6E90\u51FA\u5904</summary><p>\u70B9\u5DE6\u53F3\u6309\u94AE\u65CB\u8F6C\uFF0C\u8FDE\u63A5\u81F3\u5C11\u4E09\u4E2A\u540C\u8272\u5757\u6D88\u9664\u3002\u7559\u610F\u8FB9\u754C\uFF0C\u53CA\u65F6\u6E05\u7A7A\u5806\u79EF\u3002</p><a href="https://github.com/Hextris/hextris" target="_blank" rel="noopener noreferrer">Hextris \xB7 GPL-3.0 \u2197</a></details></div></article><article class="game-card"><div class="game-art puzzle"><small>\u5B89\u9759\u5730\u63A8\u7406</small><div class="mini-board" aria-hidden="true">${"<i></i>".repeat(16)}</div></div><div class="game-info"><div class="game-title-row"><h2>0h h1</h2><span>\u4E8C\u8272\u903B\u8F91</span></div><h3>\u4E24\u79CD\u989C\u8272\uFF0C\u4E00\u70B9\u63A8\u7406\u3002</h3><p>\u6CA1\u6709\u8BA1\u65F6\u50AC\u4FC3\uFF0C\u7528\u4E09\u6761\u89C4\u5219\u586B\u6EE1\u65B9\u683C\u3002\u4ECE\u5C0F\u68CB\u76D8\u5F00\u59CB\uFF0C\u6162\u6162\u627E\u5230\u79E9\u5E8F\u3002</p>${button("game", "\u9759\u4E0B\u6765\uFF0C\u89E3\u4E00\u5C40 <span>\u2197</span>", "primary-button", `data-game="0hh1"`)}<details class="game-rules"><summary>\u73A9\u6CD5\u4E0E\u5F00\u6E90\u51FA\u5904</summary><p>\u6BCF\u884C\u6BCF\u5217\u4E24\u8272\u6570\u91CF\u76F8\u540C\uFF1B\u4E0D\u8FDE\u7EED\u51FA\u73B0\u4E09\u4E2A\u540C\u8272\uFF1B\u4EFB\u610F\u4E24\u884C\u3001\u4E24\u5217\u90FD\u4E0D\u80FD\u5B8C\u5168\u4E00\u6837\u3002\u6E38\u620F\u5185\u6709\u4E2D\u6587\u6559\u7A0B\u4E0E\u63D0\u793A\u3002</p><a href="https://github.com/florisluiten/0hh1" target="_blank" rel="noopener noreferrer">Q42 / Martin Kool \xB7 MIT \u2197</a></details></div></article></div><p class="subtle-note">\u8FD9\u91CC\u7684\u5E94\u7528\u90FD\u5728\u7AD9\u5185\u6253\u5F00\u3002\u5929\u673A\u7C3F\u4E0D\u4FDD\u5B58\u751F\u8FB0\uFF1B\u6E38\u620F\u6210\u7EE9\u4FDD\u5B58\u5728\u5F53\u524D\u6D4F\u89C8\u5668\u3002</p>`;
 }
 function showReader(head, html, actions2 = "", section = "\u5DE5\u4F5C\u53F0", keepRoute = false) {
-  if (!keepRoute && parseRoute(location.hash).key) history.replaceState(null, "", DajiStudy.routeHash(page));
+  if (!keepRoute && parseRoute(location.hash).key) history.replaceState(null, "", routeHash(page));
   readerKey = "";
   $("#reader-section").textContent = section;
   $("#reader-content").innerHTML = `<article class="reader-body"><h1 id="reader-title">${head}</h1>${html}</article>`;
@@ -1064,7 +1188,7 @@ function about() {
   const snapshot = payload.meta.mode === "published-snapshot";
   const total = counts();
   const status = Object.entries(payload.meta.sources || {}).map(([key, value]) => `<p>${key === "horizon" ? "Horizon \u60C5\u62A5" : "\u8A00\u5E93\u7D20\u6750"} \xB7 ${value.state === "ok" ? "\u6821\u9A8C\u901A\u8FC7" : "\u4FDD\u7559\u4E0A\u6B21\u6709\u6548\u5185\u5BB9"}<br>\u8D44\u6599\u66F4\u65B0 ${esc2(dateTime(value.contentUpdatedAt))}<br>\u672C\u7248\u8BFB\u53D6 ${esc2(dateTime(value.lastSuccessfulReadAt))}</p>`).join("");
-  showReader("\u8BF8\u4E8B\u5927\u5409", `<div class="about-logo brand-seal"><img src="assets/zhu-shi-da-ji.png" alt="\u6731\u7EA2\u5370\u7AE0"></div><p class="brand-story">\u8D44\u8BAF \xB7 \u5199\u4F5C \xB7 \u95F2\u8DA3</p><p>\u4ECA\u65E5\u6536\u62E2\u66F4\u65B0\uFF0C\u60C5\u62A5\u8FFD\u8E2A\u53D8\u5316\uFF0C\u8A00\u5E93\u8F85\u52A9\u8868\u8FBE\uFF0C\u653E\u677E\u7559\u4E00\u70B9\u95F2\u8DA3\u3002</p><h2>\u8D44\u6599\u4E0E\u66F4\u65B0</h2><p>${snapshot ? "\u60C5\u62A5\u4E0E\u8A00\u5E93\u5DF2\u5728\u8FD9\u91CC\u7EDF\u4E00\u5448\u73B0\u3002\u539F\u6709\u91C7\u96C6\u3001\u6269\u6E90\u548C\u77E5\u8BC6\u5F52\u6863\u7EE7\u7EED\u8FD0\u884C\uFF0C\u65E7\u7AD9\u754C\u9762\u5DF2\u5C01\u5B58\u5E76\u4FDD\u7559\u6062\u590D\u80FD\u529B\u3002" : "\u5F53\u524D\u4E3A\u672C\u5730\u53EA\u8BFB\u9884\u89C8\uFF0C\u5C55\u793A\u5DF2\u6709\u9879\u76EE\u7684\u516C\u5F00\u8D44\u6599\u3002"}</p><section class="source-box"><p>${total.intel} \u6761\u60C5\u62A5 \xB7 ${total.materials} \u4EFD\u6838\u6E90\u6750\u6599 \xB7 ${total.blocks} \u6BB5\u7D20\u6750</p>${status || `<p>\u60C5\u62A5 ${esc2(payload.horizon.generatedAt)}<br>\u8A00\u5E93 ${esc2(payload.yanku.generatedAt)}</p>`}${snapshot ? `<p class="subtle-note">\u5185\u5BB9\u7248\u672C ${esc2(payload.meta.version)}<br>\u672C\u7248\u6821\u9A8C ${esc2(dateTime(payload.meta.validatedAt))}</p>` : ""}${button("refresh", "\u91CD\u65B0\u8BFB\u53D6\u8D44\u6599", "inline-link")}</section><h2>\u4E2A\u4EBA\u8BB0\u5F55</h2><p>\u6536\u85CF\u3001\u968F\u8BB0\u548C\u6E38\u620F\u8BB0\u5F55\u4FDD\u5B58\u5728\u5F53\u524D\u6D4F\u89C8\u5668\u3002\u6362\u8BBE\u5907\u6216\u6362\u7F51\u5740\u524D\uFF0C\u53EF\u4EE5\u5BFC\u51FA\u5907\u4EFD\uFF0C\u518D\u5728\u65B0\u7F51\u5740\u5BFC\u5165\u3002\u539F\u7AD9\u4E91\u7AEF\u8D26\u53F7\u548C\u5386\u53F2\u8BB0\u5F55\u5DF2\u4FDD\u7559\uFF0C\u4E92\u901A\u540E\u7EED\u5904\u7406\u3002</p>${button("backup", "\u5907\u4EFD\u4E0E\u6062\u590D")}<h2>\u65E7\u7AD9\u5B58\u6863</h2><p>\u539F\u6765\u624B\u673A\u4E2D\u7684\u8A00\u5E93\u8349\u7A3F\u6216\u9009\u6750\u8BB0\u5F55\uFF0C\u53EF\u4ECE\u65E7\u7AD9\u5B58\u6863\u9875\u5BFC\u51FA\u4FDD\u5B58\u3002</p>${external("https://party-speech-materials-cn.pages.dev/__archive", "\u4FDD\u5B58\u65E7\u8A00\u5E93\u8BB0\u5F55")}${external("https://ai4e-intel-radar-cn.pages.dev/__archive", "Horizon \u5B58\u6863\u8BF4\u660E")}<h2>\u8BBE\u8BA1\u4E0E\u539F\u4F5C</h2><p>\u6731\u7EA2\u3001\u7EB8\u767D\u3001\u58A8\u8272\u4E0E\u5B8B\u4F53\u6807\u9898\uFF0C\u8D2F\u7A7F\u56DB\u4E2A\u680F\u76EE\u548C\u9605\u8BFB\u754C\u9762\u3002</p>${external("https://github.com/Hextris/hextris", "Hextris \u5F00\u6E90\u539F\u4F5C")}${external("https://github.com/florisluiten/0hh1", "0h h1 \u5F00\u6E90\u539F\u4F5C")}`);
+  showReader("\u8BF8\u4E8B\u5927\u5409", `<div class="about-logo brand-seal"><img src="assets/zhu-shi-da-ji.png" alt="\u6731\u7EA2\u5370\u7AE0"></div><p class="brand-story">\u8D44\u8BAF \xB7 \u5199\u4F5C \xB7 \u95F2\u8DA3</p><p>\u4ECA\u65E5\u6536\u62E2\u66F4\u65B0\uFF0C\u60C5\u62A5\u8FFD\u8E2A\u53D8\u5316\uFF0C\u4E66\u623F\u5B89\u653E\u8D44\u6599\u4E0E\u8868\u8FBE\uFF0C\u653E\u677E\u7559\u4E00\u70B9\u95F2\u8DA3\uFF0C\u5F71\u9662\u4E5F\u5728\u653E\u677E\u91CC\u3002\u8109\u8C61\u662F\u79C1\u4EBA\u770B\u677F\uFF0C\u6731\u5BB6\u519B\u662F\u539F\u6765\u7684 OPC \u529E\u516C\u5BA4\u3002</p><h2>\u8D44\u6599\u4E0E\u66F4\u65B0</h2><p>${snapshot ? "\u60C5\u62A5\u4E0E\u8A00\u5E93\u5DF2\u5728\u8FD9\u91CC\u7EDF\u4E00\u5448\u73B0\u3002\u539F\u6709\u91C7\u96C6\u3001\u6269\u6E90\u548C\u77E5\u8BC6\u5F52\u6863\u7EE7\u7EED\u8FD0\u884C\uFF0C\u65E7\u7AD9\u754C\u9762\u5DF2\u5C01\u5B58\u5E76\u4FDD\u7559\u6062\u590D\u80FD\u529B\u3002" : "\u5F53\u524D\u4E3A\u672C\u5730\u53EA\u8BFB\u9884\u89C8\uFF0C\u5C55\u793A\u5DF2\u6709\u9879\u76EE\u7684\u516C\u5F00\u8D44\u6599\u3002"}</p><section class="source-box"><p>${total.intel} \u6761\u60C5\u62A5 \xB7 ${total.materials} \u4EFD\u6838\u6E90\u6750\u6599 \xB7 ${total.blocks} \u6BB5\u7D20\u6750</p>${status || `<p>\u60C5\u62A5 ${esc2(payload.horizon.generatedAt)}<br>\u8A00\u5E93 ${esc2(payload.yanku.generatedAt)}</p>`}${snapshot ? `<p class="subtle-note">\u5185\u5BB9\u7248\u672C ${esc2(payload.meta.version)}<br>\u672C\u7248\u6821\u9A8C ${esc2(dateTime(payload.meta.validatedAt))}</p>` : ""}${button("refresh", "\u91CD\u65B0\u8BFB\u53D6\u8D44\u6599", "inline-link")}</section><h2>\u4E2A\u4EBA\u8BB0\u5F55</h2><p>\u6536\u85CF\u3001\u968F\u8BB0\u548C\u6E38\u620F\u8BB0\u5F55\u4FDD\u5B58\u5728\u5F53\u524D\u6D4F\u89C8\u5668\u3002\u6362\u8BBE\u5907\u6216\u6362\u7F51\u5740\u524D\uFF0C\u53EF\u4EE5\u5BFC\u51FA\u5907\u4EFD\uFF0C\u518D\u5728\u65B0\u7F51\u5740\u5BFC\u5165\u3002\u539F\u7AD9\u4E91\u7AEF\u8D26\u53F7\u548C\u5386\u53F2\u8BB0\u5F55\u5DF2\u4FDD\u7559\uFF0C\u4E92\u901A\u540E\u7EED\u5904\u7406\u3002</p>${button("backup", "\u5907\u4EFD\u4E0E\u6062\u590D")}<h2>\u65E7\u7AD9\u5B58\u6863</h2><p>\u539F\u6765\u624B\u673A\u4E2D\u7684\u8A00\u5E93\u8349\u7A3F\u6216\u9009\u6750\u8BB0\u5F55\uFF0C\u53EF\u4ECE\u65E7\u7AD9\u5B58\u6863\u9875\u5BFC\u51FA\u4FDD\u5B58\u3002</p>${external("https://party-speech-materials-cn.pages.dev/__archive", "\u4FDD\u5B58\u65E7\u8A00\u5E93\u8BB0\u5F55")}${external("https://ai4e-intel-radar-cn.pages.dev/__archive", "Horizon \u5B58\u6863\u8BF4\u660E")}<h2>\u8BBE\u8BA1\u4E0E\u539F\u4F5C</h2><p>\u6731\u7EA2\u3001\u7EB8\u767D\u3001\u58A8\u8272\u4E0E\u5B8B\u4F53\u6807\u9898\uFF0C\u8D2F\u7A7F\u4ECA\u65E5\u3001\u60C5\u62A5\u3001\u4E66\u623F\u3001\u653E\u677E\u3001\u8109\u8C61\u3001\u6731\u5BB6\u519B\u3002</p>${external("https://github.com/Hextris/hextris", "Hextris \u5F00\u6E90\u539F\u4F5C")}${external("https://github.com/florisluiten/0hh1", "0h h1 \u5F00\u6E90\u539F\u4F5C")}`);
 }
 var pendingImport = null;
 function downloadPersonal() {
@@ -1150,7 +1274,7 @@ function mountIntelExtras() {
   const version = graphVersion;
   graphTimer = setTimeout(async () => {
     try {
-      const { mountKnowledgeGraph } = await import("./modules/chunks/knowledge-graph-OCSN46ZX.js");
+      const { mountKnowledgeGraph } = await import("./modules/chunks/knowledge-graph-UZF6RFJ6.js");
       if (version !== graphVersion || !host.isConnected) return;
       graphCleanup = mountKnowledgeGraph(host, buildKnowledgeGraph(matchingIntel()), { onRead: read, onFacet: drillIntel });
     } catch {
@@ -1232,9 +1356,6 @@ ${safeUrl(r.url)}`);
   "save-reader": () => toggleSave(readerKey),
   game: (b) => gameLoader.open(b.dataset.game)
 };
-actions['today-more']=()=>{todayLimit+=18;render();if(payload?.meta?.summary)loadFull()};
-actions['today-opc-refresh']=()=>{refreshTodayOpc(true)};
-window.addEventListener('focus',()=>{if(page==='today')refreshTodayOpc(true)});
 var gameLoader = createGameLoader({ dialog: $("#game-dialog"), container: $("#game-frame"), title: $("#game-title") });
 document.addEventListener("click", (e) => {
   const b = e.target.closest("button");
@@ -1267,7 +1388,8 @@ document.addEventListener("click", (e) => {
     return;
   }
   if (b.dataset.today) {
-    todayFilter = b.dataset.today; todayLimit = 18;
+    todayFilter = b.dataset.today;
+    todayLimit = 18;
     render();
     return;
   }
@@ -1295,6 +1417,17 @@ actions["library-from-reader"] = () => {
   $("#reader").close();
   navigate("library", "blocks");
 };
+actions["today-more"] = () => {
+  todayLimit += 18;
+  render();
+  if (payload?.meta?.summary) loadFull();
+};
+actions["today-opc-refresh"] = () => {
+  refreshTodayOpc(true);
+};
+window.addEventListener("focus", () => {
+  if (page === "today") refreshTodayOpc(true);
+});
 document.addEventListener("input", (e) => {
   const t = e.target;
   if (t.matches("[data-query]") && !e.isComposing) {
@@ -1324,19 +1457,19 @@ document.addEventListener("change", (e) => {
   }
 });
 $("#game-dialog").addEventListener("cancel", () => gameLoader.stop());
-function withContent(action) {
-  if (data) return action();
+function withContent(action2) {
+  if (data) return action2();
   toast("\u6B63\u5728\u8BFB\u53D6\u60C5\u62A5\u4E0E\u8A00\u5E93\u8D44\u6599\u2026\u2026");
   load().then(() => {
-    if (data) action();
+    if (data) action2();
     else toast(contentError || "\u8D44\u6599\u6682\u65F6\u672A\u80FD\u6253\u5F00\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5");
   });
 }
-function withFullContent(action) {
-  if (data && !payload?.meta?.summary) return action();
+function withFullContent(action2) {
+  if (data && !payload?.meta?.summary) return action2();
   toast("\u6B63\u5728\u6253\u5F00\u5B8C\u6574\u8D44\u6599\u2026\u2026");
   (data ? loadFull() : load().then(() => loadFull())).then(() => {
-    if (data && !payload?.meta?.summary) action();
+    if (data && !payload?.meta?.summary) action2();
     else toast(contentError || "\u5B8C\u6574\u8D44\u6599\u6682\u65F6\u672A\u80FD\u6253\u5F00\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5");
   });
 }
@@ -1347,15 +1480,15 @@ document.querySelectorAll("dialog").forEach((d) => d.addEventListener("close", (
   document.body.append($("#toast"));
   if (d.id === "game-dialog") $("#game-frame").innerHTML = "";
   if (d.id === "reader") {
-    if (parseRoute(location.hash).key) history.replaceState(null, "", DajiStudy.routeHash(page));
+    if (parseRoute(location.hash).key) history.replaceState(null, "", routeHash(page));
     readerKey = "";
-    if (data) document.title = { today: "\u4ECA\u65E5", intel: "\u60C5\u62A5", library: "书房 · 言库", games: "\u653E\u677E", video: "\u5927\u5409\u653E\u6620\u5BA4", books: "\u51EF\u5377\u6709\u76CA" }[page] + " \xB7 \u8BF8\u4E8B\u5927\u5409";
+    if (data) document.title = pageTitle(page) + " \xB7 \u8BF8\u4E8B\u5927\u5409";
   }
 }));
 function applyRoute() {
   const route = parseRoute(location.hash);
   page = route.page;
-  if (page === "library" && location.hash.startsWith("#library")) history.replaceState(null,"",route.key ? readingHash(route.key) : DajiStudy.routeHash(page));
+  if (page === "library" && location.hash.startsWith("#library")) history.replaceState(null, "", route.key ? readingHash(route.key) : routeHash(page));
   if (!data) {
     render();
     if (!["games", "video", "books"].includes(page)) load();
@@ -1385,8 +1518,12 @@ async function fetchContent(urls) {
   }
   throw lastError || Error("\u8BFB\u53D6\u5931\u8D25");
 }
-function acceptContent(p){payload=p;data=normalizeContent(p);updates=buildUpdates(data,p);setIntentProfiles(p.yanku.intents)}
-
+function acceptContent(p) {
+  payload = p;
+  data = normalizeContent(p);
+  updates = buildUpdates(data, p);
+  setIntentProfiles(p.yanku.intents);
+}
 function loadFull() {
   if (!payload?.meta?.summary) return Promise.resolve(payload);
   if (fullContentPromise) return fullContentPromise;

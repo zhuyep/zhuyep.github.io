@@ -3,8 +3,11 @@ let names = {};
 const collections = {recent: '新近电影', hot: '热门电影', tv: '热门剧集', rated: '高分佳片'};
 const plain = value => value.replace(/[\s\p{P}\p{S}]/gu, '').toLowerCase();
 
+export function cinemaHeading() {
+  return `<header class="cinema-heading"><div><span class="eyebrow">放松 · 大吉放映室</span><h1 class="cinema-slogan"><span>看片不迷路，</span><span>观影找老猪</span></h1></div><button class="text-button" type="button" data-page="games">← 返回放松</button></header>`;
+}
 export function cinemaShell() {
-  return `<section class="cinema" id="daji-cinema" aria-label="大吉放映室"><header class="cinema-heading"><div><span class="eyebrow">光影小憩 · 电影与剧集</span><h1>大吉放映室<span class="cinema-stub" aria-hidden="true">映</span></h1><p>搜一部片，留一点好时光。</p></div><span class="cinema-heading-note">诸事大吉 · 私人放映室</span></header><p class="cinema-message" role="status">正在打开影院……</p></section>`;
+  return `<section class="cinema" id="daji-cinema" aria-label="大吉放映室">${cinemaHeading()}<p class="cinema-message" role="status">正在打开影院……</p></section>`;
 }
 
 export function mountCinema(host) {
@@ -13,7 +16,7 @@ export function mountCinema(host) {
     return () => {};
   }
   const lifecycle = new AbortController();
-  let disposed = false, verified = false, configured = true, busy = false, message = '', requestId = 0;
+  let disposed = false, busy = false, message = '', requestId = 0;
   let detail = null, episodeIndex = 0, stopPlayer = () => {}, playVersion = 0, pending;
   const state = {query: '', list: [], failures: [], selected: null};
   let collection = 'recent', discoveryData, discoveryBusy = true, discoveryError = '', homeRequestId = 0;
@@ -23,7 +26,6 @@ export function mountCinema(host) {
     const response = await fetch('/api/video/' + path, {credentials: 'same-origin', cache: 'no-store', ...options});
     let data; try { data = await response.json(); } catch { throw Error('影院暂时没有响应，请稍后再试'); }
     if (!response.ok) {
-      if (response.status === 401) { verified = false; stopPlayer(); detail = null; }
       throw Error(data.error || (data.failures?.length ? '片源暂时没有响应，请稍后重试或更换来源' : '暂时未能打开，请稍后再试'));
     }
     return data;
@@ -60,7 +62,7 @@ export function mountCinema(host) {
   }
   function resultMarkup() {
     if (busy) return '<div class="cinema-empty" role="status"><span class="cinema-reel" aria-hidden="true">◉</span><h2>正在搜片</h2><p>逐个查询已选来源，请稍等片刻。</p></div>';
-    if (!verified || !state.query) return `<div data-cinema-discovery>${homeMarkup()}</div>`;
+    if (!state.query) return `<div data-cinema-discovery>${homeMarkup()}</div>`;
     const grouped = groups();
     return `${state.failures.length ? `<p class="cinema-warning" role="status">${esc(state.failures.join('、'))}暂时未能响应，已展示其余来源的结果。</p>` : ''}<div class="cinema-result-heading"><h2>“${esc(state.query)}”</h2><button class="text-button" data-cinema-home>← 回到片单</button><span>${grouped.length}部 · ${state.list.length}条结果</span></div>${!grouped.length ? '<div class="cinema-empty"><h2>暂时没有找到</h2><p>试试片名简称，或勾选其他来源后重新搜索。</p></div>' : `<div class="cinema-grid">${grouped.map((items, i) => { const item = items[0]; return `<button class="cinema-card" data-cinema-open="${i}" aria-label="选集观看：${esc(item.name)}，${esc(item.year)}，${items.length}个来源"><span class="cinema-poster"><span aria-hidden="true">光影</span>${item.cover ? `<img src="${esc(item.cover)}" alt="${esc(item.name)}" loading="lazy" referrerpolicy="no-referrer">` : ''}<small>${items.length}个来源</small></span><strong>${esc(item.name)}</strong><span class="cinema-card-meta">${esc(item.year || '年份未标注')} · ${esc(item.type || '影视')}</span><span class="cinema-card-note">${esc(item.remarks)} <i aria-hidden="true">↗</i></span></button>`; }).join('')}</div>`}`;
   }
@@ -73,11 +75,10 @@ export function mountCinema(host) {
   function draw() {
     if (disposed) return;
     const sourceCount = Object.keys(names).length;
-    host.innerHTML = `<header class="cinema-heading"><div><span class="eyebrow">诸事大吉 · 电影与剧集</span><h1>大吉放映室<span class="cinema-stub" aria-hidden="true">映</span></h1><p>忙完诸事，放映一段好时光。</p></div>${verified ? '<button class="text-button" data-cinema-logout>退出观影</button>' : '<span class="cinema-heading-note">你的私人放映室</span>'}</header><form class="cinema-search" data-cinema-search><label for="cinema-query">找一部想看的片</label><div class="cinema-search-line"><input id="cinema-query" type="search" value="${esc(state.query)}" maxlength="80" placeholder="输入电影、电视剧名称" required autocomplete="off"><button class="primary-button" type="submit" ${busy || !sourceCount ? 'disabled' : ''}>${busy ? '搜索中…' : '搜片'}</button></div><details class="cinema-source-picker"><summary>${sourceCount}个片源 · 调整搜索来源</summary><fieldset><legend>搜索来源</legend>${Object.entries(names).map(([key, name]) => `<label><input type="checkbox" data-cinema-filter="${key}" ${state.selected?.includes(key) ? 'checked' : ''}>${esc(name)}</label>`).join('')}</fieldset></details></form>${!verified ? `<section class="cinema-door cinema-door-compact"><span class="cinema-door-mark" aria-hidden="true">映</span><div><h2>${configured ? '输入密码，开始放映' : '观影服务暂时不可用'}</h2><p>${configured ? '片单可以直接浏览，搜索和播放沿用此前的观影密码。' : '可以先浏览片单，稍后刷新再试。'}</p>${configured ? '<form data-cinema-login><label for="cinema-password">观影密码</label><div><input id="cinema-password" type="password" placeholder="输入观影密码" aria-describedby="cinema-password-hint" autocomplete="current-password" required maxlength="200"><button class="primary-button" type="submit">进入放映室</button></div><p id="cinema-password-hint" class="cinema-password-hint">看片不迷路，<strong>密码找老猪。</strong></p></form>' : ''}</div></section>` : ''}<p class="cinema-message" role="alert">${esc(message)}</p><div class="cinema-content">${detail ? playerMarkup() : resultMarkup()}</div><p class="cinema-footnote">影片来自所选第三方来源，清晰度和可播情况会有变化。<a href="https://github.com/LibreSpark/LibreTV" target="_blank" rel="noopener noreferrer">灵感来自LibreTV ↗</a></p>`;
+    host.innerHTML = `${cinemaHeading()}<form class="cinema-search" data-cinema-search><label for="cinema-query">找一部想看的片</label><div class="cinema-search-line"><input id="cinema-query" type="search" value="${esc(state.query)}" maxlength="80" placeholder="输入电影、电视剧名称" required autocomplete="off"><button class="primary-button" type="submit" ${busy || !sourceCount ? 'disabled' : ''}>${busy ? '搜索中…' : '搜片'}</button></div><details class="cinema-source-picker"><summary>${sourceCount}个片源 · 调整搜索来源</summary><fieldset><legend>搜索来源</legend>${Object.entries(names).map(([key, name]) => `<label><input type="checkbox" data-cinema-filter="${key}" ${state.selected?.includes(key) ? 'checked' : ''}>${esc(name)}</label>`).join('')}</fieldset></details></form><p class="cinema-message" role="alert">${esc(message)}</p><div class="cinema-content">${detail ? playerMarkup() : resultMarkup()}</div><p class="cinema-footnote">影片来自所选第三方来源，清晰度和可播情况会有变化。<a href="https://github.com/LibreSpark/LibreTV" target="_blank" rel="noopener noreferrer">灵感来自LibreTV ↗</a></p>`;
   }
   async function search(query) {
     query = query.trim(); if (!query || !state.selected?.length) { message = '请输入片名，并至少勾选一个来源'; draw(); return; }
-    if (!verified) { state.query = query; message = `输入观影密码后，为你搜索“${query}”`; draw(); host.querySelector('#cinema-password')?.focus(); return; }
     pending?.abort(); pending = new AbortController(); const id = ++requestId;
     stopPlayer(); detail = null; state.query = query; busy = true; message = ''; draw();
     try {
@@ -117,11 +118,6 @@ export function mountCinema(host) {
   host.addEventListener('submit', async event => {
     event.preventDefault();
     if (event.target.matches('[data-cinema-search]')) { search(host.querySelector('#cinema-query').value); return; }
-    if (event.target.matches('[data-cinema-login]')) {
-      const submit = event.target.querySelector('button'); submit.disabled = true;
-      try { await api('auth', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({password: host.querySelector('#cinema-password').value})}); if (disposed) return; verified = true; message = ''; if (state.query) search(state.query); else draw(); }
-      catch (error) { if (!disposed) { message = error.message; draw(); } }
-    }
   }, {signal: lifecycle.signal});
   host.addEventListener('click', async event => {
     const b = event.target.closest('button'); if (!b) return;
@@ -136,7 +132,6 @@ export function mountCinema(host) {
     if (b.hasAttribute('data-cinema-next')) changeEpisode(episodeIndex + 1);
     if (b.hasAttribute('data-cinema-previous')) changeEpisode(episodeIndex - 1);
     if (b.hasAttribute('data-cinema-source')) { const alternatives = state.list.filter(v => plain(v.name) === plain(detail.name) && v.year === detail.year); const item = alternatives[Number(b.dataset.cinemaSource)]; if (item) open(item, episodeIndex); }
-    if (b.hasAttribute('data-cinema-logout')) { try { await api('auth', {method: 'DELETE'}); } finally { if (!disposed) { pending?.abort(); ++requestId; busy = false; stopPlayer(); verified = false; detail = null; state.query = ''; message = ''; draw(); } } }
   }, {signal: lifecycle.signal});
   host.addEventListener('change', event => {
     if (!event.target.hasAttribute('data-cinema-filter')) return;
@@ -145,7 +140,7 @@ export function mountCinema(host) {
     state.selected = event.target.checked ? [...new Set([...state.selected, key])] : state.selected.filter(v => v !== key);
   }, {signal: lifecycle.signal});
   host.addEventListener('error', event => { if (event.target.tagName === 'IMG') event.target.remove(); }, {capture: true, signal: lifecycle.signal});
-  api('status').then(status => { if (!disposed) { configured = status.configured; verified = status.verified; names = Object.fromEntries((status.sources || []).map(v => [v.key, v.name])); state.selected = state.selected === null ? Object.keys(names) : state.selected.filter(key => names[key]); draw(); } }).catch(() => { if (!disposed) { configured = false; message = '请稍后刷新重试'; draw(); } });
+  api('status').then(status => { if (!disposed) { names = Object.fromEntries((status.sources || []).map(v => [v.key, v.name])); state.selected = state.selected === null ? Object.keys(names) : state.selected.filter(key => names[key]); draw(); } }).catch(() => { if (!disposed) { message = '请稍后刷新重试'; draw(); } });
   api('visit', {method: 'POST'}).catch(() => {});
   loadDiscovery('recent');
   return () => { disposed = true; ++requestId; pending?.abort(); stopPlayer(); lifecycle.abort(); };
