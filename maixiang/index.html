@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="referrer" content="no-referrer">
+<meta name="description" content="脉象是诸事大吉里的私人健康看板入口。此页不包含个人健康档案。">
+<title>脉象 · 诸事大吉</title>
+<link rel="stylesheet" href="/maixiang/maixiang.css">
+</head>
+<body>
+<main class="maixiang-shell" id="maixiang-app">
+<a class="maixiang-back" href="/#today">← 诸事大吉</a>
+<header class="maixiang-hero">
+<div>
+<span class="maixiang-kicker">健康 · 私人</span>
+<h1>脉象</h1>
+<p class="maixiang-lead">看清脉络，慢慢养。</p>
+</div>
+<svg class="maixiang-pulse" viewBox="0 0 240 48" aria-hidden="true"><path d="M2 24h78l12-14 14 28 12-22 10 8h110"/></svg>
+</header>
+<p class="maixiang-disclaimer">不诊断、不开药，也不能代替面诊。</p>
+<section class="mx-local-access" data-local-access aria-label="个人健康看板入口">
+<h2>个人健康看板</h2>
+<p>已建好的真实看板目前通过本机私密入口查看。</p>
+<a href="http://127.0.0.1:8877/" target="_blank" rel="noopener noreferrer">打开本机健康看板 ↗</a>
+<p class="mx-caption">仅在存放档案、且已开启看板的电脑上可用。手机私密访问尚未接通；此入口不会把档案传到公开网站。</p>
+</section>
+<div class="maixiang-actions">
+<button type="button" data-open="log">记一笔</button>
+<button type="button" data-open="ask">问小护士</button>
+<button type="button" data-refresh>刷新档案与任务</button>
+<button type="button" data-sample aria-pressed="false">看合成样例</button>
+</div>
+<form class="maixiang-form" data-form hidden method="post" action="/maixiang/">
+<h2 data-form-title>记一笔</h2>
+<label data-log-kind>这一笔<select data-kind><option value="movement">走动</option><option value="meal">饮食</option><option value="rest">休息</option><option value="note">其他</option></select></label>
+<label data-log-operation>保存方式<select data-operation><option value="capture">新增记录</option><option value="amend">更正已有记录</option><option value="withdraw">撤回已有记录</option></select></label>
+<label data-target-label hidden>原记录标识<input data-target autocomplete="off"></label>
+<label>一句<textarea data-text maxlength="500" autocomplete="off" placeholder="今天的走动、饮食或休息，一句就好。"></textarea></label>
+<div class="maixiang-form-actions"><button type="submit" data-submit>记下</button><button type="button" data-open="">收起</button></div>
+</form>
+<p class="maixiang-status" data-status role="status"></p>
+<p class="maixiang-access" data-access>正在确认本人验证与私密存储……</p>
+<p class="maixiang-access"><a href="/maixiang/">重新检查云端连接</a></p>
+<section aria-label="健康看板" data-board>
+<div class="maixiang-grid">
+<article><h2>近期</h2><p>私人档案还未接通。</p></article>
+<article><h2>关注</h2><p class="maixiang-empty">还没有关注项。</p></article>
+<article><h2>下一步</h2><p>验证本人后，可以保存记录或向小护士提问。</p></article>
+</div>
+</section>
+<section class="mx-section"><h2>小护士任务</h2><p class="mx-caption">“待处理”表示已保存到私密队列；“已入档”须有主档回执，“已答复”须有真实回复。</p><div data-tasks></div></section>
+<details class="maixiang-handoff"><summary>资料怎样保存</summary><p>健康主档保留在本地。这里展示私密摘要，并保存你提交的文字、处理状态和回复。原报告与照片仍使用原有助手入口。Grok 离线或尚未连接时，任务会等待处理。</p><p>取消待办只取消本次任务；已入档记录可通过“更正”或“撤回”保留修改依据。</p></details>
+</main>
+<script type="module">
+import {mountMaixiang} from '/maixiang/maixiang.js';
+const root = document.querySelector('#maixiang-app');
+try { mountMaixiang(root); }
+catch { root.querySelector('[data-status]').textContent = '看板脚本没有跑起来。空态和免责声明仍然有效，内容没有上传。'; }
+</script>
+</body>
+</html>

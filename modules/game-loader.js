@@ -1,4 +1,5 @@
-const GAMES={hextris:'Hextris · 六边形消除','0hh1':'0h h1 · 二色逻辑',wenchen:'天机簿 · 东方命书'};
+export const GAME_TITLES={hextris:'Hextris · 六边形消除','0hh1':'0h h1 · 二色逻辑',wenchen:'天机簿 · 东方命书'};
+const GAMES=GAME_TITLES;
 
 // A frame's load event also fires on some error pages. Only the game's own
 // ready message can dismiss the loading screen.
