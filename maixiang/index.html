@@ -11,22 +11,25 @@
 </head>
 <body>
 <main class="maixiang-shell" id="maixiang-app">
-<a class="maixiang-back" href="/#today">← 诸事大吉</a>
+<div class="mx-topbar"><a class="maixiang-back" href="/#today">‹ 诸事大吉</a><span>私人健康档案</span></div>
 <header class="maixiang-hero">
 <div>
-<span class="maixiang-kicker">健康 · 私人</span>
-<h1>脉象</h1>
-<p class="maixiang-lead">看清脉络，慢慢养。</p>
+<span class="maixiang-kicker">个人健康看板</span><h1>脉象</h1>
 </div>
-<svg class="maixiang-pulse" viewBox="0 0 240 48" aria-hidden="true"><path d="M2 24h78l12-14 14 28 12-22 10 8h110"/></svg>
+<p class="maixiang-access" data-access role="status">正在读取私人档案…</p>
 </header>
-<p class="maixiang-disclaimer">不诊断、不开药，也不能代替面诊。</p>
+<section aria-label="健康看板" data-board>
+<div class="mx-empty-board"><h2>健康看板</h2><p>私人档案还未接通。</p></div>
+</section>
 <section class="mx-local-access" data-local-access aria-label="个人健康看板入口">
 <h2>个人健康看板</h2>
 <p>已建好的真实看板目前通过本机私密入口查看。</p>
 <a href="http://127.0.0.1:8877/" target="_blank" rel="noopener noreferrer">打开本机健康看板 ↗</a>
 <p class="mx-caption">仅在存放档案、且已开启看板的电脑上可用。手机私密访问尚未接通；此入口不会把档案传到公开网站。</p>
 </section>
+<section class="mx-section mx-nurse" id="mx-nurse" aria-labelledby="mx-nurse-title">
+<h2 id="mx-nurse-title">记录与小护士</h2>
+<p class="mx-caption">这里可以记录生活情况、查看问题和处理进度。</p>
 <div class="maixiang-actions">
 <button type="button" data-open="log">记一笔</button>
 <button type="button" data-open="ask">问小护士</button>
@@ -42,17 +45,10 @@
 <div class="maixiang-form-actions"><button type="submit" data-submit>记下</button><button type="button" data-open="">收起</button></div>
 </form>
 <p class="maixiang-status" data-status role="status"></p>
-<p class="maixiang-access" data-access>正在确认本人验证与私密存储……</p>
-<p class="maixiang-access"><a href="/maixiang/">重新检查云端连接</a></p>
-<section aria-label="健康看板" data-board>
-<div class="maixiang-grid">
-<article><h2>近期</h2><p>私人档案还未接通。</p></article>
-<article><h2>关注</h2><p class="maixiang-empty">还没有关注项。</p></article>
-<article><h2>下一步</h2><p>验证本人后，可以保存记录或向小护士提问。</p></article>
-</div>
+<p class="mx-caption" data-task-status role="status" hidden></p><div data-tasks></div>
 </section>
-<section class="mx-section"><h2>小护士任务</h2><p class="mx-caption">“待处理”表示已保存到私密队列；“已入档”须有主档回执，“已答复”须有真实回复。</p><div data-tasks></div></section>
 <details class="maixiang-handoff"><summary>资料怎样保存</summary><p>健康主档保留在本地。这里展示私密摘要，并保存你提交的文字、处理状态和回复。原报告与照片仍使用原有助手入口。Grok 离线或尚未连接时，任务会等待处理。</p><p>取消待办只取消本次任务；已入档记录可通过“更正”或“撤回”保留修改依据。</p></details>
+<p class="maixiang-disclaimer">不诊断、不开药，也不能代替面诊。</p>
 </main>
 <script type="module">
 import {mountMaixiang} from '/maixiang/maixiang.js';
