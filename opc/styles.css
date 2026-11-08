@@ -228,21 +228,20 @@ body[data-view="hall"] .page-footer{margin-top:2px;font-size:7px;color:#6f829a}
   flex:0 0 auto;
 }
 .north-star{
-  border:1px solid #2a4568;border-radius:10px;padding:10px 12px;
+  border:1px solid #2a4568;border-radius:10px;padding:12px 14px;
   background:linear-gradient(135deg,rgba(40,90,160,.28),rgba(16,28,48,.9));
   border-top:3px solid #f0c05a;min-width:0;
-  display:flex;flex-direction:column;align-self:start;min-height:0;
+  display:flex;flex-direction:column;
 }
 .north-star.light-红{border-top-color:#e07a82}
 .north-star.light-绿{border-top-color:#6dcfab}
 .north-kicker{font-size:8px;letter-spacing:1.6px;color:#7eb0e8;font-weight:800}
-.north-star h3{margin:3px 0 5px;font-size:12px;color:#cfe0ff;font-weight:650}
-.north-value{font-size:22px;font-weight:800;color:#fff;letter-spacing:-.5px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;line-height:1.15}
+.north-star h3{margin:3px 0 6px;font-size:13px;color:#cfe0ff;font-weight:650}
+.north-value{font-size:26px;font-weight:800;color:#fff;letter-spacing:-.5px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;line-height:1}
 .north-value small{font-size:12px;margin-left:4px;color:#9eb4d0;font-weight:500}
-.north-delta{margin-top:4px;font-size:12px;color:#f0c05a;font-weight:600}
-.north-meta{display:flex;flex-wrap:wrap;gap:4px 8px;margin-top:4px;font-size:10px;color:#8fa3bd}
-/* Keep the sparkline compact without stretching the card to its grid neighbours. */
-.north-star .spark-mini{margin-top:6px;height:18px;min-height:0;max-height:18px;width:100%;color:#6ea8ff;flex:0 0 18px}
+.north-delta{margin-top:6px;font-size:12px;color:#f0c05a;font-weight:600}
+.north-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;font-size:10px;color:#8fa3bd}
+.north-star .spark-mini{margin-top:8px;height:36px;width:100%;color:#6ea8ff;flex:1}
 .north-note{margin:4px 0 0;font-size:10px;color:#7a8ea8}
 .funnel-panel{border:1px solid #243552;border-radius:10px;padding:10px 12px;background:#121c2e;min-width:0;display:flex;flex-direction:column;gap:8px}
 .funnel-panel.dual{gap:7px}
@@ -374,7 +373,7 @@ body[data-view="hall"] .page-footer{margin-top:2px;font-size:7px;color:#6f829a}
 @media(max-width:1600px){
   .content-panel.hall-panel.tech.warroom{padding:10px 12px 8px;gap:8px;min-height:calc(100vh - 92px)}
   .north-funnel-row{grid-template-columns:minmax(180px,.8fr) minmax(0,1.7fr) minmax(180px,.8fr);gap:8px}
-  .north-value{font-size:20px}
+  .north-value{font-size:22px}
   .kpi-card.dense .kpi-value{font-size:18px}
   .kpi-mid{grid-template-columns:1fr 60px}
   .spark-mini{width:60px;height:24px}

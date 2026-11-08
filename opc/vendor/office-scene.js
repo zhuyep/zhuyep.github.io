@@ -1,7 +1,5 @@
 /* Adapted from Gaurav2693/ai-office @ 028295a272d208f60c4452fcdd843a20729a9228. MIT; see third-party/ai-office-LICENSE. */
 import * as THREE from '/opc/vendor/three.module.js';
-import {sceneActors} from '../organization.js';
-import {planOffice,officeCamera} from '../office-layout.js';
 
 export function createOfficeScene(container, callbacks = {}) {
   const { onTimeUpdate, onStatusUpdate, onMeetingChange, onWorkerSelect, workers = [] } = callbacks;
@@ -16,8 +14,12 @@ export function createOfficeScene(container, callbacks = {}) {
 class RNG{constructor(s=42){this.s=s}n(){this.s=(this.s*16807)%2147483647;return(this.s-1)/2147483646}r(a,b){return a+this.n()*(b-a)}i(a,b){return Math.floor(this.r(a,b+1))}pick(a){return a[this.i(0,a.length-1)]}}
 const rng=new RNG(2026);
 
-const AGENTS = sceneActors(workers);
-const layout=planOffice(workers);
+const AGENTS = workers.filter(w => w.id !== 'michelle').map((w, i) => ({
+  id: w.id, name: w.name, role: w.role, hex: w.color,
+  color: parseInt(w.color.slice(1), 16), screen: ['charts','palette','terminal','bugs','docs','map'][i],
+  hair: [0x473b34,0x4d3a33,0x292c37,0x6a493b,0x3c3332,0x624b39][i],
+  shirt: parseInt(w.color.slice(1), 16), pants: 0x34465a
+}));
 
 // Legend
 
@@ -39,15 +41,15 @@ container.appendChild(renderer.domElement);
 
 // ─── ORBIT ─────────────────────────────────────────
 let isDrag=false,prev={x:0,y:0};
-let focus='all',sph={theta:Math.PI/7,phi:Math.PI/3.15,radius:officeCamera('all',container.clientWidth/container.clientHeight,layout.front-layout.back).radius};
-const tgt=new THREE.Vector3(0,0.7,0);
+let sph={theta:Math.PI/5.5,phi:Math.PI/3.1,radius:25};
+const tgt=new THREE.Vector3(-3.2,0.8,0.5);
 let autoRot=false,autoTmr;
 function updCam(){const p=Math.max(.18,Math.min(Math.PI/2.3,sph.phi));sph.phi=p;camera.position.set(sph.radius*Math.sin(p)*Math.sin(sph.theta)+tgt.x,sph.radius*Math.cos(p)+tgt.y,sph.radius*Math.sin(p)*Math.cos(sph.theta)+tgt.z);camera.lookAt(tgt)}
 updCam();
 renderer.domElement.addEventListener('pointerdown',e=>{isDrag=true;prev={x:e.clientX,y:e.clientY};autoRot=false;clearTimeout(autoTmr)});
 addEventListener('pointerup',()=>{isDrag=false;autoRot=false});
 addEventListener('pointermove',e=>{if(!isDrag)return;sph.theta-=(e.clientX-prev.x)*.005;sph.phi+=(e.clientY-prev.y)*.005;prev={x:e.clientX,y:e.clientY};updCam()});
-renderer.domElement.addEventListener('wheel',e=>{sph.radius=Math.max(14,Math.min(100,sph.radius+e.deltaY*.03));updCam()},{passive:true});
+renderer.domElement.addEventListener('wheel',e=>{sph.radius=Math.max(16,Math.min(50,sph.radius+e.deltaY*.03));updCam()},{passive:true});
 
 // ─── LIGHTS ────────────────────────────────────────
 const ambient=new THREE.AmbientLight(0xffffff,0.75);scene.add(ambient);
@@ -70,44 +72,21 @@ const Glass=()=>new THREE.MeshPhysicalMaterial({color:0xBBCCDD,transparent:true,
 // ═══════════════════════════════════════════════════
 
 // Floor
-const floorDepth=layout.front-layout.back+1;
-const fl=new THREE.Mesh(new THREE.BoxGeometry(26,.15,floorDepth),M(0xECE9E2));
-fl.position.set(0,-.075,(layout.front+layout.back)/2);fl.receiveShadow=true;office.add(fl);
+const fl=new THREE.Mesh(new THREE.BoxGeometry(26,.15,20),M(0xE8E8E8));
+fl.position.y=-.075;fl.receiveShadow=true;office.add(fl);
 
-// Two work districts, with a clear shared aisle between them.
-let cp;
-for(const zone of layout.zones){
-  const pad=new THREE.Mesh(new THREE.BoxGeometry(zone.width,.035,zone.depth),M(zone.floor));
-  pad.position.set(zone.x,.018,zone.z);pad.receiveShadow=true;office.add(pad);if(zone.id==='cost')cp=pad;
-  const border=new THREE.Mesh(new THREE.BoxGeometry(zone.width,.012,.1),M(zone.accent));
-  border.position.set(zone.x,.044,-4.35);office.add(border);
-  if(zone.id==='profit'){
-    for(let z=-4.1;z<zone.z+zone.depth/2;z+=.62){const seam=new THREE.Mesh(new THREE.BoxGeometry(zone.width-.1,.005,.018),M(0xC3A77E));seam.position.set(zone.x,.039,z);office.add(seam);}
-  }else{
-    for(let x=zone.x-zone.width/2+.8;x<zone.x+zone.width/2;x+=1.3){const seam=new THREE.Mesh(new THREE.BoxGeometry(.018,.005,zone.depth-.15),M(0xA9BFCE));seam.position.set(x,.039,zone.z);office.add(seam);}
-  }
-  const label=document.createElement('canvas');label.width=640;label.height=160;const c=label.getContext('2d');
-  c.fillStyle=zone.id==='profit'?'#785027':'#315A78';c.font='600 58px "PingFang SC",sans-serif';c.textAlign='center';c.fillText(zone.title,320,70);
-  c.font='25px "PingFang SC",sans-serif';c.fillText(zone.id==='profit'?'产品 · 业务 · 研究':'计划 · 情报 · 行政 · 运维 · 健康',320,123);
-  const labelTexture=new THREE.CanvasTexture(label);labelTexture.colorSpace=THREE.SRGBColorSpace;
-  const text=new THREE.Mesh(new THREE.PlaneGeometry(zone.id==='profit'?7:4.6,1.7),new THREE.MeshBasicMaterial({map:labelTexture,transparent:true,depthWrite:false,toneMapped:false}));
-  text.rotation.x=-Math.PI/2;text.position.set(zone.id==='profit'?-7:9,.055,zone.id==='profit'?6.4:5.9);office.add(text);
-}
-const aisle=new THREE.Mesh(new THREE.BoxGeometry(layout.corridorWidth,.025,floorDepth-.25),M(0xF6F3EB));aisle.position.set(0,.02,(layout.front+layout.back)/2);aisle.receiveShadow=true;office.add(aisle);
-// Low planted edges define the districts without hiding people or blocking the aisle.
-for(const {x,z,width,depth} of layout.fixtures.filter(item=>item.id==='planter')){
-  const box=new THREE.Mesh(new THREE.BoxGeometry(width,.55,depth),M(0xE3E5E0));box.position.set(x,.275,z);office.add(box);
-  const green=new THREE.Mesh(new THREE.BoxGeometry(width-.02,.34,depth-.08),M(0x6A8A6A));green.position.set(x,.69,z);office.add(green);
-}
+// Carpet
+const cp=new THREE.Mesh(new THREE.BoxGeometry(10,.02,8),M(0xD0D8E0));
+cp.position.set(-3,.01,0);cp.receiveShadow=true;office.add(cp);
 
 // ALL WALLS TRANSPARENT GLASS
-[[0,layout.back,26,4,.06],[0,layout.front,26,4,.06],[-12.5,(layout.front+layout.back)/2,.06,4,floorDepth],[12.5,(layout.front+layout.back)/2,.06,4,floorDepth]].forEach(([x,z,w,h,d])=>{
+[[0,-9.5,26,4,.06],[0,9.5,26,4,.06],[-12.5,0,.06,4,20],[12.5,0,.06,4,20]].forEach(([x,z,w,h,d])=>{
   const wall=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),Glass());
   wall.position.set(x,h/2,z);office.add(wall);
 });
 
 // Glass edge frames (subtle structural lines)
-[[-12.5,layout.back],[-12.5,layout.front],[12.5,layout.back],[12.5,layout.front]].forEach(([x,z])=>{
+[[-12.5,-9.5],[-12.5,9.5],[12.5,-9.5],[12.5,9.5]].forEach(([x,z])=>{
   const f=new THREE.Mesh(new THREE.BoxGeometry(.08,4,.08),M(0xAABBCC));
   f.position.set(x,2,z);office.add(f);
 });
@@ -127,7 +106,7 @@ for(let i=-2;i<=2;i++){for(let j=-1;j<=1;j++){
 // ═══════════════════════════════════════════════════
 // MEETING ROOM (right side)
 // ═══════════════════════════════════════════════════
-const MRX=8,MRZ=-6.6;
+const MRX=8,MRZ=-3;
 // Glass partitions
 const mrGlass=Glass();
 // Left partition
@@ -176,11 +155,11 @@ wbF.position.set(MRX,2.2,MRZ-2.71);office.add(wbF);
 const wbc=document.createElement('canvas');wbc.width=256;wbc.height=100;
 const wbx=wbc.getContext('2d');
 wbx.fillStyle='#FAFAFA';wbx.fillRect(0,0,256,100);
-wbx.font='bold 18px sans-serif';wbx.fillStyle='#315A78';wbx.fillText('共享协作区',20,28);
+wbx.font='bold 18px sans-serif';wbx.fillStyle='#0DEEF3';wbx.fillText('RONIN',20,28);
 wbx.font='11px monospace';wbx.fillStyle='#888';
-wbx.fillText('利润中心 × 成本中心',20,48);
-wbx.fillText('业务进展 / 风险与交付',20,66);
-wbx.fillText('复盘 · 讨论 · 协作',20,82);
+wbx.fillText('Sprint 10 · Day 9',20,48);
+wbx.fillText('▸ Ship preview pane',20,66);
+wbx.fillText('▸ Forge wiring v2',20,82);
 const wbt=new THREE.CanvasTexture(wbc);
 const wbm=new THREE.Mesh(new THREE.PlaneGeometry(2.3,.92),new THREE.MeshBasicMaterial({map:wbt}));
 wbm.position.set(MRX,2.2,MRZ-2.7);office.add(wbm);
@@ -190,7 +169,16 @@ wbm.position.set(MRX,2.2,MRZ-2.7);office.add(wbm);
 // Chair is behind agent (positive Z from desk)
 // Monitor is at desk front (negative Z from desk center)
 // ═══════════════════════════════════════════════════
-const desks=AGENTS.map(agent=>layout.seats.find(seat=>seat.id===agent.id));
+const desks=[
+  {x:-8, z:-3},  // RONIN
+  {x:-4, z:-3},  // SAGE
+  {x:-8, z:1.5}, // CIPHER
+  {x:-4, z:1.5}, // MUSE
+  {x:0,  z:-3},  // ATLAS
+  {x:0,  z:1.5}, // FORGE
+  {x:-8, z:6},   // ECHO
+  {x:-4, z:6},   // SPARK
+];
 
 // ═══════════════════════════════════════════════════
 // CHARACTER BUILDER
@@ -414,7 +402,7 @@ AGENTS.forEach((agent,idx)=>{
 // ═══════════════════════════════════════════════════
 const walkDestinations=[
   {x:2,z:7.5},   // front area
-  {x:-10,z:-5.5},   // shared water cooler
+  {x:-10,z:0},   // water cooler
   {x:-2,z:-7},   // back window
   {x:4,z:5},     // right front
   {x:-6,z:7},    // left front
@@ -562,9 +550,9 @@ function updateMeeting(minutes){
 // ═══════════════════════════════════════════════════
 // Water cooler
 let wc=new THREE.Mesh(new THREE.BoxGeometry(.28,.55,.28),M(0xE0E0E0));
-wc.position.set(-10.5,.275,-5.5);office.add(wc);
+wc.position.set(-10.5,.275,0);office.add(wc);
 let wt=new THREE.Mesh(new THREE.BoxGeometry(.22,.25,.22),M(0x90CAF9));
-wt.position.set(-10.5,.675,-5.5);office.add(wt);
+wt.position.set(-10.5,.675,0);office.add(wt);
 
 // Plants
 function addPlant(px,pz,big=false){
@@ -593,7 +581,7 @@ for(let r=0;r<3;r++){
 // RECEPTION DESK WITH RONIN LOGO (front-right, near meeting room)
 // ═══════════════════════════════════════════════════
 const reception=new THREE.Group();
-const receptionSite=layout.fixtures.find(item=>item.id==='reception'),RCX=receptionSite.x,RCZ=receptionSite.z;
+const RCX=2,RCZ=3.8;
 // Main desk body (curved front)
 const rcDesk=new THREE.Mesh(new THREE.BoxGeometry(2.5,.9,.6),M(0x1A2A3A));
 rcDesk.position.set(RCX,.45,RCZ);rcDesk.castShadow=true;reception.add(rcDesk);
@@ -605,7 +593,7 @@ const rcSide=new THREE.Mesh(new THREE.BoxGeometry(.6,.9,.04),M(0x1A2A3A));
 rcSide.position.set(RCX+1.25,.45,RCZ-.3);reception.add(rcSide);
 
 // RONIN logo on front — load from actual image
-const roninLogoTex=new THREE.TextureLoader().load(new URL('../favicon.svg',import.meta.url).href);
+const roninLogoTex=new THREE.TextureLoader().load('/favicon.svg');
 roninLogoTex.minFilter=THREE.LinearFilter;
 const rcLogoMesh=new THREE.Mesh(
   new THREE.PlaneGeometry(1.8,.6),
@@ -673,7 +661,7 @@ office.add(reception);
 // SOFA / LOUNGE AREA (right of reception, placed vertically)
 // ═══════════════════════════════════════════════════
 const lounge=new THREE.Group();
-const SX=-8.5,SZ=-7.2;
+const SX=10.5,SZ=6;
 // Sofa base (rotated — depth along Z axis)
 const sofaBase=new THREE.Mesh(new THREE.BoxGeometry(.7,.35,2),M(0x37474F));
 sofaBase.position.set(SX,.175,SZ);sofaBase.castShadow=true;lounge.add(sofaBase);
@@ -774,7 +762,7 @@ micro.position.set(-10.5,.95,2.5);snackArea.add(micro);
 const microDoor=new THREE.Mesh(new THREE.BoxGeometry(.3,.18,.02),M(0x111111));
 microDoor.position.set(-10.5,.95,2.36);snackArea.add(microDoor);
 
-snackArea.position.z=-10;office.add(snackArea);
+office.add(snackArea);
 
 // ═══════════════════════════════════════════════════
 // WALL POSTERS / ART FRAMES (on glass walls, floating)
@@ -912,7 +900,7 @@ desks.forEach((dp,i)=>{
 
 // Headphones on some desks
 [0,2,4,6].forEach(i=>{
-  const dp=desks[i];if(!dp)return;
+  const dp=desks[i];
   const hpBand=new THREE.Mesh(new THREE.BoxGeometry(.2,.03,.15),M(0x333333));
   hpBand.position.set(dp.x-.5,.82,dp.z-.1);hpBand.rotation.z=.15;office.add(hpBand);
   // Ear cups
@@ -1177,7 +1165,7 @@ office.add(new THREE.Points(pG,new THREE.PointsMaterial({color:0xFFFFFF,size:.02
 // ═══════════════════════════════════════════════════
 // RONIN'S SPECIAL DESK — The Protagonist Space
 // ═══════════════════════════════════════════════════
-const roninDesk=desks[0]||{x:4,z:0};
+const roninDesk=desks[0];
 // Second monitor
 const rm2Stand=new THREE.Mesh(new THREE.BoxGeometry(.03,.22,.03),M(0xAABBCC));
 rm2Stand.position.set(roninDesk.x+.5,.88,roninDesk.z-.2);office.add(rm2Stand);
@@ -1202,17 +1190,17 @@ helmetGlow.position.set(roninDesk.x+.55,.9,roninDesk.z+.15);office.add(helmetGlo
 const ringGeo=new THREE.RingGeometry(1.2,1.25,32);
 const ringMat=new THREE.MeshBasicMaterial({color:0x0DEEF3,transparent:true,opacity:0.15,side:THREE.DoubleSide});
 const floorRing=new THREE.Mesh(ringGeo,ringMat);
-floorRing.visible=false;floorRing.rotation.x=-Math.PI/2;
+floorRing.rotation.x=-Math.PI/2;
 floorRing.position.set(roninDesk.x,.02,roninDesk.z+.2);
 office.add(floorRing);
 // Inner ring
 const ringInner=new THREE.Mesh(new THREE.RingGeometry(1.05,1.08,32),new THREE.MeshBasicMaterial({color:0x0DEEF3,transparent:true,opacity:0.08,side:THREE.DoubleSide}));
-ringInner.visible=false;ringInner.rotation.x=-Math.PI/2;ringInner.position.set(roninDesk.x,.02,roninDesk.z+.2);
+ringInner.rotation.x=-Math.PI/2;ringInner.position.set(roninDesk.x,.02,roninDesk.z+.2);
 office.add(ringInner);
 
 // Pulse ring (animated in render loop)
 const pulseRing=new THREE.Mesh(new THREE.RingGeometry(1.3,1.33,32),new THREE.MeshBasicMaterial({color:0x0DEEF3,transparent:true,opacity:0,side:THREE.DoubleSide}));
-pulseRing.visible=false;pulseRing.rotation.x=-Math.PI/2;pulseRing.position.set(roninDesk.x,.02,roninDesk.z+.2);
+pulseRing.rotation.x=-Math.PI/2;pulseRing.position.set(roninDesk.x,.02,roninDesk.z+.2);
 office.add(pulseRing);
 
 // ═══════════════════════════════════════════════════
@@ -1447,11 +1435,7 @@ function animate(){
   renderer.render(scene,camera);
 }
 animate();
-function focusZone(zone='all'){
-  focus=['profit','cost'].includes(zone)?zone:'all';const view=officeCamera(focus,container.clientWidth/container.clientHeight,layout.front-layout.back);
-  tgt.set(view.x,.7,view.z);sph={theta:Math.PI/7,phi:Math.PI/3.15,radius:view.radius};updCam();
-}
-const onResize=()=>{if (!container.clientWidth || !container.clientHeight) return; const aspect=container.clientWidth/container.clientHeight;if(Math.abs(camera.aspect-aspect)>.01){camera.aspect=aspect;focusZone(focus);}camera.updateProjectionMatrix();renderer.setSize(container.clientWidth,container.clientHeight)};addEventListener('resize',onResize);
+const onResize=()=>{if (!container.clientWidth || !container.clientHeight) return; camera.aspect=container.clientWidth/container.clientHeight;camera.updateProjectionMatrix();renderer.setSize(container.clientWidth,container.clientHeight)};addEventListener('resize',onResize);
 
 
   const stateNames={unconnected:'等待接入',working:'正在工作',blocked:'需要确认',completed:'本轮已交付',failed:'执行失败',stale:'状态待更新',idle:'等待任务'};
@@ -1465,13 +1449,13 @@ const onResize=()=>{if (!container.clientWidth || !container.clientHeight) retur
     c.strokeStyle=worker?.status==='working'?'#a8c5ff':'#d8e3ef';c.lineWidth=3;c.stroke();
     c.textAlign='center';c.font='600 29px "PingFang SC",sans-serif';c.fillStyle='#354454';c.fillText(worker?.name || '岗位',192,45);
     c.font='24px "PingFang SC",sans-serif';c.fillStyle=worker?.status==='blocked'?'#ac771b':worker?.status==='working'?'#3368f0':'#8b9aac';c.fillText(stateNames[worker?.status] || '等待接入',192,82);
-    sprite.material.map.dispose();sprite.material.map=new THREE.CanvasTexture(cv);sprite.material.map.colorSpace=THREE.SRGBColorSpace;
+    sprite.material.map.dispose();sprite.material.map=new THREE.CanvasTexture(cv);
     sprite.material.depthWrite=false;sprite.material.toneMapped=false;sprite.renderOrder=100;
     sprite.scale.set(3.4,1,1);sprite.material.needsUpdate=true;
     sprite.userData.workerId=worker?.id;
   }
   function setWorkers(next) {
-    runtimeWorkers=next;flyingPapers.forEach(p=>p.mesh.visible=demoMode);
+    runtimeWorkers=next;
     agentData.forEach((a,i)=>{
       const w=next.find(w=>w.id===AGENTS[i].id);paintLabel(a.label,w);
       a.sittingChar.userData.workerId=AGENTS[i].id;
@@ -1479,7 +1463,7 @@ const onResize=()=>{if (!container.clientWidth || !container.clientHeight) retur
       a.dGlow.intensity=w?.status==='working'?.6:w?.status==='blocked'?.35:.025;
       if(!demoMode){a.sittingChar.visible=true;a.walker.visible=false;a.state='sitting';a.label.position.set(a.home.x,2.25,a.home.z);}
     });
-    const manager=next.find(w=>w.id==='michelle');paintLabel(nxLabel,manager);nexusChar.visible=Boolean(manager);nxLabel.visible=Boolean(manager);nexusChar.userData.workerId='michelle';
+    const manager=next.find(w=>w.id==='michelle');paintLabel(nxLabel,manager);nexusChar.userData.workerId='michelle';
     meetChars.forEach(c=>c.visible=false);
   }
   let gestureStart=null;
@@ -1499,9 +1483,8 @@ const onResize=()=>{if (!container.clientWidth || !container.clientHeight) retur
     setWorkers,
     setDemo: value => { demoMode=Boolean(value); setWorkers(runtimeWorkers); },
     resize: onResize,
-    focusZone,
-    resetView: () => focusZone('all'),
-    zoom: direction => {sph.radius=Math.max(14,Math.min(100,sph.radius+direction*3));updCam();},
+    resetView: () => {sph={theta:Math.PI/5.5,phi:Math.PI/3.1,radius:25};updCam();},
+    zoom: direction => {sph.radius=Math.max(16,Math.min(50,sph.radius+direction*3));updCam();},
     setTime: (minutes) => updateTime(minutes),
     toggleCyberpunk: () => toggleCyberpunk(),
     isCyberpunk: () => cyberpunkMode,

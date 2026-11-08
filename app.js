@@ -1,4 +1,3 @@
-import {createIntelPersonal} from "./modules/intel-personal.js?v=bookmark-reason-20261102";
 import {
   bookShell
 } from "./modules/chunks/chunk-JYSFH35P.js";
@@ -983,7 +982,6 @@ function toast(msg) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => el.classList.remove("visible"), 2800);
 }
-const personal=createIntelPersonal({getRecord:id=>data?.byKey.get("intel:"+id),getLegacy:id=>state.notes["intel:"+id]||"",isSaved:id=>state.saved.includes("intel:"+id),inSavedView:()=>filters.saved,refresh:()=>{if(page==="intel"&&data)render()},toast});
 var dateTime = (v) => Number.isFinite(Date.parse(v)) ? new Date(v).toLocaleString("zh-CN", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }) : "\u672A\u8BB0\u5F55";
 var date2 = (v) => dateOnly(v).replaceAll("-", ".");
 var label = (k) => k === "intel" ? "\u60C5\u62A5" : k === "games" ? "\u653E\u677E" : "\u8A00\u5E93";
@@ -1028,7 +1026,6 @@ function render() {
   if (page === "library") $("#page").innerHTML = libraryRoomShell($("#page").innerHTML);
   document.title = `${pageTitle(page)} \xB7 \u8BF8\u4E8B\u5927\u5409`;
   mountIntelExtras();
-  if(page === "intel")personal.load();
   if (page === "books") {
     import("./modules/chunks/book-search-QBAXAJAR.js").then(({ mountBooks }) => {
       if (page === "books" && cinemaVersion === cinemaMountVersion) bookCleanup = mountBooks($("#daji-books"));
@@ -1129,17 +1126,17 @@ function searchBar(placeholder) {
 }
 var INTEL_KEYWORDS = ["\u822A\u7A7A\u53D1\u52A8\u673A", "\u667A\u80FD\u4F53", "\u5927\u6A21\u578B", "\u5177\u8EAB\u667A\u80FD", "\u673A\u5668\u4EBA", "\u82AF\u7247", "\u7B97\u529B", "\u5DE5\u4E1A\u8F6F\u4EF6", "\u6570\u5B57\u5B6A\u751F", "\u4EFF\u771F", "\u5148\u8FDB\u5236\u9020", "\u592E\u56FD\u4F01", "\u653F\u7B56", "\u6295\u878D\u8D44", "DeepSeek", "\u7F51\u7EDC\u5B89\u5168"];
 function intel() {
-  return title("\u60C5\u62A5", "\u5728\u53D8\u5316\u4E2D\uFF0C\u627E\u5230\u503C\u5F97\u5173\u6CE8\u7684\u4E8B\u3002", "HORIZON \xB7 \u60C5\u62A5\u96F7\u8FBE") + `<div class="tabs intel-view-tabs" role="group" aria-label="\u60C5\u62A5\u89C6\u56FE">${[["list", "\u5217\u8868"], ["graph", "\u56FE\u8C31"], ["trends", "\u8D8B\u52BF"]].map(([key, name]) => `<button data-intel-view="${key}" class="${intelView === key ? "active" : ""}" aria-pressed="${intelView === key}">${name}</button>`).join("")}</div>` + searchBar("\u8F93\u5165\u5173\u952E\u8BCD\uFF0C\u5982 \u822A\u7A7A\u53D1\u52A8\u673A\u3001\u667A\u80FD\u4F53") + `<div class="keyword-shortcuts" aria-label="\u5FEB\u6377\u5173\u952E\u8BCD"><span>\u5E38\u7528</span>${INTEL_KEYWORDS.map((q) => `<button data-keyword="${q}" aria-pressed="${filters.q === q}">${q}</button>`).join("")}</div><p class="search-hint">\u591A\u4E2A\u5173\u952E\u8BCD\u7528\u7A7A\u683C\u5206\u5F00\uFF0C\u4F8B\u5982\u300C\u673A\u5668\u4EBA \u5236\u9020\u300D\u3002</p>${personal.toolbar()}<div class="page-columns ${intelView !== "list" ? "intel-explore-layout" : ""}"><section class="content-pane" id="results" tabindex="-1">${intelResults()}</section><aside class="side-column"><section class="side-panel"><span class="side-label">\u9605\u8BFB\u6709\u636E</span><h2 style="margin:12px 0">\u4E0D\u6B62\u770B\u6807\u9898</h2><p>\u641C\u7D22\u6807\u9898\u3001\u6B63\u6587\u3001\u6765\u6E90\u548C\u6807\u7B7E\u3002\u5C55\u5F00\u60C5\u62A5\uFF0C\u8FD8\u80FD\u6CBF\u6765\u6E90\u94FE\u56DE\u5230\u539F\u6587\u3002</p></section></aside></div>`;
+  return title("\u60C5\u62A5", "\u5728\u53D8\u5316\u4E2D\uFF0C\u627E\u5230\u503C\u5F97\u5173\u6CE8\u7684\u4E8B\u3002", "HORIZON \xB7 \u60C5\u62A5\u96F7\u8FBE") + `<div class="tabs intel-view-tabs" role="group" aria-label="\u60C5\u62A5\u89C6\u56FE">${[["list", "\u5217\u8868"], ["graph", "\u56FE\u8C31"], ["trends", "\u8D8B\u52BF"]].map(([key, name]) => `<button data-intel-view="${key}" class="${intelView === key ? "active" : ""}" aria-pressed="${intelView === key}">${name}</button>`).join("")}</div>` + searchBar("\u8F93\u5165\u5173\u952E\u8BCD\uFF0C\u5982 \u822A\u7A7A\u53D1\u52A8\u673A\u3001\u667A\u80FD\u4F53") + `<div class="keyword-shortcuts" aria-label="\u5FEB\u6377\u5173\u952E\u8BCD"><span>\u5E38\u7528</span>${INTEL_KEYWORDS.map((q) => `<button data-keyword="${q}" aria-pressed="${filters.q === q}">${q}</button>`).join("")}</div><p class="search-hint">\u591A\u4E2A\u5173\u952E\u8BCD\u7528\u7A7A\u683C\u5206\u5F00\uFF0C\u4F8B\u5982\u300C\u673A\u5668\u4EBA \u5236\u9020\u300D\u3002</p><div class="page-columns ${intelView !== "list" ? "intel-explore-layout" : ""}"><section class="content-pane" id="results" tabindex="-1">${intelResults()}</section><aside class="side-column"><section class="side-panel"><span class="side-label">\u9605\u8BFB\u6709\u636E</span><h2 style="margin:12px 0">\u4E0D\u6B62\u770B\u6807\u9898</h2><p>\u641C\u7D22\u6807\u9898\u3001\u6B63\u6587\u3001\u6765\u6E90\u548C\u6807\u7B7E\u3002\u5C55\u5F00\u60C5\u62A5\uFF0C\u8FD8\u80FD\u6CBF\u6765\u6E90\u94FE\u56DE\u5230\u539F\u6587\u3002</p></section></aside></div>`;
 }
 function matchingIntel() {
-  return filterByFacet(searchIntelligence(data.intel, filters.q).filter((r) => !filters.saved || state.saved.includes(r.key)).filter(r=>personal.matches(r)), intelFacet);
+  return filterByFacet(searchIntelligence(data.intel, filters.q).filter((r) => !filters.saved || state.saved.includes(r.key)), intelFacet);
 }
 function intelResults() {
   const rows = matchingIntel();
   return facetMarkup(intelFacet) + (intelView === "graph" ? graphMarkup(rows) : intelView === "trends" ? trendsMarkup(rows, data.intel) : intelListResults(rows));
 }
 function intelListResults(rows) {
-  return `<div class="result-heading"><span role="status" aria-live="polite">\u627E\u5230 <b>${rows.length}</b> \u6761\u60C5\u62A5</span><span>${filters.q.trim() ? "\u76F8\u5173\u5185\u5BB9\u4F18\u5148" : "\u6700\u8FD1\u6536\u5F55"}</span></div>${rows.length ? rows.slice(0, limit).map((r) => intelCardMarkup(r, { escape: esc2, bookmark, date: date2 }).replace("</article>",personal.markup(r)+"</article>")).join("") : empty("\u6682\u672A\u627E\u5230", "\u6362\u4E2A\u5173\u952E\u8BCD\uFF0C\u6216\u51CF\u5C11\u5173\u952E\u8BCD\u6570\u91CF\u518D\u8BD5\u8BD5\u3002", button("reset", "\u67E5\u770B\u5168\u90E8\u60C5\u62A5"))}${rows.length > limit ? button("more", "\u518D\u770B 12 \u6761", "load-more") : ""}`;
+  return `<div class="result-heading"><span role="status" aria-live="polite">\u627E\u5230 <b>${rows.length}</b> \u6761\u60C5\u62A5</span><span>${filters.q.trim() ? "\u76F8\u5173\u5185\u5BB9\u4F18\u5148" : "\u6700\u8FD1\u6536\u5F55"}</span></div>${rows.length ? rows.slice(0, limit).map((r) => intelCardMarkup(r, { escape: esc2, bookmark, date: date2 })).join("") : empty("\u6682\u672A\u627E\u5230", "\u6362\u4E2A\u5173\u952E\u8BCD\uFF0C\u6216\u51CF\u5C11\u5173\u952E\u8BCD\u6570\u91CF\u518D\u8BD5\u8BD5\u3002", button("reset", "\u67E5\u770B\u5168\u90E8\u60C5\u62A5"))}${rows.length > limit ? button("more", "\u518D\u770B 12 \u6761", "load-more") : ""}`;
 }
 function library() {
   return title("\u8A00\u5E93", "\u8A00\u4E4B\u6709\u636E\uFF0C\u843D\u7B14\u6709\u7AE0\u3002", "\u5199\u4F5C\u8D44\u6E90 \xB7 \u516C\u5F00\u6750\u6599\u539F\u521B\u6574\u7406") + `<div class="tabs library-tabs" aria-label="\u8A00\u5E93\u529F\u80FD">${[["blocks", "\u6BB5\u843D\u5E93"], ["intent", "\u6211\u60F3\u8868\u8FBE"]].map(([k, t]) => `<button data-tab="${k}" class="${tab === k ? "active" : ""}" aria-pressed="${tab === k}">${t}</button>`).join("")}</div>${tab === "intent" ? `<section class="intent-intro"><h2>\u5148\u8BF4\u60F3\u6CD5\uFF0C\u518D\u627E\u8868\u8FBE\u3002</h2><p>\u5199\u4E0B\u4E00\u53E5\u6734\u7D20\u7684\u8BDD\uFF0C\u4ECE\u5DF2\u6709\u7D20\u6750\u4E2D\u5339\u914D\u5408\u9002\u6BB5\u843D\u3002</p><div class="suggestions">${INTENT_EXAMPLES.map((q) => `<button data-example="${esc2(q)}">${esc2(q)}</button>`).join("")}</div></section>` : ""}${searchBar(tab === "intent" ? "\u4F8B\u5982\uFF1A\u4EFB\u52A1\u5DF2\u7ECF\u660E\u786E\uFF0C\u5173\u952E\u662F\u6293\u843D\u5B9E" : "\u641C\u7D22\u6BB5\u843D\u3001\u4E3B\u9898\u3001\u573A\u666F\u6216\u6765\u6E90")}<details class="filter-panel"><summary>\u6309\u7528\u9014\u7B5B\u9009</summary><div class="filter-fields">${field("category", "\u6BB5\u843D\u7528\u9014", unique(data.blocks.map((r) => r.category)))}${field("scene", "\u8BB2\u8BDD\u573A\u666F", SCENE_GROUPS.filter((s) => s !== "\u5168\u90E8\u573A\u666F"))}<div class="field"><label for="filter-validity">\u9002\u7528\u72B6\u6001</label><select id="filter-validity" data-filter="validity">${options(Object.keys(valid), filters.validity).replace(/>current</g, ">\u5F53\u524D\u9002\u7528<").replace(/>watch</g, ">\u4F7F\u7528\u524D\u590D\u6838<").replace(/>historical</g, ">\u5386\u53F2\u53C2\u8003<")}</select></div></div></details><div class="page-columns"><section class="content-pane" id="results">${blockResults()}</section><aside class="side-column"><section class="side-panel library-info"><div class="section-heading"><h2>\u539F\u6587\u4E0E\u8868\u8FBE</h2></div><p>${esc2(payload.yanku.notice)}</p><div class="subtle-note">${payload.yanku.materials.length} \u4EFD\u6838\u6E90\u6750\u6599 \xB7 ${data.blocks.length} \u6BB5\u539F\u521B\u6574\u7406<br>\u8D44\u6599\u66F4\u65B0 ${dateTime(payload.yanku.generatedAt)}</div></section></aside></div>`;
@@ -1236,7 +1233,6 @@ function toggleSave(key) {
   if ($("#search-dialog").open) searchResults();
   if (filters.saved) refreshResults();
   toast(state.saved.includes(key) ? "\u5DF2\u6536\u85CF" : "\u5DF2\u53D6\u6D88\u6536\u85CF");
-  personal.onBookmark(key,state.saved.includes(key));
 }
 async function copy(text) {
   try {
